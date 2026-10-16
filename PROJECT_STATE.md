@@ -34,8 +34,8 @@ Planned and user-approved; not yet scaffolded:
 
 ## In progress
 
-- E3 process schema is committed; process UI, publication workflow, completeness scoring, and real enterprise sample seed remain in progress.
-- Authentication entry point and Supabase password sign-in action are implemented; full session refresh/sign-out and role-gated navigation remain in progress.
+- E4 Process Map route is implemented with Enterprise/APQC modes, breadcrumb drill-down, scope list, detail panel, demo empty state, and desktop-responsive layout.
+- E4 search/catalog, URL persistence, expand-all, and full browser QA remain in progress.
 
 ## Known issues / technical risks
 
@@ -72,4 +72,4 @@ Planned and user-approved; not yet scaffolded:
 
 ## Recent substantial changes
 
-- 2026-10-16: Added the initial E1 authentication slice with Supabase SSR/browser clients and Vietnamese sign-in page.
+- 2026-10-16: Added the E4 Process Map interaction surface and updated the backlog with verified implementation boundaries.

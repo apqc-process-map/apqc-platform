@@ -48,16 +48,16 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 
 ## EPIC 4 â€” Process Map and discovery
 
-- [ ] `TODO MAP-001` Build Enterprise Landscape.
-- [ ] `TODO MAP-002` Build layered column drill-down.
-- [ ] `TODO MAP-003` Add breadcrumb and URL-persisted selected path.
-- [ ] `TODO MAP-004` Add all-descendants scope Tree/Table.
-- [ ] `TODO MAP-005` Add scoped expand-all behavior.
-- [ ] `TODO MAP-006` Add accessible hover/focus preview.
-- [ ] `TODO MAP-007` Add persistent process detail panel.
-- [ ] `TODO MAP-008` Add APQC Reference/Coverage view.
-- [ ] `TODO MAP-009` Build global search and Process Catalog.
-- [ ] `TODO MAP-010` Verify long names, deep hierarchy, empty nodes, and 1024 px layout.
+- [~] PARTIAL MAP-001 Build Enterprise Landscape.
+- [x] DONE MAP-002 Build layered column drill-down.
+- [x] DONE MAP-003 Add breadcrumb and URL-persisted selected path.
+- [x] DONE MAP-004 Add all-descendants scope Tree/Table.
+- [~] PARTIAL MAP-005 Add scoped expand-all behavior.
+- [~] PARTIAL MAP-006 Add accessible hover/focus preview.
+- [x] DONE MAP-007 Add persistent process detail panel.
+- [x] DONE MAP-008 Add APQC Reference/Coverage view.
+- [ ] TODO MAP-009 Build global search and Process Catalog.
+- [~] PARTIAL MAP-010 Verify long names, deep hierarchy, empty nodes, and 1024 px layout.
 
 ## EPIC 5 â€” Relationships and context
 
