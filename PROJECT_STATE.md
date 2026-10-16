@@ -27,14 +27,14 @@ Process Map is a desktop-first internal demo for navigating and governing enterp
 - Process Catalog, relationship workflow/table, document/version/review/reading schema, and private Storage foundation.
 - Layered Process Map prototype with synthetic fixtures.
 - Finding schema with generated codes, links, participants, reactions, SLA defaults, events, evidence links, RLS, and three representative findings.
-- Role-aware Home, Governance, Findings, and Notifications surfaces backed by Supabase views/tables.
+- Role-aware Home, Governance, Findings, and Notifications surfaces backed by Supabase views/tables.\n- Finding notification event service creates in-app notifications for creation, assignment, status changes, and due-soon checks.
 
 ## In progress or blocked
 
 - Editor role behavior is not verified because the approved six-user mix contains no Editor account.
 - APQC dedicated detail page remains outstanding; imported search and attribution are available.
 - Real enterprise process seed data remains blocked pending representative samples; Process Map still uses synthetic fixtures.
-- Finding workflow actions, comments/reactions UI, assignment UI, activity timeline UI, and notification event/read actions remain partial.
+- Finding workflow actions, comments/reactions UI, assignment UI, activity timeline UI, and notification read actions remain partial; finding notification event triggers are now implemented.
 - Secure document upload, signed preview/download, full lifecycle actions, and field-level comparison remain partial.
 - Interactive centered relationship graph and explicit expansion remain partial.
 
