@@ -24,7 +24,9 @@ Planned and user-approved; not yet scaffolded:
 
 ## Completed capabilities
 
-- No application capabilities are implemented.
+- Foundation shell is implemented with Vietnamese desktop navigation, design tokens, and no-data states.
+- E1 migration foundation defines profiles, system roles, and authenticated read access boundaries.
+- E2 migration foundation defines APQC framework/elements/metrics; a read-only workbook importer derives hierarchy metadata without storing the licensed workbook.
 - Product discovery and initial MVP decisions are documented in `PRD.md`.
 - Architecture sequence is documented in `PLAN.md`.
 - Proposed schema is documented in `DATA_MODEL.md`.
@@ -32,8 +34,8 @@ Planned and user-approved; not yet scaffolded:
 
 ## In progress
 
-- Foundation shell implementation and deployment verification.
-- Foundation code is scaffolded; local Vercel/Supabase linkage files exist, while the database schema and Auth/RLS implementation are not started.
+- E1/E2 integration verification: migrations still need to be applied to the linked Supabase project, and the licensed workbook is not present in the repository.
+- Authentication screens, session handling, seeded demo users, and full RLS test matrix remain in progress.
 
 ## Known issues / technical risks
 
@@ -64,10 +66,10 @@ Planned and user-approved; not yet scaffolded:
 
 ## Verification status
 
-- Lint and production build pass. Supabase project is healthy with zero tables/migrations/advisor lints. Vercel production deployment is READY. No application flow tests or database migrations have been run.
-- No application tests exist or have been run.
-- No deployment has been attempted.
+- Lint and production build pass before the E1/E2 changes; the migration/importer changes require a fresh verification run.
+- Supabase CLI and Vercel CLI are not installed in the current environment, so remote migration/deployment verification is pending.
+- No application flow tests, remote migrations, or deployment have been run in this session.
 
 ## Recent substantial changes
 
-- 2026-10-16: Created the initial product, architecture, data-model, task, repository-guidance, and project-state documentation baseline from user-confirmed discovery decisions.
+- 2026-10-16: Added E1/E2 migration foundation and external-workbook APQC importer; updated task and verification status to distinguish completed code from unverified remote work.

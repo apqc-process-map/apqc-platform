@@ -1,6 +1,6 @@
 # Process Map â€” MVP Tasks
 
-Statuses use: `TODO`, `BLOCKED`, `DONE`. Nothing below is implemented yet.
+Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain the migration/importer foundation and remain partial until connected and verified against the MVP Supabase project and licensed workbook.
 
 ## EPIC 0 â€” Foundation
 
