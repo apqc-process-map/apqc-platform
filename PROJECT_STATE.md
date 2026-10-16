@@ -24,6 +24,10 @@ Planned and user-approved; not yet scaffolded:
 
 ## Completed capabilities
 
+- E3 completion schema adds aliases, role assignments, applicability, vocabularies, publication constraints, and transparent completeness scoring.
+- E5 schema adds context catalogs, controlled relationship types, verification status, and business-object flows.
+- E6 schema adds document/version/file/process-link data, review comments, reading acknowledgment, four-eyes validation, and a private 25 MB Storage bucket.
+
 - Foundation shell is implemented with Vietnamese desktop navigation, design tokens, and no-data states.
 - E1 migration foundation defines profiles, system roles, and authenticated read access boundaries.
 - E3 migration foundation defines enterprise process identity, generated codes, versioned content, hierarchy cycle prevention, publication date constraints, and many-to-many APQC mappings.
@@ -71,5 +75,7 @@ Planned and user-approved; not yet scaffolded:
 - No application flow tests, remote migrations, or deployment have been run in this session.
 
 ## Recent substantial changes
+
+- 2026-10-16: Applied and verified E3-E6 data foundations on Supabase; security advisor reports no findings.
 
 - 2026-10-16: Added the E4 Process Map interaction surface and updated the backlog with verified implementation boundaries.

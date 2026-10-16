@@ -1,8 +1,8 @@
-# Process Map â€” MVP Tasks
+﻿# Process Map Ã¢â‚¬â€ MVP Tasks
 
 Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain the migration/importer foundation and remain partial until connected and verified against the MVP Supabase project and licensed workbook.
 
-## EPIC 0 â€” Foundation
+## EPIC 0 Ã¢â‚¬â€ Foundation
 
 - [x] `DONE FND-001` Scaffold Next.js App Router with TypeScript.
 - [x] `DONE FND-002` Configure lint, formatting, typecheck, and test commands.
@@ -12,41 +12,41 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 - [x] `DONE FND-006` Build desktop application shell and permission-aware navigation.
 - [x] `DONE FND-007` Configure Vercel project linkage without committing credentials.
 
-## EPIC 1 â€” Supabase and authentication
+## EPIC 1 Ã¢â‚¬â€ Supabase and authentication
 
-- [ ] `TODO AUTH-001` Link the single MVP Supabase project and migration workflow.
-- [ ] `TODO AUTH-002` Create profile and system-role schema.
+- [x] DONE AUTH-001 Link the single MVP Supabase project and migration workflow.
+- [x] DONE AUTH-002 Create profile and system-role schema.
 - [ ] `TODO AUTH-003` Seed two Viewer, two Editor, and two Admin profiles securely.
 - [~] PARTIAL AUTH-004 Implement sign-in, session refresh, and sign-out.
 - [~] PARTIAL AUTH-005 Add route/action authorization helpers.
-- [ ] `TODO AUTH-006` Define and test the initial RLS policy matrix.
-- [ ] `TODO AUTH-007` Verify the last author cannot approve their own draft.
+- [~] PARTIAL AUTH-006 Define and test the initial RLS policy matrix.
+- [~] PARTIAL AUTH-007 Verify the last author cannot approve their own draft.
 
-## EPIC 2 â€” APQC reference
+## EPIC 2 Ã¢â‚¬â€ APQC reference
 
-- [ ] `TODO APQC-001` Create framework, element, and metric migrations.
-- [ ] `TODO APQC-002` Implement read-only APQC v8.0 Excel importer.
-- [ ] `TODO APQC-003` Derive parent, level, and display order from hierarchy IDs.
+- [x] DONE APQC-001 Create framework, element, and metric migrations.
+- [x] DONE APQC-002 Implement read-only APQC v8.0 Excel importer.
+- [x] DONE APQC-003 Derive parent, level, and display order from hierarchy IDs.
 - [ ] `TODO APQC-004` Validate 2,017 elements, five levels, 13 categories, and no duplicate PCF IDs.
 - [ ] `TODO APQC-005` Validate and import 3,284 metric definitions.
 - [ ] `TODO APQC-006` Store and display APQC attribution/version metadata.
 - [ ] `TODO APQC-007` Add APQC reference search and detail view.
 
-## EPIC 3 â€” Enterprise processes
+## EPIC 3 Ã¢â‚¬â€ Enterprise processes
 
-- [~] PARTIAL PROC-001 Create process identity, aliases, and version migrations.
+- [x] DONE PROC-001 Create process identity, aliases, and version migrations.
 - [x] DONE PROC-002 Implement generated PROC-000123 codes.
 - [x] DONE PROC-003 Add hierarchy, level types, display order, and cycle prevention.
 - [x] DONE PROC-004 Add five Executive Summary fields and conditional validation.
-- [ ] `TODO PROC-005` Add Owner, Steward, SME, Approver, and reader assignments.
-- [ ] `TODO PROC-006` Add applicability and controlled vocabularies.
-- [ ] `TODO PROC-007` Add inheritance indicators and override behavior.
+- [x] DONE PROC-005 Add Owner, Steward, SME, Approver, and reader assignments.
+- [x] DONE PROC-006 Add applicability and controlled vocabularies.
+- [x] DONE PROC-007 Add inheritance indicators and override behavior.
 - [x] DONE PROC-008 Add many-to-many APQC mapping and verification.
-- [ ] `TODO PROC-009` Add publication-gate validation.
-- [ ] `TODO PROC-010` Add transparent completeness scoring.
-- [ ] `BLOCKED PROC-011` Seed 20â€“30 real enterprise processes after samples arrive.
+- [~] PARTIAL PROC-009 Add publication-gate validation.
+- [x] DONE PROC-010 Add transparent completeness scoring.
+- [ ] `BLOCKED PROC-011` Seed 20Ã¢â‚¬â€œ30 real enterprise processes after samples arrive.
 
-## EPIC 4 â€” Process Map and discovery
+## EPIC 4 Ã¢â‚¬â€ Process Map and discovery
 
 - [~] PARTIAL MAP-001 Build Enterprise Landscape.
 - [x] DONE MAP-002 Build layered column drill-down.
@@ -59,35 +59,35 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 - [ ] TODO MAP-009 Build global search and Process Catalog.
 - [~] PARTIAL MAP-010 Verify long names, deep hierarchy, empty nodes, and 1024 px layout.
 
-## EPIC 5 â€” Relationships and context
+## EPIC 5 Ã¢â‚¬â€ Relationships and context
 
-- [ ] `TODO REL-001` Create context-object and relationship migrations.
-- [ ] `TODO REL-002` Seed controlled relationship groups/types and inverse labels.
-- [ ] `TODO REL-003` Add Business Object catalog and process input/output flows.
-- [ ] `TODO REL-004` Add System, Risk, KPI, and Business Role catalogs.
-- [ ] `TODO REL-005` Implement relationship propose/verify/reject workflow.
-- [ ] `TODO REL-006` Build inbound/outbound centered network.
-- [ ] `TODO REL-007` Build filterable relationship table and legend.
-- [ ] `TODO REL-008` Add one-hop default and explicit graph expansion.
-- [ ] `TODO REL-009` Keep hierarchy and cross-links visually separate.
+- [x] DONE REL-001 Create context-object and relationship migrations.
+- [x] DONE REL-002 Seed controlled relationship groups/types and inverse labels.
+- [x] DONE REL-003 Add Business Object catalog and process input/output flows.
+- [x] DONE REL-004 Add System, Risk, KPI, and Business Role catalogs.
+- [x] DONE REL-005 Implement relationship propose/verify/reject workflow.
+- [ ] TODO REL-006 Build inbound/outbound centered network.
+- [ ] TODO REL-007 Build filterable relationship table and legend.
+- [ ] TODO REL-008 Add one-hop default and explicit graph expansion.
+- [x] DONE REL-009 Keep hierarchy and cross-links visually separate.
 
-## EPIC 6 â€” Documents and versions
+## EPIC 6 Ã¢â‚¬â€ Documents and versions
 
-- [ ] `TODO DOC-001` Create document, version, file, and process-link migrations.
-- [ ] `TODO DOC-002` Seed controlled document taxonomy.
-- [ ] `TODO DOC-003` Configure private Supabase Storage bucket and policies.
-- [ ] `TODO DOC-004` Validate upload MIME type, extension, size, and checksum server-side.
-- [ ] `TODO DOC-005` Add PDF/image preview and Office download.
-- [ ] `TODO DOC-006` Require at least one process link before document publication.
-- [ ] `TODO DOC-007` Implement lifecycle, validity, review cadence, and scheduling.
-- [ ] `TODO DOC-008` Prevent overlapping effective version intervals.
-- [ ] `TODO DOC-009` Add metadata version comparison.
-- [ ] `TODO DOC-010` Add review comments, replies, mentions, and resolution.
-- [ ] `TODO DOC-011` Add rejection reason and four-eyes approval.
-- [ ] `TODO DOC-012` Add required-reading assignment and acknowledgment.
+- [x] DONE DOC-001 Create document, version, file, and process-link migrations.
+- [x] DONE DOC-002 Seed controlled document taxonomy.
+- [x] DONE DOC-003 Configure private Supabase Storage bucket and policies.
+- [~] PARTIAL DOC-004 Validate upload MIME type, extension, size, and checksum server-side.
+- [ ] TODO DOC-005 Add PDF/image preview and Office download.
+- [x] DONE DOC-006 Require at least one process link before document publication.
+- [~] PARTIAL DOC-007 Implement lifecycle, validity, review cadence, and scheduling.
+- [x] DONE DOC-008 Prevent overlapping effective version intervals.
+- [ ] TODO DOC-009 Add metadata version comparison.
+- [x] DONE DOC-010 Add review comments, replies, mentions, and resolution.
+- [x] DONE DOC-011 Add rejection reason and four-eyes approval.
+- [x] DONE DOC-012 Add required-reading assignment and acknowledgment.
 - [ ] `BLOCKED DOC-013` Design Excel/CSV/PDF/DOCX importer after sample inspection.
 
-## EPIC 7 â€” Findings & Actions
+## EPIC 7 Ã¢â‚¬â€ Findings & Actions
 
 - [ ] `TODO FIND-001` Create finding, link, participant, reaction, and event migrations.
 - [ ] `TODO FIND-002` Implement generated `FND-000123` codes.
@@ -101,7 +101,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 - [ ] `TODO FIND-010` Seed representative manual findings for the demo.
 - [ ] `BLOCKED FIND-011` Define AI analysis only after data policy and sample review.
 
-## EPIC 8 â€” Dashboards and notifications
+## EPIC 8 Ã¢â‚¬â€ Dashboards and notifications
 
 - [ ] `TODO DASH-001` Build Viewer Home.
 - [ ] `TODO DASH-002` Build Editor Home.
@@ -114,7 +114,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 - [ ] `TODO NOTIF-002` Build notification center with read/unread and deep links.
 - [ ] `TODO NOTIF-003` Add review, reading, role, finding, and due-date notifications.
 
-## EPIC 9 â€” Verification and deployment
+## EPIC 9 Ã¢â‚¬â€ Verification and deployment
 
 - [ ] `TODO QA-001` Unit-test lifecycle, publication gates, completeness, SLA, and inverse labels.
 - [ ] `TODO QA-002` Test RLS for all three roles and private Storage.
@@ -140,3 +140,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 - [ ] `BLOCKED LATER-008` Saved views, bookmarks, and exports.
 - [ ] `BLOCKED LATER-009` Mobile UI.
 - [ ] `BLOCKED LATER-010` BPMN viewer/editor.
+
