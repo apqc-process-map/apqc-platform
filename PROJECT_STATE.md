@@ -49,10 +49,10 @@ Process Map is a desktop-first internal demo for navigating and governing enterp
 
 - pnpm lint: passed on 2026-10-16.
 - pnpm build: passed on 2026-10-16; 12 routes compiled successfully.
-- Supabase migrations through 20261016000005 applied successfully on 2026-10-16.
+- Supabase migrations through 20261016000007 applied/verified on 2026-10-16, including finding notification event triggers.
 - APQC database validation: 2,017 elements, 3,284 metrics, 13 categories, levels 1-5, zero missing parents, zero duplicate PCF IDs, and zero orphan metrics.
 - Six demo users authenticated successfully; Viewer forbidden-write behavior was verified.
-- Production deployment `dpl_381Yk7zFDw61x79QXjx7TcePYJui` is READY on commit `3e8ed4f`; Admin login and Home, Catalog, Findings, Governance, and Notifications routes were verified against live Supabase data.
+- Production deployment `dpl_AULGwH5B3XtYZEKJBtKX4JGD5WF6` is READY on commit `60b4c87`; Admin login and Home, Catalog, Findings, Governance, and Notifications routes were verified against live Supabase data.
 
 ## Next recommended work
 
