@@ -123,7 +123,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [~] `PARTIAL DASH-005` Build governance dashboard and drill-down.
 - [x] `DONE DASH-006` Create finding-aging/dashboard SQL views.
 - [~] `PARTIAL DASH-007` Build Finding dashboard and drill-down.
-- [~] `PARTIAL NOTIF-001` Create notifications schema and event service.
+- [x] `DONE NOTIF-001` Create notifications schema and event service.
 - [~] `PARTIAL NOTIF-002` Build notification center with read/unread and deep links.
 - [ ] `TODO NOTIF-003` Add review, reading, role, finding, and due-date notifications.
 
