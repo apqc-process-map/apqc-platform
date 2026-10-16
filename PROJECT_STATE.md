@@ -1,81 +1,73 @@
-# Project State
+﻿# Project State
 
 ## Project summary
 
-Process Map is a planned desktop-first internal demo for navigating and governing enterprise processes aligned to APQC PCF v8.0. Enterprise processes are the primary objects; APQC is an immutable reference taxonomy.
+Process Map is a desktop-first internal demo for navigating and governing enterprise processes aligned to APQC PCF v8.0. Enterprise processes remain independent from the immutable APQC reference taxonomy.
 
 ## Current stack
 
-Planned and user-approved; not yet scaffolded:
-
-- Next.js App Router, TypeScript, Tailwind CSS.
-- Supabase Auth, PostgreSQL, RLS, and private Storage.
-- Vercel deployment from GitHub.
-- React Flow, TanStack Table, Recharts, Radix/shadcn, React Hook Form, and Zod.
+- Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4.
+- Supabase Auth, PostgreSQL, Row Level Security, and private Storage.
+- GitHub repository deployed to Vercel.
 
 ## Architecture snapshot
 
-- Repository contains the planning baseline plus a Next.js Foundation shell.
-- Git remote `origin` points to `https://github.com/apqc-process-map/apqc-platform.git`.
-- One Supabase project is configured for MVP local/preview/demo use (`eksftbalhnqpguecdcaj`).
-- Process and document content will be independently versioned.
-- Enterprise-to-APQC mapping is many-to-many.
-- Hierarchy drill-down and cross-process relationship graph are separate UI modes.
+- Server-rendered protected data routes use the public Supabase client with user cookies; authorization remains enforced by RLS.
+- src/proxy.ts refreshes sessions and protects Catalog, Relationships, and Documents.
+- Enterprise hierarchy and APQC mapping are many-to-many and remain separate from cross-process relationships.
+- Versioned migrations define E1-E3, E5, and E6 data foundations.
 
 ## Completed capabilities
 
-- E3 completion schema adds aliases, role assignments, applicability, vocabularies, publication constraints, and transparent completeness scoring.
-- E5 schema adds context catalogs, controlled relationship types, verification status, and business-object flows.
-- E6 schema adds document/version/file/process-link data, review comments, reading acknowledgment, four-eyes validation, and a private 25 MB Storage bucket.
-
-- Foundation shell is implemented with Vietnamese desktop navigation, design tokens, and no-data states.
-- E1 migration foundation defines profiles, system roles, and authenticated read access boundaries.
-- E3 migration foundation defines enterprise process identity, generated codes, versioned content, hierarchy cycle prevention, publication date constraints, and many-to-many APQC mappings.
-- Product discovery and initial MVP decisions are documented in `PRD.md`.
-- Architecture sequence is documented in `PLAN.md`.
-- Proposed schema is documented in `DATA_MODEL.md`.
-- Implementation backlog is documented in `TASKS.md`.
+- E0 application and deployment foundation.
+- Supabase project linkage, profile roles, login/session refresh/logout.
+- APQC schema and read-only workbook importer.
+- Enterprise process/version hierarchy, aliases, assignments, applicability, APQC mappings, completeness, publication gates, overlap checks, and four-eyes validation.
+- Process Catalog search across enterprise and APQC records.
+- Relationship catalogs/workflow plus filterable relationship table and controlled-type legend.
+- Document/version/review/reading schema, private 25 MB Storage bucket, publication constraints, and basic metadata version comparison.
+- E4 layered Process Map prototype with synthetic fixtures.
 
 ## In progress
 
-- E4 Process Map route is implemented with Enterprise/APQC modes, breadcrumb drill-down, scope list, detail panel, demo empty state, and desktop-responsive layout.
-- E4 search/catalog, URL persistence, expand-all, and full browser QA remain in progress.
+- Six demo Auth users and complete write-policy test matrix.
+- APQC import validation and reference detail UI.
+- Real enterprise process seed data and database-backed Process Map.
+- Interactive centered relationship graph and explicit expansion.
+- Secure document upload, signed preview/download, lifecycle actions, and field-level comparison.
 
 ## Known issues / technical risks
 
-- Representative enterprise-process samples have not been supplied.
-- Import rules for Excel/CSV/PDF/DOCX remain unresolved.
-- AI overlap/conflict detection and its data policy are unresolved.
-- A single Supabase project raises preview/demo migration risk.
-- Fine-grained draft visibility, relationship history, and full audit trail are deferred.
+- Licensed APQC workbook and representative enterprise/document samples are not present in the workspace.
+- Process Map still uses synthetic fixtures rather than Supabase records.
+- One Supabase project serves MVP development/preview/demo, increasing migration coordination risk.
+- Legacy planning files contain some mojibake inherited from earlier writes; user-facing routes added in this milestone use valid Vietnamese UTF-8.
 
 ## Important decisions and constraints
 
-- Product name is `Process Map`; no PNJ name or logo.
-- UI is Vietnamese, desktop-only, Edge/Chrome, PNJ-inspired colors and typography.
-- MVP has six demo users: two Viewer, two Editor, two Admin.
-- APQC source workbook and internal documents must not be committed.
-- Repository must remain safe if public.
-- MVP target is 20â€“30 enterprise processes plus the complete APQC v8.0 reference.
-- Findings are manually seeded/entered for MVP; AI is deferred.
-- General audit trail, exports, mobile, BPMN editor, and file-content search are out of MVP scope.
+- Product name is Process Map; no PNJ name or logo.
+- Desktop-first Vietnamese UI; current Edge/Chrome; target width 1024 px and above.
+- APQC workbook, credentials, private documents, and service-role keys stay outside Git.
+- Viewers see effective content; Editors author; Admins approve, with four-eyes separation.
+- Mobile, BPMN editing, full audit history, file-content search, and AI analysis are deferred.
 
 ## Next recommended work
 
-1. Implement Auth/profile schema, migrations, and RLS.
-2. Import and validate the APQC v8.0 reference workbook.
-3. Build the Process Map and catalog experience.
-4. Implement documents, relationships, findings, and governance dashboards.
-5. Run visual/app/security verification before production milestones.
+1. Create six approved demo users and execute the Viewer/Editor/Admin RLS matrix.
+2. Supply and import the licensed APQC workbook; validate exact element and metric counts.
+3. Replace Process Map fixtures with Supabase queries and representative enterprise records.
+4. Implement signed document upload/preview/download and full lifecycle actions.
+5. Add interactive relationship graph expansion and complete browser/accessibility QA.
 
 ## Verification status
 
-- Lint and production build pass before the E1/E2 changes; the migration/importer changes require a fresh verification run.
-- Supabase CLI and Vercel CLI are not installed in the current environment, so remote migration/deployment verification is pending.
-- No application flow tests, remote migrations, or deployment have been run in this session.
+- pnpm lint: passed on 2026-10-16 using the Codex bundled Node runtime.
+- pnpm build: passed on 2026-10-16; /catalog, /documents, /login, and /relationships are dynamic routes.
+- Supabase migration process_publication_gates applied successfully on 2026-10-16.
+- Browser flow and role-matrix testing remain pending until demo users are available.
 
 ## Recent substantial changes
 
-- 2026-10-16: Applied and verified E3-E6 data foundations on Supabase; security advisor reports no findings.
-
-- 2026-10-16: Added the E4 Process Map interaction surface and updated the backlog with verified implementation boundaries.
+- 2026-10-16: Added session-protected Catalog, Relationships, and Documents surfaces.
+- 2026-10-16: Strengthened process publication gates and four-eyes approval tracking.
+- 2026-10-16: Applied and verified E3-E6 data foundations on Supabase.

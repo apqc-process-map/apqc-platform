@@ -1,6 +1,6 @@
 ﻿# Process Map Ã¢â‚¬â€ MVP Tasks
 
-Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain the migration/importer foundation and remain partial until connected and verified against the MVP Supabase project and licensed workbook.
+Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracked from repository, Supabase, build, and deployment evidence; schema-only work is not counted as a completed user flow.
 
 ## EPIC 0 Ã¢â‚¬â€ Foundation
 
@@ -17,7 +17,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 - [x] DONE AUTH-001 Link the single MVP Supabase project and migration workflow.
 - [x] DONE AUTH-002 Create profile and system-role schema.
 - [ ] `TODO AUTH-003` Seed two Viewer, two Editor, and two Admin profiles securely.
-- [~] PARTIAL AUTH-004 Implement sign-in, session refresh, and sign-out.
+- [x] DONE AUTH-004 Implement sign-in, session refresh, and sign-out.
 - [~] PARTIAL AUTH-005 Add route/action authorization helpers.
 - [~] PARTIAL AUTH-006 Define and test the initial RLS policy matrix.
 - [~] PARTIAL AUTH-007 Verify the last author cannot approve their own draft.
@@ -42,7 +42,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 - [x] DONE PROC-006 Add applicability and controlled vocabularies.
 - [x] DONE PROC-007 Add inheritance indicators and override behavior.
 - [x] DONE PROC-008 Add many-to-many APQC mapping and verification.
-- [~] PARTIAL PROC-009 Add publication-gate validation.
+- [x] DONE PROC-009 Add publication-gate validation.
 - [x] DONE PROC-010 Add transparent completeness scoring.
 - [ ] `BLOCKED PROC-011` Seed 20Ã¢â‚¬â€œ30 real enterprise processes after samples arrive.
 
@@ -56,7 +56,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 - [~] PARTIAL MAP-006 Add accessible hover/focus preview.
 - [x] DONE MAP-007 Add persistent process detail panel.
 - [x] DONE MAP-008 Add APQC Reference/Coverage view.
-- [ ] TODO MAP-009 Build global search and Process Catalog.
+- [~] PARTIAL MAP-009 Build global search and Process Catalog.
 - [~] PARTIAL MAP-010 Verify long names, deep hierarchy, empty nodes, and 1024 px layout.
 
 ## EPIC 5 Ã¢â‚¬â€ Relationships and context
@@ -66,9 +66,9 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 - [x] DONE REL-003 Add Business Object catalog and process input/output flows.
 - [x] DONE REL-004 Add System, Risk, KPI, and Business Role catalogs.
 - [x] DONE REL-005 Implement relationship propose/verify/reject workflow.
-- [ ] TODO REL-006 Build inbound/outbound centered network.
-- [ ] TODO REL-007 Build filterable relationship table and legend.
-- [ ] TODO REL-008 Add one-hop default and explicit graph expansion.
+- [~] PARTIAL REL-006 Build inbound/outbound centered network.
+- [x] DONE REL-007 Build filterable relationship table and legend.
+- [~] PARTIAL REL-008 Add one-hop default and explicit graph expansion.
 - [x] DONE REL-009 Keep hierarchy and cross-links visually separate.
 
 ## EPIC 6 Ã¢â‚¬â€ Documents and versions
@@ -81,11 +81,24 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 - [x] DONE DOC-006 Require at least one process link before document publication.
 - [~] PARTIAL DOC-007 Implement lifecycle, validity, review cadence, and scheduling.
 - [x] DONE DOC-008 Prevent overlapping effective version intervals.
-- [ ] TODO DOC-009 Add metadata version comparison.
+- [~] PARTIAL DOC-009 Add metadata version comparison.
 - [x] DONE DOC-010 Add review comments, replies, mentions, and resolution.
 - [x] DONE DOC-011 Add rejection reason and four-eyes approval.
 - [x] DONE DOC-012 Add required-reading assignment and acknowledgment.
 - [ ] `BLOCKED DOC-013` Design Excel/CSV/PDF/DOCX importer after sample inspection.
+
+
+## E0-E6 pending reasons (verified 2026-10-16)
+
+- AUTH-003 is pending because six Supabase Auth users require approved email identities/password delivery; credentials must not be committed or generated silently.
+- AUTH-005/006/007 remain partial: protected read routes and database gates exist, but write-action authorization and behavioral role-matrix tests still need the six demo users.
+- APQC-004/005 are blocked in practice by the licensed workbook being outside the workspace. Counts 2,017/3,284 cannot be verified without the source file.
+- APQC-006/007 are partial at product level: metadata columns and catalog search exist, while framework attribution/detail UI awaits imported records.
+- PROC-011 remains blocked until representative enterprise samples are supplied.
+- MAP-001/005/006/009/010 remain partial because the map still uses synthetic fixtures and full browser/long-text QA is not complete.
+- REL-006/008 remain partial: the relationship table, legend, filters, and one-hop boundary exist; interactive centered graph expansion is not implemented.
+- DOC-004/005/007/009 remain partial or pending: database constraints and metadata comparison exist, but signed download/preview, server upload orchestration, full lifecycle actions, and field-level comparison are not implemented.
+- DOC-013 remains blocked until representative Excel/CSV/PDF/DOCX samples are supplied.
 
 ## EPIC 7 Ã¢â‚¬â€ Findings & Actions
 
