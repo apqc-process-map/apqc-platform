@@ -1,8 +1,8 @@
-# Process Map Ã¢â‚¬â€ MVP Tasks
+# Process Map — MVP Tasks
 
 Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracked from repository, Supabase, build, and deployment evidence; schema-only work is not counted as a completed user flow.
 
-## EPIC 0 Ã¢â‚¬â€ Foundation
+## EPIC 0 — Foundation
 
 - [x] `DONE FND-001` Scaffold Next.js App Router with TypeScript.
 - [x] `DONE FND-002` Configure lint, formatting, typecheck, and test commands.
@@ -12,7 +12,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `DONE FND-006` Build desktop application shell and permission-aware navigation.
 - [x] `DONE FND-007` Configure Vercel project linkage without committing credentials.
 
-## EPIC 1 Ã¢â‚¬â€ Supabase and authentication
+## EPIC 1 — Supabase and authentication
 
 - [x] DONE AUTH-001 Link the single MVP Supabase project and migration workflow.
 - [x] DONE AUTH-002 Create profile and system-role schema.
@@ -22,7 +22,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [~] PARTIAL AUTH-006 Define and test the initial RLS policy matrix.
 - [~] PARTIAL AUTH-007 Verify the last author cannot approve their own draft.
 
-## EPIC 2 Ã¢â‚¬â€ APQC reference
+## EPIC 2 — APQC reference
 
 - [x] DONE APQC-001 Create framework, element, and metric migrations.
 - [x] DONE APQC-002 Implement read-only APQC v8.0 Excel importer.
@@ -32,7 +32,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `DONE APQC-006` Store and display APQC attribution/version metadata.
 - [~] `PARTIAL APQC-007` Add APQC reference search and detail view.
 
-## EPIC 3 Ã¢â‚¬â€ Enterprise processes
+## EPIC 3 — Enterprise processes
 
 - [x] DONE PROC-001 Create process identity, aliases, and version migrations.
 - [x] DONE PROC-002 Implement generated PROC-000123 codes.
@@ -44,9 +44,9 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] DONE PROC-008 Add many-to-many APQC mapping and verification.
 - [x] DONE PROC-009 Add publication-gate validation.
 - [x] DONE PROC-010 Add transparent completeness scoring.
-- [ ] `BLOCKED PROC-011` Seed 20Ã¢â‚¬â€œ30 real enterprise processes after samples arrive.
+- [ ] `BLOCKED PROC-011` Seed 20–30 real enterprise processes after samples arrive.
 
-## EPIC 4 Ã¢â‚¬â€ Process Map and discovery
+## EPIC 4 — Process Map and discovery
 
 - [~] PARTIAL MAP-001 Build Enterprise Landscape.
 - [x] DONE MAP-002 Build layered column drill-down.
@@ -59,7 +59,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [~] PARTIAL MAP-009 Build global search and Process Catalog.
 - [~] PARTIAL MAP-010 Verify long names, deep hierarchy, empty nodes, and 1024 px layout.
 
-## EPIC 5 Ã¢â‚¬â€ Relationships and context
+## EPIC 5 — Relationships and context
 
 - [x] DONE REL-001 Create context-object and relationship migrations.
 - [x] DONE REL-002 Seed controlled relationship groups/types and inverse labels.
@@ -71,7 +71,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [~] PARTIAL REL-008 Add one-hop default and explicit graph expansion.
 - [x] DONE REL-009 Keep hierarchy and cross-links visually separate.
 
-## EPIC 6 Ã¢â‚¬â€ Documents and versions
+## EPIC 6 — Documents and versions
 
 - [x] DONE DOC-001 Create document, version, file, and process-link migrations.
 - [x] DONE DOC-002 Seed controlled document taxonomy.
@@ -100,7 +100,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - DOC-004/005/007/009 remain partial or pending: database constraints and metadata comparison exist, but signed download/preview, server upload orchestration, full lifecycle actions, and field-level comparison are not implemented.
 - DOC-013 remains blocked until representative Excel/CSV/PDF/DOCX samples are supplied.
 
-## EPIC 7 Ã¢â‚¬â€ Findings & Actions
+## EPIC 7 — Findings & Actions
 
 - [x] `DONE FIND-001` Create finding, link, participant, reaction, and event migrations.
 - [x] `DONE FIND-002` Implement generated `FND-000123` codes.
@@ -114,7 +114,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `DONE FIND-010` Seed representative manual findings for the demo.
 - [ ] `BLOCKED FIND-011` Define AI analysis only after data policy and sample review.
 
-## EPIC 8 Ã¢â‚¬â€ Dashboards and notifications
+## EPIC 8 — Dashboards and notifications
 
 - [x] `DONE DASH-001` Build Viewer Home.
 - [~] `PARTIAL DASH-002` Build Editor Home.
@@ -127,7 +127,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [~] `PARTIAL NOTIF-002` Build notification center with read/unread and deep links.
 - [ ] `TODO NOTIF-003` Add review, reading, role, finding, and due-date notifications.
 
-## EPIC 9 Ã¢â‚¬â€ Verification and deployment
+## EPIC 9 — Verification and deployment
 
 - [ ] `TODO QA-001` Unit-test lifecycle, publication gates, completeness, SLA, and inverse labels.
 - [~] `PARTIAL QA-002` Test RLS for all three roles and private Storage.

@@ -8,13 +8,13 @@ export default async function Home() {
   if(!user||!profile) return <WorkspaceShell active="/" eyebrow="APQC PCF 8.0" title="Process Map" description="Không gian quản trị và khám phá quy trình doanh nghiệp."><section className="welcome-panel"><p className="section-kicker">SECURE WORKSPACE</p><h2>Đăng nhập để bắt đầu</h2><p>Catalog, documents, relationships và governance được bảo vệ bằng Supabase Auth và Row Level Security.</p><Link className="primary-button welcome-action" href="/login">Đăng nhập →</Link></section></WorkspaceShell>;
 
   const [elements,metrics,processes,documents,findings,reviews,notifications]=await Promise.all([
-    supabase.from("apqc_elements").select("*",{count:"exact",head:true}),
-    supabase.from("apqc_metrics").select("*",{count:"exact",head:true}),
-    supabase.from("processes").select("*",{count:"exact",head:true}),
-    supabase.from("documents").select("*",{count:"exact",head:true}),
-    supabase.from("findings").select("*",{count:"exact",head:true}).not("status","in","(resolved,closed)"),
-    supabase.from("review_requests").select("*",{count:"exact",head:true}).eq("status","open"),
-    supabase.from("notifications").select("*",{count:"exact",head:true}).is("read_at",null),
+    supabase.from("apqc_elements").select("id",{count:"exact",head:true}),
+    supabase.from("apqc_metrics").select("id",{count:"exact",head:true}),
+    supabase.from("processes").select("id",{count:"exact",head:true}),
+    supabase.from("documents").select("id",{count:"exact",head:true}),
+    supabase.from("findings").select("id",{count:"exact",head:true}).not("status","in","(resolved,closed)"),
+    supabase.from("review_requests").select("id",{count:"exact",head:true}).eq("status","open"),
+    supabase.from("notifications").select("id",{count:"exact",head:true}).is("read_at",null),
   ]);
   const isAdmin=profile.role==="admin";
   return <WorkspaceShell active="/" eyebrow={isAdmin?"ADMIN CONTROL CENTER":"VIEWER HOME"} title={`Xin chào, ${profile.display_name}.`} description={isAdmin?"Theo dõi reference data, governance và các hàng đợi cần xử lý.":"Khám phá nội dung đã xuất bản và các thông báo dành cho bạn."} userName={profile.display_name} role={profile.role}>

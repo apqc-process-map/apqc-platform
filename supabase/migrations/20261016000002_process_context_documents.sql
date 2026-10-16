@@ -1,4 +1,4 @@
-﻿-- Complete E3 foundations and add E5/E6 data foundations.
+-- Complete E3 foundations and add E5/E6 data foundations.
 create type public.assignment_role as enum ('creator', 'owner', 'steward', 'sme', 'approver', 'required_reader', 'interested_reader');
 create type public.applicability_dimension as enum ('legal_entity', 'department', 'location', 'channel', 'product_service', 'system', 'employee_audience', 'exception');
 create type public.relationship_group as enum ('structure', 'execution', 'governance', 'ownership', 'knowledge', 'impact', 'evidence', 'lifecycle', 'delivery', 'general');
@@ -61,14 +61,14 @@ create table public.process_business_object_flows (
 );
 
 insert into public.relationship_types(code, group_code, label_vi, label_en, inverse_label_vi, inverse_label_en, allowed_source_types, allowed_target_types) values
-('input_from','execution','Nháº­n Ä‘áº§u vÃ o tá»«','Input from','Cung cáº¥p Ä‘áº§u vÃ o cho','Provides input to',array['process'],array['process','business_object']),
-('output_to','execution','Cung cáº¥p Ä‘áº§u ra cho','Output to','Nháº­n Ä‘áº§u ra tá»«','Receives output from',array['process'],array['process','business_object']),
-('depends_on','execution','Phá»¥ thuá»™c vÃ o','Depends on','ÄÆ°á»£c phá»¥ thuá»™c bá»Ÿi','Supports',array['process'],array['process','system']),
-('governed_by','governance','ÄÆ°á»£c quáº£n trá»‹ bá»Ÿi','Governed by','Quáº£n trá»‹','Governs',array['process'],array['document','business_role']),
-('uses_system','impact','Sá»­ dá»¥ng há»‡ thá»‘ng','Uses system','ÄÆ°á»£c sá»­ dá»¥ng bá»Ÿi','Used by',array['process'],array['system']),
-('addresses_risk','impact','Xá»­ lÃ½ rá»§i ro','Addresses risk','ÄÆ°á»£c xá»­ lÃ½ bá»Ÿi','Addressed by',array['process'],array['risk']),
-('influences_kpi','impact','áº¢nh hÆ°á»Ÿng KPI','Influences KPI','ÄÆ°á»£c áº£nh hÆ°á»Ÿng bá»Ÿi','Influenced by',array['process'],array['kpi']),
-('related_to','general','LiÃªn quan Ä‘áº¿n','Related to','LiÃªn quan Ä‘áº¿n','Related to',array[]::text[],array[]::text[])
+('input_from','execution','Nhận đầu vào từ','Input from','Cung cấp đầu vào cho','Provides input to',array['process'],array['process','business_object']),
+('output_to','execution','Cung cấp đầu ra cho','Output to','Nhận đầu ra từ','Receives output from',array['process'],array['process','business_object']),
+('depends_on','execution','Phụ thuộc vào','Depends on','Được phụ thuộc bởi','Supports',array['process'],array['process','system']),
+('governed_by','governance','Được quản trị bởi','Governed by','Quản trị','Governs',array['process'],array['document','business_role']),
+('uses_system','impact','Sử dụng hệ thống','Uses system','Được sử dụng bởi','Used by',array['process'],array['system']),
+('addresses_risk','impact','Xử lý rủi ro','Addresses risk','Được xử lý bởi','Addressed by',array['process'],array['risk']),
+('influences_kpi','impact','Ảnh hưởng KPI','Influences KPI','Được ảnh hưởng bởi','Influenced by',array['process'],array['kpi']),
+('related_to','general','Liên quan đến','Related to','Liên quan đến','Related to',array[]::text[],array[]::text[])
 on conflict(code) do nothing;
 
 create sequence public.document_code_seq start 1;
@@ -146,7 +146,7 @@ insert into public.vocabularies(code,name,is_system) values
 on conflict(code) do nothing;
 insert into public.vocabulary_values(vocabulary_id,code,label_vi,label_en,display_order)
 select v.id,x.code,x.vi,x.en,x.ord from public.vocabularies v cross join (values
-('policy','ChÃ­nh sÃ¡ch','Policy',1),('procedure','Quy trÃ¬nh','Procedure',2),('work_instruction','HÆ°á»›ng dáº«n cÃ´ng viá»‡c','Work Instruction',3),('form_template','Biá»ƒu máº«u','Form/Template',4),('audit_report','BÃ¡o cÃ¡o kiá»ƒm toÃ¡n','Audit Report',5),('training_material','TÃ i liá»‡u Ä‘Ã o táº¡o','Training Material',6)
+('policy','Chính sách','Policy',1),('procedure','Quy trình','Procedure',2),('work_instruction','Hướng dẫn công việc','Work Instruction',3),('form_template','Biểu mẫu','Form/Template',4),('audit_report','Báo cáo kiểm toán','Audit Report',5),('training_material','Tài liệu đào tạo','Training Material',6)
 ) x(code,vi,en,ord) where v.code='document_type' on conflict(vocabulary_id,code) do nothing;
 
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types) values('process-documents','process-documents',false,26214400,array['application/pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.openxmlformats-officedocument.presentationml.presentation','image/png','image/jpeg']) on conflict(id) do update set public=false,file_size_limit=excluded.file_size_limit,allowed_mime_types=excluded.allowed_mime_types;
