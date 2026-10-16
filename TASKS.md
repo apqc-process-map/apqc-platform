@@ -1,18 +1,18 @@
-# Process Map — MVP Tasks
+# Process Map â€” MVP Tasks
 
 Statuses use: `TODO`, `BLOCKED`, `DONE`. Nothing below is implemented yet.
 
-## EPIC 0 — Foundation
+## EPIC 0 â€” Foundation
 
-- [ ] `TODO FND-001` Scaffold Next.js App Router with TypeScript.
-- [ ] `TODO FND-002` Configure lint, formatting, typecheck, and test commands.
-- [ ] `TODO FND-003` Add `.env.example` with placeholders only.
-- [ ] `TODO FND-004` Add secret/file ignore rules.
-- [ ] `TODO FND-005` Establish PNJ-inspired Process Map design tokens.
-- [ ] `TODO FND-006` Build desktop application shell and permission-aware navigation.
-- [ ] `TODO FND-007` Configure Vercel project linkage without committing credentials.
+- [x] `DONE FND-001` Scaffold Next.js App Router with TypeScript.
+- [x] `DONE FND-002` Configure lint, formatting, typecheck, and test commands.
+- [x] `DONE FND-003` Add `.env.example` with placeholders only.
+- [x] `DONE FND-004` Add secret/file ignore rules.
+- [x] `DONE FND-005` Establish PNJ-inspired Process Map design tokens.
+- [x] `DONE FND-006` Build desktop application shell and permission-aware navigation.
+- [x] `DONE FND-007` Configure Vercel project linkage without committing credentials.
 
-## EPIC 1 — Supabase and authentication
+## EPIC 1 â€” Supabase and authentication
 
 - [ ] `TODO AUTH-001` Link the single MVP Supabase project and migration workflow.
 - [ ] `TODO AUTH-002` Create profile and system-role schema.
@@ -22,7 +22,7 @@ Statuses use: `TODO`, `BLOCKED`, `DONE`. Nothing below is implemented yet.
 - [ ] `TODO AUTH-006` Define and test the initial RLS policy matrix.
 - [ ] `TODO AUTH-007` Verify the last author cannot approve their own draft.
 
-## EPIC 2 — APQC reference
+## EPIC 2 â€” APQC reference
 
 - [ ] `TODO APQC-001` Create framework, element, and metric migrations.
 - [ ] `TODO APQC-002` Implement read-only APQC v8.0 Excel importer.
@@ -32,7 +32,7 @@ Statuses use: `TODO`, `BLOCKED`, `DONE`. Nothing below is implemented yet.
 - [ ] `TODO APQC-006` Store and display APQC attribution/version metadata.
 - [ ] `TODO APQC-007` Add APQC reference search and detail view.
 
-## EPIC 3 — Enterprise processes
+## EPIC 3 â€” Enterprise processes
 
 - [ ] `TODO PROC-001` Create process identity, aliases, and version migrations.
 - [ ] `TODO PROC-002` Implement generated `PROC-000123` codes.
@@ -44,9 +44,9 @@ Statuses use: `TODO`, `BLOCKED`, `DONE`. Nothing below is implemented yet.
 - [ ] `TODO PROC-008` Add many-to-many APQC mapping and verification.
 - [ ] `TODO PROC-009` Add publication-gate validation.
 - [ ] `TODO PROC-010` Add transparent completeness scoring.
-- [ ] `BLOCKED PROC-011` Seed 20–30 real enterprise processes after samples arrive.
+- [ ] `BLOCKED PROC-011` Seed 20â€“30 real enterprise processes after samples arrive.
 
-## EPIC 4 — Process Map and discovery
+## EPIC 4 â€” Process Map and discovery
 
 - [ ] `TODO MAP-001` Build Enterprise Landscape.
 - [ ] `TODO MAP-002` Build layered column drill-down.
@@ -59,7 +59,7 @@ Statuses use: `TODO`, `BLOCKED`, `DONE`. Nothing below is implemented yet.
 - [ ] `TODO MAP-009` Build global search and Process Catalog.
 - [ ] `TODO MAP-010` Verify long names, deep hierarchy, empty nodes, and 1024 px layout.
 
-## EPIC 5 — Relationships and context
+## EPIC 5 â€” Relationships and context
 
 - [ ] `TODO REL-001` Create context-object and relationship migrations.
 - [ ] `TODO REL-002` Seed controlled relationship groups/types and inverse labels.
@@ -71,7 +71,7 @@ Statuses use: `TODO`, `BLOCKED`, `DONE`. Nothing below is implemented yet.
 - [ ] `TODO REL-008` Add one-hop default and explicit graph expansion.
 - [ ] `TODO REL-009` Keep hierarchy and cross-links visually separate.
 
-## EPIC 6 — Documents and versions
+## EPIC 6 â€” Documents and versions
 
 - [ ] `TODO DOC-001` Create document, version, file, and process-link migrations.
 - [ ] `TODO DOC-002` Seed controlled document taxonomy.
@@ -87,7 +87,7 @@ Statuses use: `TODO`, `BLOCKED`, `DONE`. Nothing below is implemented yet.
 - [ ] `TODO DOC-012` Add required-reading assignment and acknowledgment.
 - [ ] `BLOCKED DOC-013` Design Excel/CSV/PDF/DOCX importer after sample inspection.
 
-## EPIC 7 — Findings & Actions
+## EPIC 7 â€” Findings & Actions
 
 - [ ] `TODO FIND-001` Create finding, link, participant, reaction, and event migrations.
 - [ ] `TODO FIND-002` Implement generated `FND-000123` codes.
@@ -101,7 +101,7 @@ Statuses use: `TODO`, `BLOCKED`, `DONE`. Nothing below is implemented yet.
 - [ ] `TODO FIND-010` Seed representative manual findings for the demo.
 - [ ] `BLOCKED FIND-011` Define AI analysis only after data policy and sample review.
 
-## EPIC 8 — Dashboards and notifications
+## EPIC 8 â€” Dashboards and notifications
 
 - [ ] `TODO DASH-001` Build Viewer Home.
 - [ ] `TODO DASH-002` Build Editor Home.
@@ -114,7 +114,7 @@ Statuses use: `TODO`, `BLOCKED`, `DONE`. Nothing below is implemented yet.
 - [ ] `TODO NOTIF-002` Build notification center with read/unread and deep links.
 - [ ] `TODO NOTIF-003` Add review, reading, role, finding, and due-date notifications.
 
-## EPIC 9 — Verification and deployment
+## EPIC 9 â€” Verification and deployment
 
 - [ ] `TODO QA-001` Unit-test lifecycle, publication gates, completeness, SLA, and inverse labels.
 - [ ] `TODO QA-002` Test RLS for all three roles and private Storage.
@@ -124,7 +124,7 @@ Statuses use: `TODO`, `BLOCKED`, `DONE`. Nothing below is implemented yet.
 - [ ] `TODO QA-006` Run visual QA at 1024, 1280, and wide desktop widths.
 - [ ] `TODO QA-007` Run the golden demo Playwright flow in Chrome and Edge.
 - [ ] `TODO QA-008` Run security review for Auth, RLS, uploads, signed URLs, and secrets.
-- [ ] `TODO DEPLOY-001` Configure Vercel environment variables.
+- [x] `DONE DEPLOY-001` Configure Vercel environment variables.
 - [ ] `TODO DEPLOY-002` Deploy and verify the golden flow against Supabase.
 - [ ] `TODO DEPLOY-003` Update `PROJECT_STATE.md` with verified implementation status.
 

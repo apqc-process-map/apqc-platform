@@ -15,9 +15,9 @@ Planned and user-approved; not yet scaffolded:
 
 ## Architecture snapshot
 
-- Repository currently contains planning documents only.
+- Repository contains the planning baseline plus a Next.js Foundation shell.
 - Git remote `origin` points to `https://github.com/apqc-process-map/apqc-platform.git`.
-- One Supabase project is planned for MVP local/preview/demo use.
+- One Supabase project is configured for MVP local/preview/demo use (`eksftbalhnqpguecdcaj`).
 - Process and document content will be independently versioned.
 - Enterprise-to-APQC mapping is many-to-many.
 - Hierarchy drill-down and cross-process relationship graph are separate UI modes.
@@ -32,8 +32,8 @@ Planned and user-approved; not yet scaffolded:
 
 ## In progress
 
-- Planning baseline review and approval.
-- No code, database schema, Supabase project linkage, or Vercel project exists in this workspace yet.
+- Foundation shell implementation and deployment verification.
+- Foundation code is scaffolded; local Vercel/Supabase linkage files exist, while the database schema and Auth/RLS implementation are not started.
 
 ## Known issues / technical risks
 
@@ -50,21 +50,21 @@ Planned and user-approved; not yet scaffolded:
 - MVP has six demo users: two Viewer, two Editor, two Admin.
 - APQC source workbook and internal documents must not be committed.
 - Repository must remain safe if public.
-- MVP target is 20–30 enterprise processes plus the complete APQC v8.0 reference.
+- MVP target is 20â€“30 enterprise processes plus the complete APQC v8.0 reference.
 - Findings are manually seeded/entered for MVP; AI is deferred.
 - General audit trail, exports, mobile, BPMN editor, and file-content search are out of MVP scope.
 
 ## Next recommended work
 
-1. Review and approve the six planning documents.
-2. Scaffold the Next.js/TypeScript application.
-3. Link the single Supabase project and establish safe migration practices.
-4. Implement Auth/RLS before business features.
-5. Build and validate the APQC importer before enterprise process features.
+1. Implement Auth/profile schema, migrations, and RLS.
+2. Import and validate the APQC v8.0 reference workbook.
+3. Build the Process Map and catalog experience.
+4. Implement documents, relationships, findings, and governance dashboards.
+5. Run visual/app/security verification before production milestones.
 
 ## Verification status
 
-- Planning documents have been created but still require cross-document consistency review.
+- Lint and production build pass. Supabase project is healthy with zero tables/migrations/advisor lints. Vercel production deployment is READY. No application flow tests or database migrations have been run.
 - No application tests exist or have been run.
 - No deployment has been attempted.
 
