@@ -17,8 +17,8 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 - [ ] `TODO AUTH-001` Link the single MVP Supabase project and migration workflow.
 - [ ] `TODO AUTH-002` Create profile and system-role schema.
 - [ ] `TODO AUTH-003` Seed two Viewer, two Editor, and two Admin profiles securely.
-- [ ] `TODO AUTH-004` Implement sign-in, session refresh, and sign-out.
-- [ ] `TODO AUTH-005` Add route/action authorization helpers.
+- [~] PARTIAL AUTH-004 Implement sign-in, session refresh, and sign-out.
+- [~] PARTIAL AUTH-005 Add route/action authorization helpers.
 - [ ] `TODO AUTH-006` Define and test the initial RLS policy matrix.
 - [ ] `TODO AUTH-007` Verify the last author cannot approve their own draft.
 

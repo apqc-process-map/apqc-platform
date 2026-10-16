@@ -35,7 +35,7 @@ Planned and user-approved; not yet scaffolded:
 ## In progress
 
 - E1/E2 integration verification: migrations still need to be applied to the linked Supabase project, and the licensed workbook is not present in the repository.
-- Authentication screens, session handling, seeded demo users, and full RLS test matrix remain in progress.
+- Authentication entry point and Supabase password sign-in action are implemented; full session refresh/sign-out and role-gated navigation remain in progress.
 
 ## Known issues / technical risks
 
@@ -72,4 +72,4 @@ Planned and user-approved; not yet scaffolded:
 
 ## Recent substantial changes
 
-- 2026-10-16: Added E1/E2 migration foundation and external-workbook APQC importer; updated task and verification status to distinguish completed code from unverified remote work.
+- 2026-10-16: Added the initial E1 authentication slice with Supabase SSR/browser clients and Vietnamese sign-in page.
