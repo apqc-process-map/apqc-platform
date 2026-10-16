@@ -67,3 +67,10 @@ Process Map is a desktop-first internal demo for navigating and governing enterp
 - 2026-10-16: Created the approved six demo users and verified authentication plus Admin/Viewer access boundaries.
 - 2026-10-16: Validated and imported the licensed APQC v8.0 workbook with exact source counts and hierarchy integrity.
 - 2026-10-16: Added findings, notifications, governance views, role-aware dashboards, and representative finding records.
+
+## 2026-10-16 demo sandbox verification
+
+- Supabase verified: 7 process/business-object flows, 15 verified relationships, 5 [DEMO] findings, 5 finding links, 20 participants, 10 reactions, 5 comments, 6 reading assignments, and 2 demo notifications.
+- Fixed and versioned the E8 finding notification trigger: it now reads profiles.role; the previous profiles.system_role reference blocked every new finding insert.
+- Cleanup script now removes the full demo sandbox in dependency order.
+

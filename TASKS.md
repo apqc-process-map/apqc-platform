@@ -187,3 +187,11 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [ ] `BLOCKED LATER-009` Mobile UI.
 - [ ] `BLOCKED LATER-010` BPMN viewer/editor.
 
+
+## Demo workspace verification — 2026-10-16
+
+- [x] Seeded demo catalogs, process flows, relationships, findings, comments, reactions, reading assignments, acknowledgments, and notifications in Supabase.
+- [x] Fixed finding notification trigger to use profiles.role instead of the nonexistent profiles.system_role.
+- [x] Added safe cleanup coverage to scripts/delete-demo-processes.sql.
+- [ ] Replace synthetic demo records with representative enterprise samples when supplied.
+
