@@ -141,6 +141,39 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `DONE DEPLOY-002` Deploy and verify the golden flow against Supabase.
 - [x] `DONE DEPLOY-003` Update `PROJECT_STATE.md` with verified implementation status.
 
+## Review snapshot — verified after PR #6
+
+### Completed since the previous review
+
+- [x] NOTIF-001 — Notifications schema and finding event service are implemented and verified in Supabase.
+- [x] DATA-FIX — Vietnamese demo data for 3 findings and 8 relationship types was repaired in Supabase and versioned in migration `20261016000006_repair_vietnamese_demo_data.sql`.
+- [x] DEPLOY — PR #5 and PR #6 were merged to `main`; production deployment is READY.
+
+### Current partial tasks
+
+- AUTH-005/006/007 — Route/RLS foundations exist; Editor role and complete four-eyes behavioral testing remain because the approved demo mix has no Editor account.
+- APQC-007 — Catalog search and attribution are available; dedicated APQC detail view remains.
+- FIND-003/004/005/006/008 — Database foundations exist; workflow actions, comments, reactions, assignment UI, and timeline UI remain.
+- DASH-002/005/007 — Role/dashboard foundations exist; Editor-specific home and drill-down interactions remain.
+- NOTIF-002 — Notification list and deep links exist; mark-read/unread action remains.
+- NOTIF-003 — Finding event and due-soon notifications exist; review, reading, role-assignment, and complete due-date scheduling remain.
+- DOC-004/005/007/009 — Upload validation, preview/download, full lifecycle, and field-level comparison remain.
+- MAP-001/005/006/009/010 and REL-006/008 — Synthetic map/relationship fixtures and full visual/interaction QA remain.
+- QA-002/003/007/008 — Viewer/Admin checks and security baseline exist; Editor, Storage, Edge, and full upload/signed-URL testing remain.
+
+### Blocked by external input or approved scope
+
+- PROC-011 and DOC-013 — Need representative enterprise/document samples.
+- FIND-011 — AI analysis remains deferred until data policy and samples are approved.
+- LATER-001 through LATER-010 — Deferred backlog.
+
+### Next implementation order
+
+1. Add notification mark-read/unread action and verify Viewer RLS.
+2. Add finding workflow actions, assignment, comments/reactions, and activity timeline.
+3. Add APQC detail view and relationship/process drill-down.
+4. Complete private document upload, signed preview/download, and lifecycle actions.
+5. Run accessibility, visual, Edge, Storage, and golden-flow QA.
 ## Deferred backlog
 
 - [ ] `BLOCKED LATER-001` Microsoft Entra ID SSO.
