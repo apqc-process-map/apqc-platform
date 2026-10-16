@@ -1,2 +1,17 @@
--- Run only when replacing the demo seed with real process data.
+begin;
+delete from public.notifications where type like 'demo_%' or title like '[DEMO]%';
+delete from public.comments where thread_id in (select ct.id from public.comment_threads ct join public.findings f on f.id=ct.context_id where ct.context_type='finding' and f.title like '[DEMO]%');
+delete from public.comment_threads where context_type='finding' and context_id in (select id from public.findings where title like '[DEMO]%');
+delete from public.finding_reactions where finding_id in (select id from public.findings where title like '[DEMO]%');
+delete from public.finding_participants where finding_id in (select id from public.findings where title like '[DEMO]%');
+delete from public.finding_links where finding_id in (select id from public.findings where title like '[DEMO]%');
+delete from public.findings where title like '[DEMO]%';
+delete from public.object_relationships where source_id in (select id from public.processes where source_code like 'DEMO-20261016-%');
+delete from public.process_business_object_flows where process_id in (select id from public.processes where source_code like 'DEMO-20261016-%');
 delete from public.processes where source_code like 'DEMO-20261016-%';
+delete from public.systems where code like 'DEMO-20261016-%';
+delete from public.risks where code like 'DEMO-20261016-%';
+delete from public.kpis where code like 'DEMO-20261016-%';
+delete from public.business_roles where code like 'DEMO-20261016-%';
+delete from public.business_objects where code like 'DEMO-20261016-%';
+commit;
