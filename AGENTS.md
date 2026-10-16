@@ -64,6 +64,16 @@ When these files disagree, stop and reconcile the conflict from repository evide
 
 ## Git
 
-- Do not commit, push, merge, or rewrite history unless explicitly requested.
+- For work in this repository, complete the normal delivery workflow autonomously when it is required by the user's requested outcome: create an appropriately named `codex/` branch, commit focused changes, push them to GitHub, create or update a pull request, and merge it when checks and repository protections allow.
+- Do not require the user to manually approve routine pull requests or deployments. Request user approval only when a platform explicitly requires it, credentials or permissions are missing, a protected environment requires human approval, or the action is destructive/high-risk (for example deleting production data, force-pushing, rewriting history, rolling back production, or applying an irreversible migration).
+- Never force-push, rewrite shared history, bypass branch protection, or merge with failing required checks.
 - Keep generated and local configuration out of Git.
-- Review the diff before proposing a commit.
+- Review the diff before committing and report the resulting commit, push, pull request, and merge status.
+
+## Supabase and Vercel delivery
+
+- When database, authentication, storage, environment, or deployment work is part of the requested scope, perform the required Supabase and Vercel setup, migrations, configuration, preview deployment, verification, and production deployment autonomously where credentials and platform policy permit.
+- Use migrations and version-controlled configuration instead of untracked dashboard-only changes whenever supported.
+- Keep secrets in Supabase/Vercel secret stores and environment settings; never commit them or print secret values.
+- Verify authorization boundaries, Row Level Security, migration safety, deployment health, and the relevant end-to-end flow before declaring completion.
+- Ask the user only for an approval or input that cannot safely be supplied or inferred, such as granting account access, approving a protected production deployment, supplying a missing secret, selecting between materially different production-impacting options, or authorizing a destructive operation.
