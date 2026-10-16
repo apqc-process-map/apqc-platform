@@ -52,11 +52,11 @@ Process Map is a desktop-first internal demo for navigating and governing enterp
 - Supabase migrations through 20261016000005 applied successfully on 2026-10-16.
 - APQC database validation: 2,017 elements, 3,284 metrics, 13 categories, levels 1-5, zero missing parents, zero duplicate PCF IDs, and zero orphan metrics.
 - Six demo users authenticated successfully; Viewer forbidden-write behavior was verified.
-- Production browser flow and final Vercel deployment verification are the remaining delivery checks for this milestone.
+- Production deployment `dpl_381Yk7zFDw61x79QXjx7TcePYJui` is READY on commit `3e8ed4f`; Admin login and Home, Catalog, Findings, Governance, and Notifications routes were verified against live Supabase data.
 
 ## Next recommended work
 
-1. Finish production deployment and browser verification for Home, Catalog, Findings, Governance, and Notifications.
+1. Complete Editor, private-Storage, accessibility, 1024/1280/wide visual, and Edge browser verification.
 2. Add one Editor demo account only if the user approves changing the requested account mix, then complete the three-role RLS matrix.
 3. Implement finding workflow actions, comments/reactions, event-driven notifications, and notification read state.
 4. Supply representative enterprise and document samples to unblock real process seeding and importer design.

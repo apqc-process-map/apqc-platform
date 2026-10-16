@@ -135,11 +135,11 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [ ] `TODO QA-004` Test empty, loading, error, and long-text states.
 - [ ] `TODO QA-005` Run accessibility checks and keyboard navigation review.
 - [ ] `TODO QA-006` Run visual QA at 1024, 1280, and wide desktop widths.
-- [ ] `TODO QA-007` Run the golden demo Playwright flow in Chrome and Edge.
+- [~] `PARTIAL QA-007` Run the golden demo Playwright flow in Chrome and Edge.
 - [~] `PARTIAL QA-008` Run security review for Auth, RLS, uploads, signed URLs, and secrets.
 - [x] `DONE DEPLOY-001` Configure Vercel environment variables.
-- [ ] `TODO DEPLOY-002` Deploy and verify the golden flow against Supabase.
-- [ ] `TODO DEPLOY-003` Update `PROJECT_STATE.md` with verified implementation status.
+- [x] `DONE DEPLOY-002` Deploy and verify the golden flow against Supabase.
+- [x] `DONE DEPLOY-003` Update `PROJECT_STATE.md` with verified implementation status.
 
 ## Deferred backlog
 
