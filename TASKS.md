@@ -34,14 +34,14 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete; E1/E2 contain th
 
 ## EPIC 3 â€” Enterprise processes
 
-- [ ] `TODO PROC-001` Create process identity, aliases, and version migrations.
-- [ ] `TODO PROC-002` Implement generated `PROC-000123` codes.
-- [ ] `TODO PROC-003` Add hierarchy, level types, display order, and cycle prevention.
-- [ ] `TODO PROC-004` Add five Executive Summary fields and conditional validation.
+- [~] PARTIAL PROC-001 Create process identity, aliases, and version migrations.
+- [x] DONE PROC-002 Implement generated PROC-000123 codes.
+- [x] DONE PROC-003 Add hierarchy, level types, display order, and cycle prevention.
+- [x] DONE PROC-004 Add five Executive Summary fields and conditional validation.
 - [ ] `TODO PROC-005` Add Owner, Steward, SME, Approver, and reader assignments.
 - [ ] `TODO PROC-006` Add applicability and controlled vocabularies.
 - [ ] `TODO PROC-007` Add inheritance indicators and override behavior.
-- [ ] `TODO PROC-008` Add many-to-many APQC mapping and verification.
+- [x] DONE PROC-008 Add many-to-many APQC mapping and verification.
 - [ ] `TODO PROC-009` Add publication-gate validation.
 - [ ] `TODO PROC-010` Add transparent completeness scoring.
 - [ ] `BLOCKED PROC-011` Seed 20â€“30 real enterprise processes after samples arrive.

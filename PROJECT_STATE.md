@@ -26,7 +26,7 @@ Planned and user-approved; not yet scaffolded:
 
 - Foundation shell is implemented with Vietnamese desktop navigation, design tokens, and no-data states.
 - E1 migration foundation defines profiles, system roles, and authenticated read access boundaries.
-- E2 migration foundation defines APQC framework/elements/metrics; a read-only workbook importer derives hierarchy metadata without storing the licensed workbook.
+- E3 migration foundation defines enterprise process identity, generated codes, versioned content, hierarchy cycle prevention, publication date constraints, and many-to-many APQC mappings.
 - Product discovery and initial MVP decisions are documented in `PRD.md`.
 - Architecture sequence is documented in `PLAN.md`.
 - Proposed schema is documented in `DATA_MODEL.md`.
@@ -34,7 +34,7 @@ Planned and user-approved; not yet scaffolded:
 
 ## In progress
 
-- E1/E2 integration verification: migrations still need to be applied to the linked Supabase project, and the licensed workbook is not present in the repository.
+- E3 process schema is committed; process UI, publication workflow, completeness scoring, and real enterprise sample seed remain in progress.
 - Authentication entry point and Supabase password sign-in action are implemented; full session refresh/sign-out and role-gated navigation remain in progress.
 
 ## Known issues / technical risks
