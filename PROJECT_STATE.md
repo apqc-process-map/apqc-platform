@@ -1,4 +1,4 @@
-﻿# Project State
+# Project State
 
 ## Project summary
 
@@ -10,64 +10,60 @@ Process Map is a desktop-first internal demo for navigating and governing enterp
 - Supabase Auth, PostgreSQL, Row Level Security, and private Storage.
 - GitHub repository deployed to Vercel.
 
-## Architecture snapshot
+## Verified architecture and data
 
-- Server-rendered protected data routes use the public Supabase client with user cookies; authorization remains enforced by RLS.
-- src/proxy.ts refreshes sessions and protects Catalog, Relationships, and Documents.
-- Enterprise hierarchy and APQC mapping are many-to-many and remain separate from cross-process relationships.
-- Versioned migrations define E1-E3, E5, and E6 data foundations.
+- Server-rendered protected routes use the public Supabase client with user cookies; authorization remains enforced by RLS.
+- Protected navigation now covers Catalog, Relationships, Documents, Findings, Governance, and Notifications.
+- Versioned migrations define E1-E8 data foundations, including findings, notifications, governance views, APQC Admin policies, and private document storage.
+- APQC PCF v8.0 import contains exactly 2,017 elements, 3,284 metrics, five levels, and 13 categories; validation found no duplicate IDs, missing parents, or orphan metrics.
+- Six demo Auth accounts exist using the user-approved role mix: three Admin and three Viewer. Credentials are not stored in Git.
 
 ## Completed capabilities
 
-- E0 application and deployment foundation.
-- Supabase project linkage, profile roles, login/session refresh/logout.
-- APQC schema and read-only workbook importer.
-- Enterprise process/version hierarchy, aliases, assignments, applicability, APQC mappings, completeness, publication gates, overlap checks, and four-eyes validation.
-- Process Catalog search across enterprise and APQC records.
-- Relationship catalogs/workflow plus filterable relationship table and controlled-type legend.
-- Document/version/review/reading schema, private 25 MB Storage bucket, publication constraints, and basic metadata version comparison.
-- E4 layered Process Map prototype with synthetic fixtures.
+- E0 application, GitHub, Vercel, and Supabase foundation.
+- Supabase Auth, profile roles, login/session refresh/logout, and Admin/Viewer RLS checks.
+- APQC workbook validation/import, hierarchy reconstruction, metrics, attribution, and Catalog search.
+- Enterprise process/version hierarchy, assignments, APQC mappings, completeness, publication gates, overlap checks, and four-eyes database validation.
+- Process Catalog, relationship workflow/table, document/version/review/reading schema, and private Storage foundation.
+- Layered Process Map prototype with synthetic fixtures.
+- Finding schema with generated codes, links, participants, reactions, SLA defaults, events, evidence links, RLS, and three representative findings.
+- Role-aware Home, Governance, Findings, and Notifications surfaces backed by Supabase views/tables.
 
-## In progress
+## In progress or blocked
 
-- Six demo Auth users and complete write-policy test matrix.
-- APQC import validation and reference detail UI.
-- Real enterprise process seed data and database-backed Process Map.
-- Interactive centered relationship graph and explicit expansion.
-- Secure document upload, signed preview/download, lifecycle actions, and field-level comparison.
+- Editor role behavior is not verified because the approved six-user mix contains no Editor account.
+- APQC dedicated detail page remains outstanding; imported search and attribution are available.
+- Real enterprise process seed data remains blocked pending representative samples; Process Map still uses synthetic fixtures.
+- Finding workflow actions, comments/reactions UI, assignment UI, activity timeline UI, and notification event/read actions remain partial.
+- Secure document upload, signed preview/download, full lifecycle actions, and field-level comparison remain partial.
+- Interactive centered relationship graph and explicit expansion remain partial.
 
-## Known issues / technical risks
+## Security and operational notes
 
-- Licensed APQC workbook and representative enterprise/document samples are not present in the workspace.
-- Process Map still uses synthetic fixtures rather than Supabase records.
-- One Supabase project serves MVP development/preview/demo, increasing migration coordination risk.
-- Legacy planning files contain some mojibake inherited from earlier writes; user-facing routes added in this milestone use valid Vietnamese UTF-8.
-
-## Important decisions and constraints
-
-- Product name is Process Map; no PNJ name or logo.
-- Desktop-first Vietnamese UI; current Edge/Chrome; target width 1024 px and above.
-- APQC workbook, credentials, private documents, and service-role keys stay outside Git.
-- Viewers see effective content; Editors author; Admins approve, with four-eyes separation.
-- Mobile, BPMN editing, full audit history, file-content search, and AI analysis are deferred.
-
-## Next recommended work
-
-1. Create six approved demo users and execute the Viewer/Editor/Admin RLS matrix.
-2. Supply and import the licensed APQC workbook; validate exact element and metric counts.
-3. Replace Process Map fixtures with Supabase queries and representative enterprise records.
-4. Implement signed document upload/preview/download and full lifecycle actions.
-5. Add interactive relationship graph expansion and complete browser/accessibility QA.
+- Supabase security advisor reports no exposed tables or missing-RLS findings after the latest migrations.
+- One WARN remains: Auth leaked-password protection is disabled. Enabling it should be coordinated with replacement of the shared demo password.
+- Admin and Viewer sessions can read APQC/findings; a Viewer direct insert attempt is denied by RLS. Editor and complete private-Storage behavior still require testing.
+- The licensed APQC workbook remains outside Git; only importer code, migrations, and metadata are version controlled.
 
 ## Verification status
 
-- pnpm lint: passed on 2026-10-16 using the Codex bundled Node runtime.
-- pnpm build: passed on 2026-10-16; /catalog, /documents, /login, and /relationships are dynamic routes.
-- Supabase migration process_publication_gates applied successfully on 2026-10-16.
-- Browser flow and role-matrix testing remain pending until demo users are available.
+- pnpm lint: passed on 2026-10-16.
+- pnpm build: passed on 2026-10-16; 12 routes compiled successfully.
+- Supabase migrations through 20261016000005 applied successfully on 2026-10-16.
+- APQC database validation: 2,017 elements, 3,284 metrics, 13 categories, levels 1-5, zero missing parents, zero duplicate PCF IDs, and zero orphan metrics.
+- Six demo users authenticated successfully; Viewer forbidden-write behavior was verified.
+- Production browser flow and final Vercel deployment verification are the remaining delivery checks for this milestone.
+
+## Next recommended work
+
+1. Finish production deployment and browser verification for Home, Catalog, Findings, Governance, and Notifications.
+2. Add one Editor demo account only if the user approves changing the requested account mix, then complete the three-role RLS matrix.
+3. Implement finding workflow actions, comments/reactions, event-driven notifications, and notification read state.
+4. Supply representative enterprise and document samples to unblock real process seeding and importer design.
+5. Complete signed document upload/preview/download and remaining accessibility/visual/golden-flow QA.
 
 ## Recent substantial changes
 
-- 2026-10-16: Added session-protected Catalog, Relationships, and Documents surfaces.
-- 2026-10-16: Strengthened process publication gates and four-eyes approval tracking.
-- 2026-10-16: Applied and verified E3-E6 data foundations on Supabase.
+- 2026-10-16: Created the approved six demo users and verified authentication plus Admin/Viewer access boundaries.
+- 2026-10-16: Validated and imported the licensed APQC v8.0 workbook with exact source counts and hierarchy integrity.
+- 2026-10-16: Added findings, notifications, governance views, role-aware dashboards, and representative finding records.

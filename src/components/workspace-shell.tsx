@@ -1,7 +1,11 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { signOut } from "@/app/actions";
 
-const navigation = [["/", "⌂", "Home"], ["/process-map", "◇", "Process Map"], ["/catalog", "▦", "Catalog"], ["/relationships", "⇄", "Relationships"], ["/documents", "▤", "Documents"]];
+const navigation = [
+  ["/", "⌂", "Home"], ["/process-map", "◇", "Process Map"], ["/catalog", "▦", "Catalog"],
+  ["/relationships", "⇄", "Relationships"], ["/documents", "▤", "Documents"],
+  ["/findings", "!", "Findings"], ["/governance", "◌", "Governance"], ["/notifications", "♧", "Notifications"],
+];
 type Props = { active: string; title: string; eyebrow: string; description: string; userName?: string | null; role?: string | null; children: React.ReactNode };
 
 export default function WorkspaceShell({ active, title, eyebrow, description, userName, role, children }: Props) {

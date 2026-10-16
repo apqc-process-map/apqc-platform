@@ -1,4 +1,4 @@
-﻿# Process Map Ã¢â‚¬â€ MVP Tasks
+# Process Map Ã¢â‚¬â€ MVP Tasks
 
 Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracked from repository, Supabase, build, and deployment evidence; schema-only work is not counted as a completed user flow.
 
@@ -16,7 +16,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 
 - [x] DONE AUTH-001 Link the single MVP Supabase project and migration workflow.
 - [x] DONE AUTH-002 Create profile and system-role schema.
-- [ ] `TODO AUTH-003` Seed two Viewer, two Editor, and two Admin profiles securely.
+- [x] `DONE AUTH-003` Seed the user-approved demo mix: three Viewer and three Admin profiles securely.
 - [x] DONE AUTH-004 Implement sign-in, session refresh, and sign-out.
 - [~] PARTIAL AUTH-005 Add route/action authorization helpers.
 - [~] PARTIAL AUTH-006 Define and test the initial RLS policy matrix.
@@ -27,10 +27,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] DONE APQC-001 Create framework, element, and metric migrations.
 - [x] DONE APQC-002 Implement read-only APQC v8.0 Excel importer.
 - [x] DONE APQC-003 Derive parent, level, and display order from hierarchy IDs.
-- [ ] `TODO APQC-004` Validate 2,017 elements, five levels, 13 categories, and no duplicate PCF IDs.
-- [ ] `TODO APQC-005` Validate and import 3,284 metric definitions.
-- [ ] `TODO APQC-006` Store and display APQC attribution/version metadata.
-- [ ] `TODO APQC-007` Add APQC reference search and detail view.
+- [x] `DONE APQC-004` Validate 2,017 elements, five levels, 13 categories, and no duplicate PCF IDs.
+- [x] `DONE APQC-005` Validate and import 3,284 metric definitions.
+- [x] `DONE APQC-006` Store and display APQC attribution/version metadata.
+- [~] `PARTIAL APQC-007` Add APQC reference search and detail view.
 
 ## EPIC 3 Ã¢â‚¬â€ Enterprise processes
 
@@ -90,10 +90,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 
 ## E0-E6 pending reasons (verified 2026-10-16)
 
-- AUTH-003 is pending because six Supabase Auth users require approved email identities/password delivery; credentials must not be committed or generated silently.
-- AUTH-005/006/007 remain partial: protected read routes and database gates exist, but write-action authorization and behavioral role-matrix tests still need the six demo users.
-- APQC-004/005 are blocked in practice by the licensed workbook being outside the workspace. Counts 2,017/3,284 cannot be verified without the source file.
-- APQC-006/007 are partial at product level: metadata columns and catalog search exist, while framework attribution/detail UI awaits imported records.
+- AUTH-003 is complete with the user-approved mix of three Admin and three Viewer accounts. No credentials are stored in Git. There is no Editor demo account, so Editor behavioral testing remains pending.
+- AUTH-005/006/007 remain partial: route protection and database gates exist; Admin and Viewer access were exercised, while Editor and complete four-eyes behavioral tests remain.
+- APQC-004/005/006 are complete: the supplied licensed workbook was validated and imported as 2,017 elements, 3,284 metrics, five levels, and 13 categories, with attribution/version metadata and no duplicate IDs or missing parents.
+- APQC-007 remains partial: Catalog search and attribution display use imported records, but a dedicated APQC detail screen is not implemented.
 - PROC-011 remains blocked until representative enterprise samples are supplied.
 - MAP-001/005/006/009/010 remain partial because the map still uses synthetic fixtures and full browser/long-text QA is not complete.
 - REL-006/008 remain partial: the relationship table, legend, filters, and one-hop boundary exist; interactive centered graph expansion is not implemented.
@@ -102,41 +102,41 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 
 ## EPIC 7 Ã¢â‚¬â€ Findings & Actions
 
-- [ ] `TODO FIND-001` Create finding, link, participant, reaction, and event migrations.
-- [ ] `TODO FIND-002` Implement generated `FND-000123` codes.
-- [ ] `TODO FIND-003` Implement finding workflow and role transitions.
-- [ ] `TODO FIND-004` Add threaded comments, mentions, and decision comments.
-- [ ] `TODO FIND-005` Add Agree/Disagree/Need-more-information reactions.
-- [ ] `TODO FIND-006` Add assignment, participants, watchers, and due dates.
-- [ ] `TODO FIND-007` Add severity-based SLA defaults and override.
-- [ ] `TODO FIND-008` Add activity timeline.
-- [ ] `TODO FIND-009` Link resolution evidence to process/document versions.
-- [ ] `TODO FIND-010` Seed representative manual findings for the demo.
+- [x] `DONE FIND-001` Create finding, link, participant, reaction, and event migrations.
+- [x] `DONE FIND-002` Implement generated `FND-000123` codes.
+- [~] `PARTIAL FIND-003` Implement finding workflow and role transitions.
+- [~] `PARTIAL FIND-004` Add threaded comments, mentions, and decision comments.
+- [~] `PARTIAL FIND-005` Add Agree/Disagree/Need-more-information reactions.
+- [~] `PARTIAL FIND-006` Add assignment, participants, watchers, and due dates.
+- [x] `DONE FIND-007` Add severity-based SLA defaults and override.
+- [~] `PARTIAL FIND-008` Add activity timeline.
+- [x] `DONE FIND-009` Link resolution evidence to process/document versions.
+- [x] `DONE FIND-010` Seed representative manual findings for the demo.
 - [ ] `BLOCKED FIND-011` Define AI analysis only after data policy and sample review.
 
 ## EPIC 8 Ã¢â‚¬â€ Dashboards and notifications
 
-- [ ] `TODO DASH-001` Build Viewer Home.
-- [ ] `TODO DASH-002` Build Editor Home.
-- [ ] `TODO DASH-003` Build Admin Home.
-- [ ] `TODO DASH-004` Create governance SQL views/functions.
-- [ ] `TODO DASH-005` Build governance dashboard and drill-down.
-- [ ] `TODO DASH-006` Create finding-aging/dashboard SQL views.
-- [ ] `TODO DASH-007` Build Finding dashboard and drill-down.
-- [ ] `TODO NOTIF-001` Create notifications schema and event service.
-- [ ] `TODO NOTIF-002` Build notification center with read/unread and deep links.
+- [x] `DONE DASH-001` Build Viewer Home.
+- [~] `PARTIAL DASH-002` Build Editor Home.
+- [x] `DONE DASH-003` Build Admin Home.
+- [x] `DONE DASH-004` Create governance SQL views/functions.
+- [~] `PARTIAL DASH-005` Build governance dashboard and drill-down.
+- [x] `DONE DASH-006` Create finding-aging/dashboard SQL views.
+- [~] `PARTIAL DASH-007` Build Finding dashboard and drill-down.
+- [~] `PARTIAL NOTIF-001` Create notifications schema and event service.
+- [~] `PARTIAL NOTIF-002` Build notification center with read/unread and deep links.
 - [ ] `TODO NOTIF-003` Add review, reading, role, finding, and due-date notifications.
 
 ## EPIC 9 Ã¢â‚¬â€ Verification and deployment
 
 - [ ] `TODO QA-001` Unit-test lifecycle, publication gates, completeness, SLA, and inverse labels.
-- [ ] `TODO QA-002` Test RLS for all three roles and private Storage.
-- [ ] `TODO QA-003` Test forbidden direct client mutations.
+- [~] `PARTIAL QA-002` Test RLS for all three roles and private Storage.
+- [~] `PARTIAL QA-003` Test forbidden direct client mutations.
 - [ ] `TODO QA-004` Test empty, loading, error, and long-text states.
 - [ ] `TODO QA-005` Run accessibility checks and keyboard navigation review.
 - [ ] `TODO QA-006` Run visual QA at 1024, 1280, and wide desktop widths.
 - [ ] `TODO QA-007` Run the golden demo Playwright flow in Chrome and Edge.
-- [ ] `TODO QA-008` Run security review for Auth, RLS, uploads, signed URLs, and secrets.
+- [~] `PARTIAL QA-008` Run security review for Auth, RLS, uploads, signed URLs, and secrets.
 - [x] `DONE DEPLOY-001` Configure Vercel environment variables.
 - [ ] `TODO DEPLOY-002` Deploy and verify the golden flow against Supabase.
 - [ ] `TODO DEPLOY-003` Update `PROJECT_STATE.md` with verified implementation status.
