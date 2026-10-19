@@ -36,6 +36,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Document lifecycle is gated in both Server Actions and `enforce_document_version_role()`; Editor cannot directly approve, publish, supersede, or archive.
 - Storage is private. Active users may read; Editor/Admin may upload; uploader or Admin may delete for rollback/cleanup.
 - Migration `20261019000013_notification_security_hardening.sql` removed public/authenticated execution from privileged notification functions and fixed the mutable `search_path`.
+- Migration `20261019000013_harden_demo_tag_policies.sql` separates tag write policies from read policies and adds the `object_tags.assigned_by` index; the tag-specific performance warning is cleared.
 - Supabase Security Advisor now reports only the account-level warning that leaked-password protection is disabled. Coordinate enabling it with replacement of the shared demo password.
 
 ## Verification
@@ -58,7 +59,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 
 ## Delivery state
 
-- Current work is on `codex/seed-complete-demo-metadata`.
+- Current work is on `main` after PR #17.
 - Production remains on the previously merged `main` until this branch passes its final Vercel preview check and pull request merge.
 - `scripts/delete-demo-processes.sql` removes demo processes, relationships, findings, documents, reading assignments, and uploaded test objects in dependency order.
 
