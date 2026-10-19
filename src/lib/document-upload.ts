@@ -12,11 +12,16 @@ const allowed:Record<string,string[]>={
   "image/jpeg":["jpg","jpeg"]
 };
 
-export async function uploadPrivateDocumentFile(documentVersionId:string,file:File){
+export function validateDocumentFile(file:File){
   if(!file.size)throw new Error("Vui lòng chọn file.");
   if(file.size>MAX_DOCUMENT_BYTES)throw new Error("File vượt quá 25 MB.");
   const extension=file.name.split(".").pop()?.toLowerCase()||"";
   if(!allowed[file.type]?.includes(extension))throw new Error("Chỉ nhận PDF, DOCX, XLSX, PPTX, PNG, JPG hoặc JPEG.");
+}
+
+export async function uploadPrivateDocumentFile(documentVersionId:string,file:File){
+  validateDocumentFile(file);
+  const extension=file.name.split(".").pop()!.toLowerCase();
   const supabase=createSupabaseBrowserClient();
   const {data:{user},error:authError}=await supabase.auth.getUser();
   if(authError||!user)throw new Error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
