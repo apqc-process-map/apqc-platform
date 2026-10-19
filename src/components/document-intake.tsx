@@ -1,44 +1,154 @@
 import { createDocumentDraft, updateDocumentMetadata } from "@/app/actions";
-type Option={id:string;label:string};
-type Existing={id:string;title_vi:string;title_en?:string|null;document_group:string;language:string;document_abstract?:string|null;change_summary:string;valid_from?:string|null;valid_until?:string|null;review_due_at?:string|null;issuing_department?:string|null;applicability_note?:string|null;keywords?:string|null;owner_id?:string|null;document_type_value_id?:string|null;};
-export default function DocumentIntake({processes,people,types,existing}:{
-  processes:Option[];people:Option[];types:Option[];existing?:Existing|null;
-}) {
- const editing=!!existing;
- const formId=editing?"document-edit":"document-create";
- return <section className="data-panel document-admin-panel" id={formId}>
-   <div className="data-panel-heading"><div><p className="section-kicker">DOCUMENT INTAKE</p>
-     <h2>{editing?"Bổ sung / sửa metadata":"Tạo & upload tài liệu mới"}</h2>
-     <p>{editing?"Chỉnh sửa thông tin bản nháp trước khi duyệt.":"Chỉ cần chọn file hoặc nhập tên. Các trường metadata đều tùy chọn và có thể bổ sung sau."}</p>
-   </div><span className="count-chip">{editing?"EDIT DRAFT":"PRIVATE STORAGE"}</span></div>
-   <form action={editing?updateDocumentMetadata:createDocumentDraft} className="document-upload-form" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(230px,1fr))",gap:16,alignItems:"end"}}>
-     {editing&&<input type="hidden" name="document_version_id" value={existing.id}/>}
-     <label style={{gridColumn:"1 / -1"}}>Tên tài liệu (tự lấy tên file nếu bỏ trống)
-       <input type="text" name="title_vi" maxLength={255} defaultValue={existing?.title_vi||""} placeholder="VD: Quy trình xử lý đơn hàng"/></label>
-     {!editing&&<label style={{gridColumn:"1 / -1"}}>Chọn file (không bắt buộc nếu chỉ tạo metadata)
-       <input name="file" type="file" accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg"/>
-       <small>PDF, DOCX, XLSX, PPTX, PNG, JPG/JPEG — tối đa 25 MB, lưu riêng tư.</small></label>}
-     <label>Tên tiếng Anh<input name="title_en" type="text" maxLength={255} defaultValue={existing?.title_en||""}/></label>
-     <label>Nhóm tài liệu<select name="document_group" defaultValue={existing?.document_group||"other"}>
-       {[["other","Khác / chưa phân nhóm"],["governance","Quản trị / chính sách"],["execution","Quy trình / hướng dẫn"],["communication","Thông báo / truyền thông"],["evidence","Hồ sơ / bằng chứng"],["planning","Kế hoạch / dự án"],["external","Tài liệu ngoài / pháp lý"]].map(([value,label])=><option key={value} value={value}>{label}</option>)}
-     </select></label>
-     <label>Loại tài liệu<select name="document_type_value_id" defaultValue={existing?.document_type_value_id||""}><option value="">— Chưa chọn —</option>{types.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
-     <label>Quy trình liên quan<select name="process_id" defaultValue=""><option value="">— Bổ sung sau —</option>{processes.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
-     <label>Người phụ trách<select name="owner_id" defaultValue={existing?.owner_id||""}><option value="">— Chưa chọn —</option>{people.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
-     <label>Đơn vị ban hành<input name="issuing_department" maxLength={255} defaultValue={existing?.issuing_department||""} placeholder="VD: Khối Bán lẻ"/></label>
-     <label>Ngôn ngữ<select name="language" defaultValue={existing?.language||"vi"}><option value="vi">Tiếng Việt</option><option value="en">Tiếng Anh</option><option value="vi-en">Song ngữ</option></select></label>
-     <label>Từ khóa<input name="keywords" maxLength={1000} defaultValue={existing?.keywords||""} placeholder="VD: bán hàng, cửa hàng"/></label>
-     <label>Ngày bắt đầu hiệu lực<input type="date" name="valid_from" defaultValue={existing?.valid_from||""}/></label>
-     <label>Ngày hết hiệu lực<input type="date" name="valid_until" defaultValue={existing?.valid_until||""}/></label>
-     <label>Ngày rà soát tiếp theo<input type="date" name="review_due_at" defaultValue={existing?.review_due_at||""}/></label>
-     <label style={{gridColumn:"1 / -1"}}>Tóm tắt nội dung<textarea name="document_abstract" rows={2} maxLength={3000} defaultValue={existing?.document_abstract||""} placeholder="Mô tả ngắn mục đích và nội dung..."/></label>
-     <label style={{gridColumn:"1 / -1"}}>Phạm vi áp dụng<textarea name="applicability_note" rows={2} maxLength={2000} defaultValue={existing?.applicability_note||""} placeholder="Đơn vị, khu vực, đối tượng áp dụng..."/></label>
-     <label style={{gridColumn:"1 / -1"}}>Ghi chú thay đổi<textarea name="change_summary" rows={2} maxLength={2000} defaultValue={existing?.change_summary||""}/></label>
-     <div style={{gridColumn:"1 / -1",display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
-       <button type="submit" className="primary-button">{editing?"Lưu metadata":"Tạo bản nháp & upload"}</button>
-       {editing&&<a href="/documents" className="text-button">Hủy chỉnh sửa</a>}
-       <small>Chỉ Admin/Editor được tạo và sửa bản nháp. Việc xuất bản cần quy trình liên quan và thông tin hiệu lực.</small>
-     </div>
-   </form>
- </section>;
+
+type Option = { id:string; label:string; group?:string };
+type Existing = {
+  id:string; title_vi:string; title_en?:string|null; document_group:string; language:string;
+  document_abstract?:string|null; change_summary:string; valid_from?:string|null; valid_until?:string|null;
+  review_due_at?:string|null; issuing_department?:string|null; applicability_note?:string|null;
+  keywords?:string|null; owner_id?:string|null; designated_approver_id?:string|null;
+  document_type_value_id?:string|null; legal_reference?:string|null; retention_note?:string|null;
+  risk_rating?:string|null; access_level?:string|null;
+};
+type Props = {
+  processes:Option[]; people:Option[]; approvers:Option[]; types:Option[];
+  scopeOptions:Record<string,Option[]>; tags:Option[];
+  existing?:Existing|null; primaryProcessId?:string|null; selectedScopes?:Record<string,string[]>; selectedTags?:string[];
+};
+const groups=[
+  ["governance","Quản trị / chính sách"],
+  ["execution","Quy trình / thực thi"],
+  ["communication","Truyền thông / hướng dẫn"],
+  ["evidence","Hồ sơ / bằng chứng"],
+  ["planning","Kế hoạch / dự án"],
+  ["external","Pháp lý / tài liệu ngoài"],
+  ["other","Khác"]
+];
+const dimensions=[
+  ["legal_entity","Đơn vị pháp nhân"],
+  ["department","Phòng ban / khối áp dụng"],
+  ["location","Địa bàn / khu vực"],
+  ["channel","Kênh hoạt động"],
+  ["product_service","Sản phẩm / dịch vụ"],
+  ["employee_audience","Đối tượng nhân viên"]
+];
+const accessLevels=[
+  ["internal","Nội bộ · tất cả vai trò"],
+  ["limited","Giới hạn · Editor & Admin"],
+  ["confidential","Bảo mật · Editor & Admin"],
+  ["highly_restricted","Hạn chế cao · chỉ Admin"]
+];
+function DateField({name,label,value}:{name:string;label:string;value?:string|null}){
+  return <label>{label}<input name={name} type="date" defaultValue={value||""}/></label>;
+}
+export default function DocumentIntake({
+  processes,people,approvers,types,scopeOptions,tags,existing,primaryProcessId,
+  selectedScopes={},selectedTags=[]
+}:Props){
+  const editing=!!existing;
+  return <section className="data-panel document-admin-panel" id={editing?"document-edit":"document-create"}>
+    <div className="data-panel-heading"><div>
+      <p className="section-kicker">DOCUMENT INTAKE</p>
+      <h2>{editing?"Bổ sung / sửa metadata tài liệu":"Tạo & upload tài liệu mới"}</h2>
+      <p>Chỉ cần tên hoặc file để lưu bản nháp. Mọi metadata còn lại đều tùy chọn, có thể bổ sung sau.</p>
+    </div><span className="count-chip">{editing?"EDIT DRAFT":"PRIVATE STORAGE"}</span></div>
+    <form action={editing?updateDocumentMetadata:createDocumentDraft} className="document-intake-form">
+      {editing&&<input type="hidden" name="document_version_id" value={existing.id}/>}
+      <div className="document-meta-block">
+        <h3>Thông tin cơ bản</h3>
+        <div className="document-meta-grid">
+          <label className="document-meta-wide">Tên tài liệu
+            <input name="title_vi" maxLength={255} defaultValue={existing?.title_vi||""} placeholder="Nếu để trống, hệ thống lấy tên file"/>
+          </label>
+          {!editing&&<label className="document-meta-wide">File đính kèm
+            <input name="file" type="file" accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg"/>
+            <small>PDF, Word, Excel, PowerPoint hoặc ảnh · tối đa 25 MB · lưu riêng tư</small>
+          </label>}
+          <label>Loại tài liệu<select name="document_type_value_id" defaultValue={existing?.document_type_value_id||""}>
+            <option value="">— Chưa phân loại —</option>
+            {groups.map(([code,label])=><optgroup key={code} label={label}>{types.filter(item=>item.group===code).map(item=><option value={item.id} key={item.id}>{item.label}</option>)}</optgroup>)}
+          </select></label>
+          <label>Nhóm tài liệu<select name="document_group" defaultValue={existing?.document_group?.toLowerCase()||"other"}>
+            {groups.map(([code,label])=><option key={code} value={code}>{label}</option>)}
+          </select><small>Nếu chọn Loại, nhóm sẽ được xác định theo loại.</small></label>
+          <label>Tên tiếng Anh<input name="title_en" maxLength={255} defaultValue={existing?.title_en||""}/></label>
+          <label>Ngôn ngữ<select name="language" defaultValue={existing?.language||"vi"}>
+            <option value="vi">Tiếng Việt</option><option value="en">Tiếng Anh</option><option value="vi-en">Song ngữ</option>
+          </select></label>
+          <label className="document-meta-wide">Tóm tắt nội dung<textarea name="document_abstract" rows={2} maxLength={3000} defaultValue={existing?.document_abstract||""} placeholder="Mục đích, nội dung chính và giá trị sử dụng"/></label>
+          <label className="document-meta-wide">Từ khóa<input name="keywords" maxLength={1000} defaultValue={existing?.keywords||""} placeholder="Ví dụ: bán hàng, cửa hàng, kiểm kê"/></label>
+        </div>
+      </div>
+      <details className="document-meta-block" defaultOpen={editing}>
+        <summary>Phân loại & phạm vi áp dụng <small>· không bắt buộc</small></summary>
+        <div className="document-meta-grid">
+          <label className="document-meta-wide">Quy trình liên quan (chính)
+            <select name="process_id" defaultValue={primaryProcessId||""}>
+              <option value="">— Có thể bổ sung sau —</option>
+              {processes.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}
+            </select>
+          </label>
+          <label className="document-meta-wide">Mô tả phạm vi / ngoại lệ<textarea name="applicability_note" rows={2} maxLength={2000} defaultValue={existing?.applicability_note||""} placeholder="Đối tượng áp dụng, phạm vi, những trường hợp không áp dụng"/></label>
+          {dimensions.map(([dimension,label])=><div key={dimension} className="document-scope-group">
+            <strong>{label}</strong>
+            <div className="document-meta-choice-group">
+              {(scopeOptions[dimension]||[]).map(item=><label className="document-meta-choice" key={item.id}>
+                <input name={"scope_"+dimension} type="checkbox" value={item.id} defaultChecked={(selectedScopes[dimension]||[]).includes(item.id)}/>
+                <span>{item.label}</span>
+              </label>)}
+            </div>
+            {!(scopeOptions[dimension]||[]).length&&<small>Chưa có danh mục áp dụng</small>}
+          </div>)}
+          <div className="document-meta-wide document-scope-group">
+            <strong>Nhãn quản trị</strong>
+            <div className="document-meta-choice-group">{tags.map(item=><label className="document-meta-choice" key={item.id}>
+              <input type="checkbox" name="governance_tag_id" value={item.id} defaultChecked={selectedTags.includes(item.id)}/>
+              <span>{item.label}</span>
+            </label>)}</div>
+          </div>
+        </div>
+      </details>
+      <details className="document-meta-block" defaultOpen={editing}>
+        <summary>Trách nhiệm & quyền truy cập <small>· không bắt buộc</small></summary>
+        <div className="document-meta-grid">
+          <label>Chủ sở hữu tài liệu<select name="owner_id" defaultValue={existing?.owner_id||""}>
+            <option value="">— Chưa chọn —</option>{people.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}
+          </select></label>
+          <label>Người dự kiến phê duyệt<select name="designated_approver_id" defaultValue={existing?.designated_approver_id||""}>
+            <option value="">— Chưa chọn —</option>{approvers.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}
+          </select><small>Người này chỉ được ghi nhận dự kiến, chưa thực hiện phê duyệt.</small></label>
+          <label>Đơn vị ban hành<input name="issuing_department" maxLength={255} defaultValue={existing?.issuing_department||""} placeholder="Ví dụ: Khối Bán lẻ"/></label>
+          <label>Mức truy cập<select name="access_level" defaultValue={existing?.access_level||"internal"}>
+            {accessLevels.map(([value,label])=><option key={value} value={value}>{label}</option>)}
+          </select><small>Quyền xem bản nháp phụ thuộc vai trò; Viewer chỉ xem bản hiệu lực.</small></label>
+        </div>
+      </details>
+      <details className="document-meta-block" defaultOpen={editing}>
+        <summary>Hiệu lực, kiểm soát & lưu trữ <small>· không bắt buộc</small></summary>
+        <div className="document-meta-grid">
+          <DateField name="valid_from" label="Ngày bắt đầu hiệu lực" value={existing?.valid_from}/>
+          <DateField name="valid_until" label="Ngày hết hiệu lực" value={existing?.valid_until}/>
+          <DateField name="review_due_at" label="Ngày rà soát tiếp theo" value={existing?.review_due_at}/>
+          <label>Mức độ rủi ro<select name="risk_rating" defaultValue={existing?.risk_rating||""}>
+            <option value="">— Chưa đánh giá —</option>
+            <option value="low">Thấp</option><option value="medium">Trung bình</option>
+            <option value="high">Cao</option><option value="critical">Trọng yếu</option>
+          </select></label>
+          <label className="document-meta-wide">Căn cứ ban hành / tài liệu pháp lý liên quan
+            <textarea name="legal_reference" rows={2} maxLength={1500} defaultValue={existing?.legal_reference||""}/>
+          </label>
+          <label className="document-meta-wide">Lưu trữ / thời hạn lưu trữ
+            <textarea name="retention_note" rows={2} maxLength={1500} defaultValue={existing?.retention_note||""}/>
+          </label>
+          <label className="document-meta-wide">Ghi chú thay đổi
+            <textarea name="change_summary" rows={2} maxLength={2000} defaultValue={existing?.change_summary||""}/>
+          </label>
+        </div>
+      </details>
+      <div className="document-intake-footer">
+        <button type="submit" className="primary-button">{editing?"Lưu metadata":"Tạo bản nháp & upload"}</button>
+        {editing&&<a className="text-button" href="/documents">Hủy chỉnh sửa</a>}
+        <small>Hệ thống tự ghi mã, phiên bản, người tạo, dung lượng và mã kiểm tra file. Không tự xuất bản.</small>
+      </div>
+    </form>
+  </section>;
 }
