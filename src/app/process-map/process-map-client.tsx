@@ -63,6 +63,7 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
   );
 
   return <WorkspaceShell active="/process-map" eyebrow="PROCESS LANDSCAPE" title="Process Map" description="Điều hướng hierarchy enterprise và xem nhanh ngữ cảnh của từng process." userName={userName} role={role}>
+    <Link className="text-button" href="/" aria-label="Quay lại menu chính">← Quay lại menu chính</Link>
     <div className="map-actions"><button className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
     {errorMessage ? <div className="state-message error-state"><strong>Không thể tải Process Map</strong><span>{errorMessage}</span></div> : null}
     {!errorMessage && !selected ? <div className="state-message"><strong>Chưa có process</strong><span>Tạo process metadata để bắt đầu hierarchy.</span></div> : null}
