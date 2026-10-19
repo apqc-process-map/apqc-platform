@@ -30,7 +30,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `DONE APQC-004` Validate 2,017 elements, five levels, 13 categories, and no duplicate PCF IDs.
 - [x] `DONE APQC-005` Validate and import 3,284 metric definitions.
 - [x] `DONE APQC-006` Store and display APQC attribution/version metadata.
-- [~] `PARTIAL APQC-007` Add APQC reference search and detail view.
+- [x] `DONE APQC-007` Add APQC reference search and detail view.
 
 ## EPIC 3 — Enterprise processes
 
@@ -124,7 +124,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `DONE DASH-006` Create finding-aging/dashboard SQL views.
 - [~] `PARTIAL DASH-007` Build Finding dashboard and drill-down.
 - [x] `DONE NOTIF-001` Create notifications schema and event service.
-- [~] `PARTIAL NOTIF-002` Build notification center with read/unread and deep links.
+- [x] `DONE NOTIF-002` Build notification center with read/unread and deep links.
 - [ ] `TODO NOTIF-003` Add review, reading, role, finding, and due-date notifications.
 
 ## EPIC 9 — Verification and deployment
@@ -188,10 +188,17 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [ ] `BLOCKED LATER-010` BPMN viewer/editor.
 
 
-## Demo workspace verification � 2026-10-16
+## Demo workspace verification � 2026-10-16
 
 - [x] Seeded demo catalogs, process flows, relationships, findings, comments, reactions, reading assignments, acknowledgments, and notifications in Supabase.
 - [x] Fixed finding notification trigger to use profiles.role instead of the nonexistent profiles.system_role.
 - [x] Added safe cleanup coverage to scripts/delete-demo-processes.sql.
 - [ ] Replace synthetic demo records with representative enterprise samples when supplied.
 
+
+## Review snapshot — 2026-10-19
+
+- [x] APQC-007 — Catalog APQC rows now open a protected detail page with hierarchy, parent navigation, description, and imported metrics.
+- [x] NOTIF-002 — Notification center now supports per-item and bulk mark-as-read through server actions scoped to the authenticated recipient.
+- [x] BUILD — Removed build-time Google Font fetching; production build uses local system font fallbacks and succeeds offline.
+- [ ] Remaining partial work continues with finding workflow UI, relationship graph expansion, document upload/preview/lifecycle, and QA matrix.
