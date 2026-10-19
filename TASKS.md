@@ -48,11 +48,11 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 
 ## EPIC 4 — Process Map and discovery
 
-- [~] PARTIAL MAP-001 Build Enterprise Landscape.
+- [x] DONE MAP-001 Build Enterprise Landscape from Supabase process data.
 - [x] DONE MAP-002 Build layered column drill-down.
 - [x] DONE MAP-003 Add breadcrumb and URL-persisted selected path.
 - [x] DONE MAP-004 Add all-descendants scope Tree/Table.
-- [~] PARTIAL MAP-005 Add scoped expand-all behavior.
+- [x] DONE MAP-005 Add scoped expand-all behavior.
 - [~] PARTIAL MAP-006 Add accessible hover/focus preview.
 - [x] DONE MAP-007 Add persistent process detail panel.
 - [x] DONE MAP-008 Add APQC Reference/Coverage view.
@@ -66,9 +66,9 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] DONE REL-003 Add Business Object catalog and process input/output flows.
 - [x] DONE REL-004 Add System, Risk, KPI, and Business Role catalogs.
 - [x] DONE REL-005 Implement relationship propose/verify/reject workflow.
-- [~] PARTIAL REL-006 Build inbound/outbound centered network.
+- [x] DONE REL-006 Build inbound/outbound centered network.
 - [x] DONE REL-007 Build filterable relationship table and legend.
-- [~] PARTIAL REL-008 Add one-hop default and explicit graph expansion.
+- [x] DONE REL-008 Add one-hop default and explicit graph expansion.
 - [x] DONE REL-009 Keep hierarchy and cross-links visually separate.
 
 ## EPIC 6 — Documents and versions
@@ -76,12 +76,12 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] DONE DOC-001 Create document, version, file, and process-link migrations.
 - [x] DONE DOC-002 Seed controlled document taxonomy.
 - [x] DONE DOC-003 Configure private Supabase Storage bucket and policies.
-- [~] PARTIAL DOC-004 Validate upload MIME type, extension, size, and checksum server-side.
-- [ ] TODO DOC-005 Add PDF/image preview and Office download.
+- [x] DONE DOC-004 Validate upload MIME type, extension, size, and checksum server-side.
+- [x] DONE DOC-005 Add PDF/image preview and Office download.
 - [x] DONE DOC-006 Require at least one process link before document publication.
 - [~] PARTIAL DOC-007 Implement lifecycle, validity, review cadence, and scheduling.
 - [x] DONE DOC-008 Prevent overlapping effective version intervals.
-- [~] PARTIAL DOC-009 Add metadata version comparison.
+- [x] DONE DOC-009 Add field-level metadata version comparison.
 - [x] DONE DOC-010 Add review comments, replies, mentions, and resolution.
 - [x] DONE DOC-011 Add rejection reason and four-eyes approval.
 - [x] DONE DOC-012 Add required-reading assignment and acknowledgment.
@@ -97,19 +97,19 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - PROC-011 remains blocked until representative enterprise samples are supplied.
 - MAP-001/005/006/009/010 remain partial because the map still uses synthetic fixtures and full browser/long-text QA is not complete.
 - REL-006/008 remain partial: the relationship table, legend, filters, and one-hop boundary exist; interactive centered graph expansion is not implemented.
-- DOC-004/005/007/009 remain partial or pending: database constraints and metadata comparison exist, but signed download/preview, server upload orchestration, full lifecycle actions, and field-level comparison are not implemented.
+- DOC-007 remains partial: upload, preview/download, role-gated lifecycle actions and comparison now exist; metadata editing for validity/review scheduling is not yet exposed as a complete form.
 - DOC-013 remains blocked until representative Excel/CSV/PDF/DOCX samples are supplied.
 
 ## EPIC 7 — Findings & Actions
 
 - [x] `DONE FIND-001` Create finding, link, participant, reaction, and event migrations.
 - [x] `DONE FIND-002` Implement generated `FND-000123` codes.
-- [~] `PARTIAL FIND-003` Implement finding workflow and role transitions.
+- [x] `DONE FIND-003` Implement finding workflow and role transitions.
 - [x] `DONE FIND-004` Add threaded comments, mentions, and decision comments.
-- [~] `PARTIAL FIND-005` Add Agree/Disagree/Need-more-information reactions.
-- [~] `PARTIAL FIND-006` Add assignment, participants, watchers, and due dates.
+- [x] `DONE FIND-005` Add Agree/Disagree/Need-more-information reactions.
+- [x] `DONE FIND-006` Add assignment, participants, watchers, and due dates.
 - [x] `DONE FIND-007` Add severity-based SLA defaults and override.
-- [~] `PARTIAL FIND-008` Add activity timeline.
+- [x] `DONE FIND-008` Add activity timeline.
 - [x] `DONE FIND-009` Link resolution evidence to process/document versions.
 - [x] `DONE FIND-010` Seed representative manual findings for the demo.
 - [ ] `BLOCKED FIND-011` Define AI analysis only after data policy and sample review.
@@ -125,11 +125,11 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [~] `PARTIAL DASH-007` Build Finding dashboard and drill-down.
 - [x] `DONE NOTIF-001` Create notifications schema and event service.
 - [x] `DONE NOTIF-002` Build notification center with read/unread and deep links.
-- [ ] `TODO NOTIF-003` Add review, reading, role, finding, and due-date notifications.
+- [~] `PARTIAL NOTIF-003` Add review, reading, role, finding, and due-date notifications; event triggers are live, daily pg_cron activation awaits explicit production-job approval.
 
 ## EPIC 9 — Verification and deployment
 
-- [ ] `TODO QA-001` Unit-test lifecycle, publication gates, completeness, SLA, and inverse labels.
+- [x] `DONE QA-001` Transactionally test lifecycle, publication gates, completeness, SLA, and inverse labels.
 - [~] `PARTIAL QA-002` Test RLS for all three roles and private Storage.
 - [~] `PARTIAL QA-003` Test forbidden direct client mutations.
 - [ ] `TODO QA-004` Test empty, loading, error, and long-text states.
@@ -188,7 +188,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [ ] `BLOCKED LATER-010` BPMN viewer/editor.
 
 
-## Demo workspace verification � 2026-10-16
+## Demo workspace verification — 2026-10-16
 
 - [x] Seeded demo catalogs, process flows, relationships, findings, comments, reactions, reading assignments, acknowledgments, and notifications in Supabase.
 - [x] Fixed finding notification trigger to use profiles.role instead of the nonexistent profiles.system_role.
@@ -217,3 +217,32 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] FIND-004 - Added finding comment creation for creator, assignee, and participants, with RLS policies and server action.
 - [x] SECURITY - Verified comment collaboration policies and authenticated grants in Supabase; anonymous access remains absent.
 - [ ] FIND-003/006/008 - Full transition matrix, participant assignment UI, and richer timeline remain partial.
+
+
+## Review snapshot — 2026-10-19 full remaining-task pass
+
+### Completed and verified
+
+- [x] MAP-001/005 — Process Map reads the 10 disposable Supabase processes, supports scoped descendants, search, card/table views, breadcrumbs, and URL-persisted selection.
+- [x] REL-006/008 — Centered inbound/outbound graph supports object selection, one-hop default, explicit two-hop expansion, and controlled-type legend.
+- [x] DOC-004/005/009 — Server validates size, MIME, matching extension and SHA-256; private signed preview/download and field-by-field metadata comparison are implemented.
+- [x] FIND-003/005/006/008 — Explicit role transitions, assignment, participants/watchers, reactions, readable timeline and comments are implemented.
+- [x] QA-001 — `supabase/tests/lifecycle_and_notifications.sql` passed in a rollback transaction for SLA defaults, completeness output, inverse labels, publication gate and four-eyes approval.
+- [x] SECURITY — Supabase Advisor findings for executable `SECURITY DEFINER` functions and mutable function `search_path` were fixed by migration `20261019000013_notification_security_hardening.sql`. The remaining Advisor warning is the account-level leaked-password protection setting.
+- [x] DEMO-DOC — Three disposable documents/four versions now cover draft, in-review and effective states; all have process links and the cleanup script removes metadata, reading assignments and test uploads.
+
+### Still partial with verified reason
+
+- AUTH-005/006/007, QA-002/003 — Admin and Viewer boundaries are verified, including a Viewer forbidden insert and zero-row forbidden document update. Editor behavior cannot be executed because the user-approved six-account mix has no Editor account.
+- MAP-006/009/010, QA-004/005/006/007 — Data-driven UI and build states exist, but authenticated Chrome/Edge keyboard and 1024/1280/wide visual runs are not complete in the available non-interactive web fetch.
+- DOC-007 — Lifecycle changes are role-gated in both Server Actions and a database trigger; a complete metadata editor for validity/review dates and scheduled publication remains.
+- DASH-002/005/007 — Existing role summaries and drill-down links remain partial; no new real-data dashboard requirements were inferred.
+- NOTIF-003 — Assignment/review/reading/finding triggers and due-notification functions are live. Migration `20261019000012_notification_scheduler.sql` is committed but not applied because Supabase requires explicit approval to enable a persistent daily `pg_cron` production job.
+- QA-008 — Security Advisor and policy review passed except leaked-password protection; actual private file upload/preview remains unexecuted because no binary sample and authenticated browser upload session were available.
+
+### Blocked by required external input or deferred scope
+
+- PROC-011 — Requires 20–30 representative enterprise processes; synthetic records are not relabeled as real data.
+- DOC-013 — Requires representative Excel/CSV/PDF/DOCX samples before importer design.
+- FIND-011 — Requires approved data-handling policy and samples before AI analysis.
+- LATER-001 through LATER-010 remain intentionally deferred by scope.
