@@ -202,3 +202,12 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] NOTIF-002 — Notification center now supports per-item and bulk mark-as-read through server actions scoped to the authenticated recipient.
 - [x] BUILD — Removed build-time Google Font fetching; production build uses local system font fallbacks and succeeds offline.
 - [ ] Remaining partial work continues with finding workflow UI, relationship graph expansion, document upload/preview/lifecycle, and QA matrix.
+
+## Review snapshot - 2026-10-19 continuation
+
+- [~] FIND-003/006/008 - Finding detail now supports RLS-governed status/assignment updates and displays activity timeline; full role transition matrix and comment workflow remain incomplete.
+- [x] FIND-005 - Finding detail exposes Agree/Disagree/Need-more-information actions backed by existing own-reaction RLS.
+- [~] DOC-005 - Authenticated server route now creates 60-second signed links for stored files; inline PDF/image preview and Office-specific UX remain.
+- [~] REL-006/008 - Relationship table and filters remain verified; centered interactive graph/explicit expansion remain.
+- [ ] QA-004/005/006/007 - Build/lint pass; authenticated browser, accessibility, and multi-viewport QA still require a signed-in session and browser coverage.
+- [ ] QA-002/008 - RLS baseline is documented; comment-write policy and full Storage/security matrix remain pending approval/verification.
