@@ -2,7 +2,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createDocumentDraft, updateDocumentMetadata } from "@/app/actions";
-import { uploadPrivateDocumentFile } from "@/lib/document-upload";
+import { uploadPrivateDocumentFile, validateDocumentFile } from "@/lib/document-upload";
 
 type Option = { id:string; label:string; group?:string };
 type Existing = {
@@ -61,6 +61,9 @@ export default function DocumentIntake({
     if(!file&&!String(data.get("title_vi")||"").trim()){
       setError("Vui lòng chọn file hoặc nhập tên tài liệu.");
       return;
+    }
+    if(file){
+      try{validateDocumentFile(file);}catch(cause){setError(cause instanceof Error?cause.message:"File không hợp lệ.");return;}
     }
     if(file&&!String(data.get("title_vi")||"").trim())
       data.set("title_vi",file.name.replace(/\\.[^.]+$/,"").slice(0,255));
