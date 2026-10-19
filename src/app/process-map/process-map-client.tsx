@@ -115,9 +115,9 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
         <div className="level-filter" aria-label="Lọc theo cấp độ">
           <button type="button" className={!activeLevels.length ? "active" : ""} onClick={() => setActiveLevels([])}>Tất cả cấp</button>
           {LEVEL_BANDS.map((band) => <button key={band.key} type="button" className={activeLevels.includes(band.types[0]) || (band.key === "L4" && activeLevels.includes("task")) ? "active" : ""} onClick={() => {
-            const values = [...band.types];
+            const values = band.types as readonly string[];
             const allActive = values.every((value) => activeLevels.includes(value));
-            setActiveLevels((current) => allActive ? current.filter((value) => !values.includes(value as never)) : [...new Set([...current, ...values])]);
+            setActiveLevels((current) => allActive ? current.filter((value) => !values.includes(value)) : [...new Set([...current, ...values])]);
           }}>{band.key} · {band.label}</button>)}
         </div>
         <div className="value-chain-scroll"><div className="value-chain-map" aria-label="Sơ đồ process theo cấp độ L0 đến L4">
