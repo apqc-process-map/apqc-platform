@@ -80,3 +80,10 @@ Process Map is a desktop-first internal demo for navigating and governing enterp
 - APQC detail route /catalog/apqc/[id] is implemented with parent navigation, source metadata, description, and metrics.
 - Notifications support per-item and bulk read state updates through authenticated server actions; RLS remains the database boundary.
 - pnpm lint and production pnpm build passed. Build no longer depends on fetching Google Fonts.
+
+## 2026-10-19 continuation verified
+
+- Finding detail route supports RLS-governed workflow status/assignee/resolution updates, own reactions, event timeline, and read-only comments.
+- Document file route creates a 60-second Supabase Storage signed URL only after authenticated access and database file lookup.
+- pnpm lint and pnpm build pass with 14 routes, including /findings/[id] and /documents/files/[id].
+- Comment write policy was not changed because the live Supabase connector rejected broadening authenticated write access without a separate security approval.
