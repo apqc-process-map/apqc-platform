@@ -12,7 +12,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 ## Verified data
 
 - APQC import: 2,017 elements, 3,284 metrics, 13 categories, levels 1–5, no missing parents, duplicate PCF IDs, or orphan metrics.
-- Demo sandbox: 10 disposable enterprise processes, 15 relationships, 8 findings, 20 finding participants, and 12 notifications.
+- Demo sandbox: 10 disposable enterprise processes with complete Executive Summary metadata, 10 applicability-covered versions, 6 controlled tags/15 process tag assignments, 32 verified relationships, 5 typed findings, 3 documents with metadata/tags, and existing workflow fixtures.
 - Documents: 3 disposable documents with 4 versions covering draft, in-review, and effective states; every version has a process link and 2 document reading assignments exist.
 - Six active Auth accounts use the approved mix of three Admin and three Viewer. Credentials are not stored in Git. There is no Editor account.
 - Licensed APQC source files and private documents remain outside Git.
@@ -58,6 +58,14 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 
 ## Delivery state
 
-- Current work is on `codex/complete-mvp`.
+- Current work is on `codex/seed-complete-demo-metadata`.
 - Production remains on the previously merged `main` until this branch passes its final Vercel preview check and pull request merge.
 - `scripts/delete-demo-processes.sql` removes demo processes, relationships, findings, documents, reading assignments, and uploaded test objects in dependency order.
+
+
+## Rich demo metadata milestone — 2026-10-19
+
+- Migration `20261019000012_rich_demo_metadata.sql` is applied and verified in Supabase.
+- Process Map now reads and displays purpose, boundaries, decision points, accountability, access, review date, systems, applicability and governance tags from Supabase.
+- Cleanup script removes generic applicability/tag rows before deleting demo documents and processes.
+- No binary document fixtures were invented; real-file upload testing still requires a sample file.
