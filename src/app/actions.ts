@@ -294,7 +294,7 @@ export async function createDocumentDraft(formData: FormData) {
       });
       if (linked.error) throw new Error(linked.error.message);
     }
-    if (file) await saveDraftFile(supabase,user.id,versionId,file);
+    if (file) await saveDraftFile(supabase,user.id,version.data.id,file);
   } catch (error) {
     if (versionId) {
       await supabase.from("document_process_links").delete().eq("document_version_id",versionId);
