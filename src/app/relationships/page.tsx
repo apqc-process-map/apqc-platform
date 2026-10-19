@@ -44,9 +44,13 @@ export default async function RelationshipsPage({ searchParams }: { searchParams
     .select("id, source_type, source_id, target_type, target_id, label, description, status, relationship_types(code, group_code, label_vi, inverse_label_vi, is_directed)")
     .order("updated_at", { ascending: false })
     .limit(100);
-  if (group !== "all") relationshipQuery = relationshipQuery.eq("relationship_types.group_code", group);
   if (status !== "all") relationshipQuery = relationshipQuery.eq("status", status);
-  const { data: relationships, error } = await relationshipQuery;
+  const { data: rawRelationships, error } = await relationshipQuery;
+  const relationships = (rawRelationships || []).filter((item) => {
+    if (group === "all") return true;
+    const relationshipType = item.relationship_types as unknown as { group_code: string } | null;
+    return relationshipType?.group_code === group;
+  });
 
   const labels = new Map<string, string>();
   for (const process of (processResult.data || []) as unknown as ProcessRow[]) {
