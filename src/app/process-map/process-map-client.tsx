@@ -115,14 +115,14 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
         {headerExpanded ? "Thu gọn" : "Mở rộng"}
       </button>
     </div>
-    {headerExpanded ? <div className="process-map-header-details" id="process-map-header-details">
+    <div className="process-map-header-details" id="process-map-header-details" hidden={!headerExpanded}>
       <p className="process-map-header-description">Tìm kiếm, xem tổng quan và quản trị metadata quy trình theo L0–L4.</p>
       <div className="process-map-header-controls">
         <Link className="text-button process-map-back-link" href="/" aria-label="Quay lại menu chính">← Quay lại menu chính</Link>
         <div className="map-actions"><button type="button" className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button type="button" className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
       </div>
       {selected ? <div className="map-breadcrumb process-map-header-breadcrumb" aria-label="Breadcrumb">{path.map((item, index) => <button key={item.id} onClick={() => chooseNode(item.id)}>{item.name}{index < path.length - 1 && <span> / </span>}</button>)}</div> : null}
-    </div> : null}
+    </div>
   </section>;
 
   return <WorkspaceShell active="/process-map" eyebrow="PROCESS LANDSCAPE" title="Process Map" description="Tìm kiếm, xem tổng quan và quản trị metadata quy trình theo L0–L4." userName={userName} role={role} headerContent={headerContent}>
