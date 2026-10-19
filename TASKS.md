@@ -237,7 +237,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - MAP-006/009/010, QA-004/005/006/007 — Data-driven UI and build states exist, but authenticated Chrome/Edge keyboard and 1024/1280/wide visual runs are not complete in the available non-interactive web fetch.
 - DOC-007 — Lifecycle changes are role-gated in both Server Actions and a database trigger; a complete metadata editor for validity/review dates and scheduled publication remains.
 - DASH-002/005/007 — Existing role summaries and drill-down links remain partial; no new real-data dashboard requirements were inferred.
-- NOTIF-003 — Assignment/review/reading/finding triggers and due-notification functions are live. Migration `20261019000012_notification_scheduler.sql` is committed but not applied because Supabase requires explicit approval to enable a persistent daily `pg_cron` production job.
+- NOTIF-003 — Assignment/review/reading/finding triggers and due-notification functions are live. Draft `supabase/pending/notification_scheduler.sql` is quarantined outside the migration path and not applied because Supabase requires explicit approval to enable a persistent daily `pg_cron` production job.
 - QA-008 — Security Advisor and policy review passed except leaked-password protection; actual private file upload/preview remains unexecuted because no binary sample and authenticated browser upload session were available.
 
 ### Blocked by required external input or deferred scope
