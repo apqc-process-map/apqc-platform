@@ -50,7 +50,11 @@ function firstRelation<T>(value: T | T[] | null): T | null {
   return Array.isArray(value) ? value[0] || null : value;
 }
 
-export default async function ProcessMapPage() {
+type PageProps = { searchParams: Promise<{ version?: string | string[] }> };
+
+export default async function ProcessMapPage({ searchParams }: PageProps) {
+  const requestedVersion = (await searchParams).version;
+  const requestedVersionId = typeof requestedVersion === "string" ? requestedVersion : "";
   const { supabase, profile } = await requireActiveAccount();
   const { data, error } = await supabase
     .from("processes")
@@ -88,7 +92,7 @@ export default async function ProcessMapPage() {
       if (b.status === "effective" && a.status !== "effective") return 1;
       return b.version_number - a.version_number;
     });
-    const version = versions[0];
+    const version = (requestedVersionId ? versions.find((candidate) => candidate.id === requestedVersionId) : undefined) || versions[0];
     const owner = version?.process_assignments?.find((assignment) => assignment.assignment_role === "owner")?.profiles?.display_name;
     return {
       id: process.id,
