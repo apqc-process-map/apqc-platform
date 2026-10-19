@@ -261,3 +261,5 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `MAP-009` — The value-chain view reflects live enterprise process metadata rather than synthetic hierarchy cards.
 - [~] `PARTIAL MAP-010 / QA-004/005/006/007` — Responsive overflow, focus states, long-text preview layout, empty L3/L4 states, and reduced-motion support are implemented. Authenticated Chrome/Edge visual runs at 1024/1280/wide remain pending.
 - [ ] Data note — Current demo data contains L0–L2 only and all `parent_process_id` values are null. L3/L4 are intentionally shown as empty and no hierarchy links are fabricated.
+
+- [x] `MAP-010 polish` — Removed redundant center-map titles, compacted controls and level spacing, and moved the five-section preview to a viewport-fixed, scrollable layer so long Vietnamese text is not clipped by the map panel.
