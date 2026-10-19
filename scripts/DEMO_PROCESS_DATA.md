@@ -1,18 +1,17 @@
 # Demo workspace data
 
-The Supabase project contains 10 reversible demo processes marked with `source_code` values beginning `DEMO-20261016-`.
+Supabase contains 10 reversible enterprise-process fixtures marked with `source_code` values beginning `DEMO-20261016-`. The rich fixture migration is `supabase/migrations/20261019000012_rich_demo_metadata.sql`.
 
-To remove only these demo processes after real data is ready, run:
+## Coverage
 
-```sql
-delete from public.processes where source_code like 'DEMO-20261016-%';
-```
+- 10 process versions with bilingual names, purpose, description, scope, trigger, outcome, all five Executive Summary fields, lifecycle dates, access level and allowed roles.
+- Applicability examples for department, location, channel, product/service, system, employee audience and exception.
+- 6 controlled governance tags with 15 process assignments and document assignments.
+- 3 systems, 3 risks, 3 KPIs, 3 business roles, 4 business objects, input/output flows and verified relationship evidence.
+- 3 demo documents with multiple versions, document group/type/language/access metadata, process links, applicability and tags. No fake binary files are created; upload testing still uses a real sample file.
+- 5 demo findings across workflow states with finding type, resolution, due date and process evidence links.
+- Existing comments, reactions, participants, reading assignments, acknowledgments and notifications remain available for workflow testing.
 
-The foreign-key cascades remove their version, assignments, aliases, and APQC mapping rows.
+## Cleanup
 
-
-## Covered functions
-
-The Supabase sandbox includes 10 enterprise processes with bilingual metadata, aliases, assignments, APQC mappings, and publication-ready versions; 3 systems, 3 risks, 3 KPIs, 3 business roles, 4 business objects; 7 input-output flows; 15 verified relationships; 5 findings across workflow states; links, participants, watchers, reactions, comments, reading assignments, acknowledgments, and demo notifications.
-
-The notification trigger fix is versioned in supabase/migrations/20261016000009_fix_finding_notification_role.sql and uses profiles.role, the actual schema column.
+Run the whole script in `scripts/delete-demo-processes.sql` in Supabase SQL Editor. It removes only demo documents, process versions, metadata, tags, findings, relationships, catalogs and uploaded test objects. Do not use a broad `delete from public.processes` command because the real-data boundary is intentionally protected by the `DEMO-20261016-` marker.
