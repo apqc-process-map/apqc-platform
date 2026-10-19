@@ -188,115 +188,188 @@ export async function updateDocumentLifecycle(formData: FormData) {
 }
 
 
-type DraftMetadata = {
-  title_vi: string; title_en: string | null; document_group: string;
-  language: string; document_abstract: string | null; change_summary: string;
-  valid_from: string | null; valid_until: string | null; review_due_at: string | null;
-  issuing_department: string | null; applicability_note: string | null; keywords: string | null;
-  owner_id: string | null; document_type_value_id: string | null;
+type DocumentDraftMetadata = {
+  title_vi:string; title_en:string|null; document_group:string; document_type_value_id:string|null;
+  language:string; document_abstract:string|null; change_summary:string;
+  valid_from:string|null; valid_until:string|null; review_due_at:string|null;
+  issuing_department:string|null; applicability_note:string|null; keywords:string|null;
+  owner_id:string|null; designated_approver_id:string|null;
+  legal_reference:string|null; retention_note:string|null; risk_rating:string|null;
+  access_level:string; allowed_roles:string[];
 };
-function optionalString(data: FormData, field: string, max = 1000) {
-  const value = String(data.get(field) || "").trim();
-  if (value.length > max) throw new Error(`Trường ${field} vượt quá ${max} ký tự.`);
-  return value || null;
+const documentGroups = ["governance","execution","communication","evidence","planning","external","other"];
+const documentScopeDimensions = ["legal_entity","department","location","channel","product_service","employee_audience"] as const;
+type ScopeDimension = typeof documentScopeDimensions[number];
+type DocumentExtras = { processId:string|null; scopes:{dimension:ScopeDimension; vocabulary_value_id:string}[]; tagIds:string[] };
+function optionalString(data:FormData,field:string,max=1000):string|null {
+  const value=String(data.get(field)||"").trim();
+  if(value.length>max) throw new Error("Trường "+field+" vượt quá "+max+" ký tự.");
+  return value||null;
 }
-function optionalDate(data: FormData, field: string) {
-  const value = optionalString(data, field, 10);
-  if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new Error("Ngày không hợp lệ.");
+function optionalDate(data:FormData,field:string):string|null {
+  const value=optionalString(data,field,10);
+  if(value && (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(value)))) throw new Error("Ngày không hợp lệ.");
   return value;
 }
-function draftMetadata(data: FormData): DraftMetadata {
-  const valid_from = optionalDate(data,"valid_from");
-  const valid_until = optionalDate(data,"valid_until");
-  if (valid_from && valid_until && valid_until < valid_from) throw new Error("Ngày hết hiệu lực phải sau ngày bắt đầu.");
-  const group = optionalString(data,"document_group",100) || "other";
-  if (!["governance","execution","communication","evidence","planning","external","other"].includes(group)) throw new Error("Nhóm tài liệu không hợp lệ.");
-  return {
-    title_vi: optionalString(data,"title_vi",255) || "",
-    title_en: optionalString(data,"title_en",255),
-    document_group: group,
-    language: optionalString(data,"language",12) || "vi",
-    document_abstract: optionalString(data,"document_abstract",3000),
-    change_summary: optionalString(data,"change_summary",2000) || "",
-    valid_from, valid_until,
-    review_due_at: optionalDate(data,"review_due_at"),
-    issuing_department: optionalString(data,"issuing_department",255),
-    applicability_note: optionalString(data,"applicability_note",2000),
-    keywords: optionalString(data,"keywords",1000),
-    owner_id: optionalString(data,"owner_id",80),
-    document_type_value_id: optionalString(data,"document_type_value_id",80),
+function documentFile(data:FormData):File|null {
+  const value=data.get("file");
+  if(!(value instanceof File)||!value.size) return null;
+  if(value.size>26_214_400) throw new Error("File vượt giới hạn 25 MB.");
+  if(!allowedMimeTypes.has(value.type)) throw new Error("Chỉ nhận PDF, DOCX, XLSX, PPTX, PNG hoặc JPEG.");
+  const extension=value.name.split(".").pop()?.toLowerCase()||"";
+  if(!allowedFileExtensions[value.type]?.includes(extension)) throw new Error("Định dạng và phần mở rộng file không khớp.");
+  return value;
+}
+async function validateDraftForm(
+  supabase:Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  data:FormData
+):Promise<{metadata:DocumentDraftMetadata;extras:DocumentExtras}> {
+  const valid_from=optionalDate(data,"valid_from");
+  const valid_until=optionalDate(data,"valid_until");
+  if(valid_from&&valid_until&&valid_until<valid_from)throw new Error("Ngày kết thúc phải từ ngày bắt đầu hiệu lực trở đi.");
+  const document_type_value_id=optionalString(data,"document_type_value_id",80);
+  let document_group=optionalString(data,"document_group",100)||"other";
+  if(!documentGroups.includes(document_group)) throw new Error("Nhóm tài liệu không hợp lệ.");
+  if(document_type_value_id){
+    const {data:found,error}=await supabase.from("vocabulary_values")
+      .select("id,document_group_code,vocabularies!inner(code)")
+      .eq("id",document_type_value_id).eq("vocabularies.code","document_type").eq("is_active",true).maybeSingle();
+    if(error||!found)throw new Error("Loại tài liệu không hợp lệ.");
+    if(found.document_group_code && documentGroups.includes(found.document_group_code)) document_group=found.document_group_code;
+  }
+  const owner_id=optionalString(data,"owner_id",80);
+  const designated_approver_id=optionalString(data,"designated_approver_id",80);
+  const ids=[...new Set([owner_id,designated_approver_id].filter((id):id is string=>!!id))];
+  if(ids.length){
+    const {data:people,error}=await supabase.from("profiles").select("id,role").in("id",ids).eq("is_active",true);
+    if(error||!people||people.length!==ids.length)throw new Error("Người phụ trách hoặc người duyệt không hợp lệ.");
+    if(designated_approver_id&&people.find(p=>p.id===designated_approver_id)?.role!=="admin")
+      throw new Error("Người duyệt phải có quyền Admin.");
+  }
+  const access_level=optionalString(data,"access_level",50)||"internal";
+  if(!["internal","limited","confidential","highly_restricted"].includes(access_level))throw new Error("Phân loại truy cập không hợp lệ.");
+  const allowed_roles=access_level==="internal"?["viewer","editor","admin"]:
+    access_level==="highly_restricted"?["admin"]:["editor","admin"];
+  const risk_rating=optionalString(data,"risk_rating",30);
+  if(risk_rating&&!["low","medium","high","critical"].includes(risk_rating))throw new Error("Mức độ rủi ro không hợp lệ.");
+  const processId=optionalString(data,"process_id",80);
+  if(processId){
+    const {data:process,error}=await supabase.from("processes").select("id").eq("id",processId).maybeSingle();
+    if(error||!process)throw new Error("Quy trình liên quan không hợp lệ.");
+  }
+  const scopes:DocumentExtras["scopes"]=[];
+  for(const dimension of documentScopeDimensions){
+    const values=[...new Set(data.getAll("scope_"+dimension).map(String).filter(Boolean))];
+    if(values.length>30)throw new Error("Quá nhiều giá trị phạm vi áp dụng.");
+    if(values.length){
+      const {data:matched,error}=await supabase.from("vocabulary_values")
+        .select("id,vocabularies!inner(code)").in("id",values)
+        .eq("vocabularies.code",dimension).eq("is_active",true);
+      if(error||!matched||matched.length!==values.length) throw new Error("Giá trị phạm vi "+dimension+" không hợp lệ.");
+      scopes.push(...values.map(v=>({dimension,vocabulary_value_id:v})));
+    }
+  }
+  const tagIds=[...new Set(data.getAll("governance_tag_id").map(String).filter(Boolean))];
+  if(tagIds.length>30)throw new Error("Quá nhiều nhãn tài liệu.");
+  if(tagIds.length){
+    const {data:tags,error}=await supabase.from("governance_tags").select("id").in("id",tagIds).eq("is_active",true);
+    if(error||!tags||tags.length!==tagIds.length)throw new Error("Nhãn tài liệu không hợp lệ.");
+  }
+  const metadata:DocumentDraftMetadata={
+    title_vi:optionalString(data,"title_vi",255)||"",
+    title_en:optionalString(data,"title_en",255),
+    document_group,document_type_value_id,
+    language:optionalString(data,"language",12)||"vi",
+    document_abstract:optionalString(data,"document_abstract",3000),
+    change_summary:optionalString(data,"change_summary",2000)||"",
+    valid_from,valid_until,review_due_at:optionalDate(data,"review_due_at"),
+    issuing_department:optionalString(data,"issuing_department",255),
+    applicability_note:optionalString(data,"applicability_note",2000),
+    keywords:optionalString(data,"keywords",1000),
+    owner_id,designated_approver_id,
+    legal_reference:optionalString(data,"legal_reference",1500),
+    retention_note:optionalString(data,"retention_note",1500),
+    risk_rating,access_level,allowed_roles
   };
+  if(!["vi","en","vi-en"].includes(metadata.language)) throw new Error("Ngôn ngữ không hợp lệ.");
+  return {metadata,extras:{processId,scopes,tagIds}};
 }
-function documentFile(data: FormData): File | null {
-  const value = data.get("file");
-  if (!(value instanceof File) || !value.size) return null;
-  if (value.size > 26_214_400) throw new Error("File vượt giới hạn 25 MB.");
-  if (!allowedMimeTypes.has(value.type)) throw new Error("Chỉ nhận PDF, Office hoặc ảnh PNG/JPEG.");
-  const ext = value.name.split(".").pop()?.toLowerCase() || "";
-  if (!allowedFileExtensions[value.type]?.includes(ext)) throw new Error("Định dạng và đuôi file không khớp.");
-  return value;
+async function saveDocumentRelations(
+  supabase:Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  userId:string,versionId:string,extras:DocumentExtras,replace:boolean
+) {
+  if(replace){
+    const removedLinks=await supabase.from("document_process_links").delete().eq("document_version_id",versionId).eq("link_role","primary");
+    if(removedLinks.error)throw new Error(removedLinks.error.message);
+    const removedScopes=await supabase.from("object_applicability").delete()
+      .eq("object_type","document_version").eq("object_id",versionId).in("dimension",[...documentScopeDimensions]);
+    if(removedScopes.error)throw new Error(removedScopes.error.message);
+    const removedTags=await supabase.from("object_tags").delete().eq("object_type","document_version").eq("object_id",versionId);
+    if(removedTags.error)throw new Error(removedTags.error.message);
+  }
+  if(extras.processId){
+    const added=await supabase.from("document_process_links").insert({
+      document_version_id:versionId,process_id:extras.processId,link_role:"primary"
+    });
+    if(added.error)throw new Error(added.error.message);
+  }
+  if(extras.scopes.length){
+    const added=await supabase.from("object_applicability").insert(extras.scopes.map(s=>({
+      object_type:"document_version",object_id:versionId,dimension:s.dimension,vocabulary_value_id:s.vocabulary_value_id
+    })));
+    if(added.error)throw new Error(added.error.message);
+  }
+  if(extras.tagIds.length){
+    const added=await supabase.from("object_tags").insert(extras.tagIds.map(tagId=>({
+      object_type:"document_version",object_id:versionId,tag_id:tagId,assigned_by:userId
+    })));
+    if(added.error)throw new Error(added.error.message);
+  }
 }
 async function saveDraftFile(
-  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  userId: string, versionId: string, file: File
-) {
-  const bytes = await file.arrayBuffer();
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  const checksum = [...new Uint8Array(digest)].map(v => v.toString(16).padStart(2,"0")).join("");
-  const ext = file.name.split(".").pop()!.toLowerCase();
-  const key = `${versionId}/${crypto.randomUUID()}.${ext}`;
-  const uploaded = await supabase.storage.from("process-documents").upload(key, bytes, {contentType:file.type,upsert:false});
-  if (uploaded.error) throw new Error(uploaded.error.message);
-  const saved = await supabase.from("document_files").insert({
+  supabase:Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  userId:string,versionId:string,file:File
+){
+  const bytes=await file.arrayBuffer();
+  const digest=await crypto.subtle.digest("SHA-256",bytes);
+  const checksum=[...new Uint8Array(digest)].map(v=>v.toString(16).padStart(2,"0")).join("");
+  const ext=file.name.split(".").pop()!.toLowerCase();
+  const key=versionId+"/"+crypto.randomUUID()+"."+ext;
+  const upload=await supabase.storage.from("process-documents").upload(key,bytes,{contentType:file.type,upsert:false});
+  if(upload.error)throw new Error(upload.error.message);
+  const saved=await supabase.from("document_files").insert({
     document_version_id:versionId,storage_bucket:"process-documents",storage_key:key,
     original_file_name:file.name.slice(0,255),mime_type:file.type,
     size_bytes:file.size,checksum_sha256:checksum,uploaded_by:userId
   });
-  if (saved.error) {
+  if(saved.error){
     await supabase.storage.from("process-documents").remove([key]);
     throw new Error(saved.error.message);
   }
 }
-export async function createDocumentDraft(formData: FormData) {
-  const {supabase,user,profile} = await authenticatedContext();
-  if (!["admin","editor"].includes(profile.role)) throw new Error("Không có quyền tạo tài liệu.");
-  const file = documentFile(formData);
-  const metadata = draftMetadata(formData);
-  if (!file && !metadata.title_vi) throw new Error("Nhập tên tài liệu hoặc chọn file.");
-  if (!metadata.title_vi) metadata.title_vi = file!.name.replace(/\.[^.]+$/,"").slice(0,255);
-  const processId = optionalString(formData,"process_id",80);
-  if (metadata.owner_id) {
-    const owner = await supabase.from("profiles").select("id").eq("id",metadata.owner_id).eq("is_active",true).maybeSingle();
-    if (!owner.data) throw new Error("Người phụ trách không hợp lệ.");
-  }
-  if (metadata.document_type_value_id) {
-    const type = await supabase.from("vocabulary_values").select("id,vocabularies!inner(code)")
-      .eq("id",metadata.document_type_value_id).eq("vocabularies.code","document_type").maybeSingle();
-    if (!type.data) throw new Error("Loại tài liệu không hợp lệ.");
-  }
-  if (processId) {
-    const process = await supabase.from("processes").select("id").eq("id",processId).maybeSingle();
-    if (!process.data) throw new Error("Quy trình không hợp lệ.");
-  }
-  const identity = await supabase.from("documents").insert({created_by:user.id}).select("id").single();
-  if (identity.error || !identity.data) throw new Error(identity.error?.message || "Không thể tạo mã tài liệu.");
-  const documentId = identity.data.id;
-  let versionId: string | null = null;
-  try {
-    const version = await supabase.from("document_versions").insert({
+export async function createDocumentDraft(formData:FormData){
+  const {supabase,user,profile}=await authenticatedContext();
+  if(!["admin","editor"].includes(profile.role))throw new Error("Bạn không có quyền tạo tài liệu.");
+  const file=documentFile(formData);
+  const {metadata,extras}=await validateDraftForm(supabase,formData);
+  if(!file&&!metadata.title_vi)throw new Error("Hãy nhập tên tài liệu hoặc chọn file.");
+  if(!metadata.title_vi)metadata.title_vi=file!.name.replace(/\.[^.]+$/,"").slice(0,255);
+  const identity=await supabase.from("documents").insert({created_by:user.id}).select("id").single();
+  if(identity.error||!identity.data)throw new Error(identity.error?.message||"Không thể tạo tài liệu.");
+  const documentId=identity.data.id;
+  let versionId:string|null=null;
+  try{
+    const version=await supabase.from("document_versions").insert({
       ...metadata,document_id:documentId,version_number:1,status:"draft",created_by:user.id
     }).select("id").single();
-    if (version.error || !version.data) throw new Error(version.error?.message || "Không thể lưu metadata.");
-    versionId = version.data.id;
-    if (processId) {
-      const linked = await supabase.from("document_process_links").insert({
-        document_version_id:versionId,process_id:processId,link_role:"primary"
-      });
-      if (linked.error) throw new Error(linked.error.message);
-    }
-    if (file) await saveDraftFile(supabase,user.id,version.data.id,file);
-  } catch (error) {
-    if (versionId) {
+    if(version.error||!version.data)throw new Error(version.error?.message||"Không thể lưu metadata.");
+    versionId=version.data.id;
+    await saveDocumentRelations(supabase,user.id,version.data.id,extras,false);
+    if(file)await saveDraftFile(supabase,user.id,version.data.id,file);
+  }catch(error){
+    if(versionId){
+      await supabase.from("object_tags").delete().eq("object_type","document_version").eq("object_id",versionId);
+      await supabase.from("object_applicability").delete().eq("object_type","document_version").eq("object_id",versionId);
       await supabase.from("document_process_links").delete().eq("document_version_id",versionId);
       await supabase.from("document_versions").delete().eq("id",versionId);
     }
@@ -306,26 +379,21 @@ export async function createDocumentDraft(formData: FormData) {
   revalidatePath("/documents");
   redirect("/documents?created=1");
 }
-export async function updateDocumentMetadata(formData: FormData) {
-  const {supabase,profile,user} = await authenticatedContext();
-  if (!["admin","editor"].includes(profile.role)) throw new Error("Không có quyền chỉnh sửa.");
-  const versionId = String(formData.get("document_version_id")||"");
-  const {data:current,error:readError} = await supabase.from("document_versions")
+export async function updateDocumentMetadata(formData:FormData){
+  const {supabase,user,profile}=await authenticatedContext();
+  if(!["admin","editor"].includes(profile.role))throw new Error("Không có quyền chỉnh sửa.");
+  const versionId=String(formData.get("document_version_id")||"");
+  const {data:current,error:readError}=await supabase.from("document_versions")
     .select("id,status,created_by,owner_id").eq("id",versionId).maybeSingle();
-  if (readError || !current) throw new Error("Không tìm thấy phiên bản tài liệu.");
-  if (!["draft","rejected"].includes(current.status)) throw new Error("Chỉ được sửa metadata bản nháp hoặc bị trả lại.");
-  if (profile.role==="editor" && current.created_by!==user.id && current.owner_id!==user.id) throw new Error("Bạn không phụ trách tài liệu này.");
-  const metadata=draftMetadata(formData);
-  if (!metadata.title_vi) throw new Error("Tên tài liệu không được để trống.");
-  const processId=optionalString(formData,"process_id",80);
-  const {error}=await supabase.from("document_versions").update(metadata).eq("id",versionId);
-  if (error) throw new Error(error.message);
-  if (processId) {
-    const {error:linkError}=await supabase.from("document_process_links")
-      .upsert({document_version_id:versionId,process_id:processId,link_role:"primary"},
-        {onConflict:"document_version_id,process_id,link_role"});
-    if (linkError) throw new Error(linkError.message);
-  }
+  if(readError||!current)throw new Error("Không tìm thấy phiên bản tài liệu.");
+  if(!["draft","rejected"].includes(current.status))throw new Error("Chỉ chỉnh sửa bản nháp hoặc bị từ chối.");
+  if(profile.role==="editor"&&current.created_by!==user.id&&current.owner_id!==user.id)
+    throw new Error("Bạn không phụ trách tài liệu này.");
+  const {metadata,extras}=await validateDraftForm(supabase,formData);
+  if(!metadata.title_vi)throw new Error("Tên tài liệu không được để trống.");
+  const {data:updated,error}=await supabase.from("document_versions").update(metadata).eq("id",versionId).select("id").single();
+  if(error||!updated)throw new Error(error?.message||"Không thể lưu metadata.");
+  await saveDocumentRelations(supabase,user.id,versionId,extras,true);
   revalidatePath("/documents");
   redirect("/documents?updated=1");
 }
