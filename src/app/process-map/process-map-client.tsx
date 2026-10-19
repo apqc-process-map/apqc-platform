@@ -74,8 +74,8 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
       <section className="scope-column panel value-chain-panel"><div className="panel-heading"><div><p className="section-kicker">ENTERPRISE LANDSCAPE</p><h2>Value-chain based map</h2></div><span className="count-chip">{visibleNodes.length} process</span></div><div className="scope-toolbar value-chain-toolbar"><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Tìm process trên sơ đồ" placeholder="Tìm code, process hoặc owner…" /><span>Hover hoặc focus để xem 5 nội dung tổng quan</span></div><div className="value-chain-scroll"><div className="value-chain-map" aria-label="Sơ đồ process theo cấp độ L0 đến L4">
         <div className="value-chain-title"><span>ENTERPRISE PROCESS MAP</span><strong>Value chain based</strong></div>
         {LEVEL_BANDS.map((band) => {
-          const allBandNodes = nodes.filter((node) => band.types.includes(node.level as never));
-          const bandNodes = visibleNodes.filter((node) => band.types.includes(node.level as never));
+          const allBandNodes = nodes.filter((node) => (band.types as readonly string[]).includes(node.level));
+          const bandNodes = visibleNodes.filter((node) => (band.types as readonly string[]).includes(node.level));
           return <section className={`process-level-band ${band.tone}`} key={band.key} aria-labelledby={`band-${band.key}`}>
             <header id={`band-${band.key}`}><strong>{band.key}</strong><span>{band.label}</span></header>
             <div className="process-level-grid">
