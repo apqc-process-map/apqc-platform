@@ -89,3 +89,5 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Replaced Server Action payload uploads with direct authenticated browser -> Supabase private Storage uploads up to 25 MB, browser-computed SHA-256 and file metadata recording; avoids Vercel Functions 4.5 MB payload ceiling.
 - Verified: Vercel preview build READY; database document type labels 23/23 valid; Viewer role simulation returned only 2 eligible effective document versions; admin draft creation succeeded inside a rolled-back transaction; Supabase Security Advisor shows no new schema-level security warnings.
 - Not yet verified: authenticated browser upload of a real binary sample, end-to-end metadata interaction in Chrome/Edge, user-acceptance test. Approver selection is planned responsibility metadata only; approval decisions and reading acknowledgments remain separate governed workflows.
+
+- Process Map polish: redundant center titles were removed and the overview preview now uses viewport-aware fixed positioning with bounded scrolling to prevent clipped long text.
