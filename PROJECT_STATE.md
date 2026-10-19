@@ -78,3 +78,14 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Hover and keyboard focus expose the five Executive Summary sections; Escape dismisses the preview and selection continues to drive the unchanged right-hand information panel.
 - Verified data currently provides L0–L2 only. L3/L4 display explicit empty states, and no parent-child structure is inferred because all 10 demo processes currently have null parent IDs.
 - Horizontal overflow keeps the desktop map usable at 1024 px. Authenticated multi-viewport Chrome/Edge visual QA remains pending.
+
+
+## Document metadata and taxonomy enhancement — 2026-10-19
+
+- Fixed source mojibake in all six previously seeded Vietnamese document-type labels and expanded the controlled document taxonomy to 23 types in 7 groups from PRD section 14.
+- Documents intake now groups optional metadata into basic identity, scope/applicability, governance/access, and effective dates/records. Supports controlled applicability values, governance tags, document/process links, owner, proposed approver, risk rating, legal basis, retention notes, access level and date metadata.
+- Draft creation requires only a filename or a manually entered title. Classification and scope can be completed later. Document type determines the canonical group when selected.
+- Migrations harden document-version, file, storage-object and scope/tag visibility by role, and restrict private uploads to editable drafts.
+- Replaced Server Action payload uploads with direct authenticated browser -> Supabase private Storage uploads up to 25 MB, browser-computed SHA-256 and file metadata recording; avoids Vercel Functions 4.5 MB payload ceiling.
+- Verified: Vercel preview build READY; database document type labels 23/23 valid; Viewer role simulation returned only 2 eligible effective document versions; admin draft creation succeeded inside a rolled-back transaction; Supabase Security Advisor shows no new schema-level security warnings.
+- Not yet verified: authenticated browser upload of a real binary sample, end-to-end metadata interaction in Chrome/Edge, user-acceptance test. Approver selection is planned responsibility metadata only; approval decisions and reading acknowledgments remain separate governed workflows.
