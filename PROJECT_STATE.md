@@ -23,7 +23,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - APQC catalog search/detail, hierarchy, descriptions, metrics, and attribution.
 - Data-driven Process Map with breadcrumbs, URL-persisted selection, scoped descendants, search, card/table views, APQC reference handoff, and persistent detail.
 - Centered relationship network with inbound/outbound labels, one-hop default, explicit two-hop expansion, filtering, table, and legend.
-- Private document upload Server Action with 25 MB limit, MIME/extension matching, SHA-256 checksum, Storage metadata, and rollback cleanup.
+- RLS-gated direct authenticated-browser upload to private Storage with a 25 MB client-side MIME/extension guard, SHA-256 checksum, file metadata, and cleanup if metadata recording fails.
 - Signed private file route, PDF/image preview, Office download, role-gated lifecycle action, field-level version comparison, and disposable document fixtures.
 - Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, and evidence links.
 - Notification center with per-item/bulk read actions, live finding/assignment/review/reading triggers, and a daily due-date scheduler.
@@ -106,3 +106,10 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - The Process Map header is a single compact workspace control block: **PROCESS LANDSCAPE · Process Map** stays on one row with the control summary and collapse control.
 - Its expanded details contain the description, return-to-menu action, Enterprise/APQC mode switch, and selected-process breadcrumb; collapsing preserves the short heading and restores vertical space for the canvas.
 - The control is expanded by default, uses a real button with `aria-expanded`, and has a 1024-px layout fallback that wraps secondary controls rather than clipping them.
+
+
+## Simplified Process Map toolbar — 2026-10-19
+
+- The compact Process Map workspace card now shows only **PROCESS LANDSCAPE**, left-aligned Enterprise/APQC Reference controls, and the enterprise-process search field; redundant title, count, description, return action, and breadcrumb were removed.
+- The search keeps its existing live filtering behavior and is hidden in APQC Reference mode because that mode hands off to the separate Catalog reference view.
+- The card remains expanded by default and collapsible; at 1024 px its controls wrap inside the same frame instead of clipping.

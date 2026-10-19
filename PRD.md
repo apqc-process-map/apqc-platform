@@ -128,9 +128,10 @@ Viewer does not see Review Queue or Admin actions. Navigation and actions remain
 
 ### Quick understanding
 
-- Nodes show only a short summary excerpt.
-- Hover and keyboard focus show an accessible preview.
-- Selection opens a persistent detail panel.
+- Blocks show code, name, and owner; they do not render the full Executive Summary inside the landscape.
+- L0 Value Chain and L1 End-to-End Process blocks are navigation/landscape only: they do not open a hover or keyboard-focus preview.
+- L2 Process, L3 Subprocess, and L4 Activity/Task show the five Executive Summary fields in an accessible preview on hover or keyboard focus; `Escape` dismisses that preview.
+- Clicking any L0–L4 block opens the persistent detail panel, where the five fields remain readable and editable by an authorized Admin.
 - Full detail opens without losing the map path.
 
 ## 8. Process Executive Summary
@@ -282,6 +283,14 @@ Header always shows process code, name, status, version, owner, and next review 
 - File name, storage key, MIME type, size, and checksum.
 - Optional `document_abstract`; do not reuse the process Executive Summary.
 
+### Initial document metadata configuration
+
+- A new draft needs either a supported file or a manually entered Vietnamese title. The system creates the document code, initial draft version, creator, and file fields automatically; it never publishes the draft automatically.
+- **Thông tin cơ bản** configures Vietnamese/English title, controlled document type/group, language, abstract, and keywords. The initial controlled taxonomy contains 23 document types in seven groups. When a type is selected, its canonical group takes precedence over a manually chosen group.
+- **Phân loại & phạm vi áp dụng** configures an optional primary process link, applicability note, controlled legal entity/department/location/channel/product-service/employee-audience values, and governance tags.
+- **Trách nhiệm & quyền truy cập** configures document owner, issuing department, access level, and a designated approver. The designated approver is planning metadata only; approval still follows the governed review workflow and four-eyes rule.
+- **Hiệu lực, kiểm soát & lưu trữ** configures validity/review dates, risk rating, legal reference, retention note, and change summary. These fields are optional during initial draft creation and are completed before the relevant lifecycle gate.
+
 ### Nice-to-have metadata
 
 - Operational: selected KPI, SLA, frequency, cycle time, volume, cost, FTE, automation.
@@ -311,14 +320,13 @@ Admin manages controlled vocabulary values. The MVP does not include custom-fiel
 
 ## 14. Document management
 
-### File storage
+### File storage and upload
 
-- Private Supabase Storage bucket.
-- Signed URLs issued only after authorization.
-- Supported: PDF, DOCX, XLSX, PPTX, PNG, JPG.
-- Maximum 25 MB per file.
-- Reject executable, archive, and script formats.
-- New versions create new stored objects; never overwrite previous versions.
+- Files are uploaded directly from an authenticated browser to the private Supabase Storage bucket, without sending file bytes through a Vercel Function. This supports the 25 MB limit without Vercel Function payload limits.
+- Before upload, the browser validates the size plus matching MIME type and extension. Supported formats are PDF, DOCX, XLSX, PPTX, PNG, JPG, and JPEG; executable, archive, and script formats are not accepted by the intake UI.
+- The browser calculates a SHA-256 checksum, creates a unique storage key, and records the original name, MIME type, size, checksum, uploader, and upload time in `document_files`. If recording that metadata fails, the just-uploaded object is removed.
+- Storage and document-file policies restrict upload to an authorized editable draft. Files remain private; signed URLs are issued only after authorization.
+- A title-only draft may be created first and a file added later. Each upload creates a new stored object and never overwrites a prior object.
 - PDF/image preview; Office download in the MVP.
 - Use archive/soft-delete behavior from the UI.
 

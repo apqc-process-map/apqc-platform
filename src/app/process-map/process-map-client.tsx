@@ -27,6 +27,7 @@ const LEVEL_BANDS = [
 ] as const;
 
 const EDITABLE_STATUSES = new Set(["draft", "rejected"]);
+const PREVIEWABLE_LEVELS = new Set(["L2", "L3", "L4"]);
 
 function detailText(value: string | null | undefined, fallback = "Chưa cập nhật") {
   return value?.trim() || fallback;
@@ -77,21 +78,6 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
   }
 
   const selected = nodes.find((node) => node.id === selectedId) || roots[0] || nodes[0];
-  const path = useMemo(() => {
-    if (!selected) return [];
-    const result: ProcessMapNode[] = [selected];
-    let current = selected;
-    const visited = new Set([current.id]);
-    while (current.parentId) {
-      const parent = nodes.find((node) => node.id === current.parentId);
-      if (!parent || visited.has(parent.id)) break;
-      result.unshift(parent);
-      visited.add(parent.id);
-      current = parent;
-    }
-    return result;
-  }, [nodes, selected]);
-
   const directChildren = nodes.filter((node) => node.parentId === selected?.id);
   const normalizedQuery = query.trim().toLocaleLowerCase("vi");
   const visibleNodes = nodes.filter((node) => {
@@ -102,26 +88,17 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
   const canEdit = role === "admin" && Boolean(selected?.versionId);
   const editableVersion = selected ? EDITABLE_STATUSES.has(selected.status) : false;
 
-  const headerContent = <section className={`process-map-header-block${headerExpanded ? " is-expanded" : " is-collapsed"}`} aria-label="Thông tin và điều khiển Process Map">
+  const headerContent = <section className={`process-map-header-block${headerExpanded ? " is-expanded" : " is-collapsed"}`} aria-label="Điều khiển Process Landscape">
     <div className="process-map-header-main">
-      <div className="process-map-title-row">
-        <p className="eyebrow accent">PROCESS LANDSCAPE</p>
-        <span className="process-map-title-separator" aria-hidden="true" />
-        <h1>Process Map</h1>
-        <span className="process-map-header-summary">{nodes.length} quy trình · L0–L4</span>
+      <p className="eyebrow accent process-map-header-label">PROCESS LANDSCAPE</p>
+      <div className="process-map-header-controls" id="process-map-header-controls" hidden={!headerExpanded}>
+        <div className="map-actions"><button type="button" className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button type="button" className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
+        {!referenceMode ? <div className="process-map-toolbar-search"><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Tìm process trên sơ đồ" placeholder="Tìm code, tên, owner, tag hoặc nội dung…" /></div> : null}
       </div>
-      <button type="button" className="process-map-collapse-button" onClick={() => setHeaderExpanded((value) => !value)} aria-expanded={headerExpanded} aria-controls="process-map-header-details">
+      <button type="button" className="process-map-collapse-button" onClick={() => setHeaderExpanded((value) => !value)} aria-expanded={headerExpanded} aria-controls="process-map-header-controls">
         <span aria-hidden="true">{headerExpanded ? "⌃" : "⌄"}</span>
         {headerExpanded ? "Thu gọn" : "Mở rộng"}
       </button>
-    </div>
-    <div className="process-map-header-details" id="process-map-header-details" hidden={!headerExpanded}>
-      <p className="process-map-header-description">Tìm kiếm, xem tổng quan và quản trị metadata quy trình theo L0–L4.</p>
-      <div className="process-map-header-controls">
-        <Link className="text-button process-map-back-link" href="/" aria-label="Quay lại menu chính">← Quay lại menu chính</Link>
-        <div className="map-actions"><button type="button" className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button type="button" className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
-      </div>
-      {selected ? <div className="map-breadcrumb process-map-header-breadcrumb" aria-label="Breadcrumb">{path.map((item, index) => <button key={item.id} onClick={() => chooseNode(item.id)}>{item.name}{index < path.length - 1 && <span> / </span>}</button>)}</div> : null}
     </div>
   </section>;
 
@@ -130,11 +107,6 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
     {!errorMessage && !selected ? <div className="state-message"><strong>Chưa có process</strong><span>Tạo process metadata để bắt đầu hierarchy.</span></div> : null}
     {referenceMode ? <section className="reference-empty"><div className="reference-icon">◇</div><h2>APQC Reference View</h2><p>Tra cứu taxonomy APQC đã import và đối chiếu coverage với enterprise process. Hai mô hình được quản lý độc lập.</p><Link className="primary-button" href="/catalog">Mở APQC Catalog →</Link></section> : selected ? <div className="map-layout value-chain-layout process-map-workspace">
       <section className="scope-column panel value-chain-panel">
-        <div className="scope-toolbar value-chain-toolbar process-search-controls">
-          <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Tìm process trên sơ đồ" placeholder="Tìm code, tên, owner, tag hoặc nội dung…" />
-          <span className="count-chip" aria-live="polite">{visibleNodes.length} / {nodes.length}</span>
-          <span className="value-chain-hint">Hover để xem nhanh · Click để mở chi tiết</span>
-        </div>
         <div className="level-filter" aria-label="Lọc theo cấp độ">
           <button type="button" className={!activeLevels.length ? "active" : ""} onClick={() => setActiveLevels([])}>Tất cả cấp</button>
           {LEVEL_BANDS.map((band) => <button key={band.key} type="button" className={activeLevels.includes(band.types[0]) || (band.key === "L4" && activeLevels.includes("task")) ? "active" : ""} onClick={() => {
@@ -152,9 +124,10 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
               <div className="process-level-grid">
                 {bandNodes.length ? bandNodes.map((node) => {
                   const tooltipId = `process-preview-${node.id}`;
-                  const isPreviewed = previewId === node.id;
+                  const supportsPreview = PREVIEWABLE_LEVELS.has(band.key);
+                  const isPreviewed = supportsPreview && previewId === node.id;
                   return <div className="process-block-shell" key={node.id} onMouseLeave={() => setPreviewId(null)}>
-                    <button type="button" className={`process-block${node.id === selected.id ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onMouseEnter={(event) => showPreview(node.id, event.currentTarget)} onFocus={(event) => showPreview(node.id, event.currentTarget)} onBlur={() => setPreviewId(null)} onKeyDown={(event) => { if (event.key === "Escape") setPreviewId(null); }} aria-pressed={node.id === selected.id} aria-describedby={isPreviewed ? tooltipId : undefined}>
+                    <button type="button" className={`process-block${node.id === selected.id ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onMouseEnter={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onFocus={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onBlur={supportsPreview ? () => setPreviewId(null) : undefined} onKeyDown={supportsPreview ? (event) => { if (event.key === "Escape") setPreviewId(null); } : undefined} aria-pressed={node.id === selected.id} aria-describedby={isPreviewed ? tooltipId : undefined}>
                       <span>{node.code}</span><strong>{node.name}</strong><small>{node.owner}</small>
                     </button>
                     {isPreviewed ? <div className="process-preview" id={tooltipId} role="tooltip" style={{ top: previewPosition.top, left: previewPosition.left }}>
@@ -180,7 +153,7 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
         <div className="process-detail-heading"><div><p className="section-kicker">PROCESS DETAIL</p><span className="detail-code">{selected.code} · v{selected.versionNumber}</span><h2>{selected.name}</h2><span className="detail-level">{selected.level} · {selected.status}</span></div>{canEdit ? <button type="button" className="process-edit-toggle" onClick={() => setEditing((value) => !value)} aria-expanded={editing}>{editing ? "Đóng chỉnh sửa" : "Chỉnh sửa metadata"}</button> : null}</div>
         <div className="tag-list" aria-label="Tags">{selected.tags.length ? selected.tags.map((tag) => <span className="tag-chip" key={tag.code} style={{ borderColor: tag.color, color: tag.color }}>{tag.label}</span>) : <span className="detail-muted">Chưa gắn tag</span>}</div>
         <div className="process-overview-panel">
-          <div className="detail-block"><span>Tổng quan khi hover</span><p>5 nội dung dưới đây là nội dung tooltip và có thể chỉnh sửa bởi Admin.</p></div>
+          <div className="detail-block"><span>Tổng quan điều hành</span><p>Tooltip chỉ xuất hiện khi hover hoặc focus bằng bàn phím ở L2–L4; 5 nội dung luôn có tại khung này để đọc và chỉnh sửa.</p></div>
           <dl className="process-overview-list">
             <div><dt>1. Mục đích kinh doanh</dt><dd>{selected.businessPurpose}</dd></div>
             <div><dt>2. Phạm vi & điểm đầu–cuối</dt><dd>{selected.scopeAndBoundaries}</dd></div>
@@ -195,7 +168,7 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
           <input type="hidden" name="process_id" value={selected.id} />
           <input type="hidden" name="process_version_id" value={selected.versionId} />
           <div className="process-edit-notice"><strong>{editableVersion ? "Đang sửa bản nháp." : "Bản hiện tại được bảo toàn."}</strong><span>{editableVersion ? "Lưu sẽ cập nhật bản draft/rejected hiện có." : "Lưu sẽ tạo bản draft v+1, sao chép liên kết hiện có; APQC mapping sẽ cần xác minh lại."}</span></div>
-          <fieldset className="process-edit-section"><legend>Nội dung tooltip</legend>
+          <fieldset className="process-edit-section"><legend>Tóm lược điều hành</legend>
             <label><span>1. Mục đích kinh doanh</span><textarea name="business_purpose" defaultValue={selected.businessPurpose} required maxLength={5000} /></label>
             <label><span>2. Phạm vi & điểm đầu–cuối</span><textarea name="scope_and_boundaries" defaultValue={selected.scopeAndBoundaries} required maxLength={5000} /></label>
             <label><span>3. Luồng nghiệp vụ chính</span><textarea name="process_at_a_glance" defaultValue={selected.summary} required maxLength={5000} /></label>

@@ -77,7 +77,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] DONE DOC-001 Create document, version, file, and process-link migrations.
 - [x] DONE DOC-002 Seed controlled document taxonomy.
 - [x] DONE DOC-003 Configure private Supabase Storage bucket and policies.
-- [x] DONE DOC-004 Validate upload MIME type, extension, size, and checksum server-side.
+- [x] DONE DOC-004 Validate upload MIME type, extension, size, and checksum before direct private Storage upload.
 - [x] DONE DOC-005 Add PDF/image preview and Office download.
 - [x] DONE DOC-006 Require at least one process link before document publication.
 - [~] PARTIAL DOC-007 Implement lifecycle, validity, review cadence, and scheduling.
@@ -280,3 +280,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `MAP-010` — Process Map now combines the landscape label, page name, description, return link, Enterprise/APQC switch, and selected-process breadcrumb in one compact workspace control block.
 - [x] `UX` — The block is expanded by default and can be collapsed or expanded with an accessible stateful button; the compact title row remains visible while collapsed.
 - [~] `QA-004/005/006/007` — Layout includes a 1024-px fallback for wrapped controls. Authenticated visual and keyboard browser coverage remains pending.
+
+
+## Review snapshot — 2026-10-19 simplified Process Map toolbar
+
+- [x] `MAP-010` — Removed the return-to-menu action, “Process Map” title, L0–L4 process-count summary, helper text, and selected-process breadcrumb from the Process Map header.
+- [x] `UX` — The expanded workspace card now contains only Process Landscape, left-aligned Enterprise/APQC Reference controls, and the live enterprise-process search field. The collapse control remains available.
+- [~] `QA-004/005/006/007` — Added a 1024-px wrapping fallback; authenticated visual/keyboard browser coverage remains pending.
