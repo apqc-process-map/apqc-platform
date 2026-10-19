@@ -6,15 +6,23 @@ type VersionRow = {
   version_number: number;
   status: string;
   name_vi: string;
+  name_en: string | null;
   purpose: string;
   description: string;
+  scope_in: string;
+  scope_out: string;
+  trigger: string;
+  outcome: string;
   process_at_a_glance: string | null;
   business_purpose: string | null;
   scope_and_boundaries: string | null;
   critical_decision_points: string | null;
   accountability_and_impact: string | null;
   access_level: string;
+  valid_from: string | null;
+  valid_until: string | null;
   review_due_at: string | null;
+  change_summary: string;
   process_assignments: Array<{ assignment_role: string; profiles: { display_name: string } | null }>;
   process_apqc_mappings: Array<{ id: string }>;
 };
@@ -42,11 +50,15 @@ function firstRelation<T>(value: T | T[] | null): T | null {
   return Array.isArray(value) ? value[0] || null : value;
 }
 
-export default async function ProcessMapPage() {
+type PageProps = { searchParams: Promise<{ version?: string | string[] }> };
+
+export default async function ProcessMapPage({ searchParams }: PageProps) {
+  const requestedVersion = (await searchParams).version;
+  const requestedVersionId = typeof requestedVersion === "string" ? requestedVersion : "";
   const { supabase, profile } = await requireActiveAccount();
   const { data, error } = await supabase
     .from("processes")
-    .select("id,process_code,parent_process_id,level_type,display_order,process_versions(id,version_number,status,name_vi,purpose,description,process_at_a_glance,business_purpose,scope_and_boundaries,critical_decision_points,accountability_and_impact,access_level,review_due_at,process_assignments(assignment_role,profiles(display_name)),process_apqc_mappings(id))")
+    .select("id,process_code,parent_process_id,level_type,display_order,process_versions(id,version_number,status,name_vi,name_en,purpose,description,scope_in,scope_out,trigger,outcome,process_at_a_glance,business_purpose,scope_and_boundaries,critical_decision_points,accountability_and_impact,access_level,valid_from,valid_until,review_due_at,change_summary,process_assignments(assignment_role,profiles(display_name)),process_apqc_mappings(id))")
     .is("archived_at", null)
     .order("display_order");
 
@@ -80,17 +92,29 @@ export default async function ProcessMapPage() {
       if (b.status === "effective" && a.status !== "effective") return 1;
       return b.version_number - a.version_number;
     });
-    const version = versions[0];
+    const version = (requestedVersionId ? versions.find((candidate) => candidate.id === requestedVersionId) : undefined) || versions[0];
     const owner = version?.process_assignments?.find((assignment) => assignment.assignment_role === "owner")?.profiles?.display_name;
     return {
       id: process.id,
+      versionId: version?.id || "",
+      versionNumber: version?.version_number || 0,
       parentId: process.parent_process_id,
       code: process.process_code,
       name: version?.name_vi || process.process_code,
+      nameEn: version?.name_en || "",
       level: process.level_type,
       status: version?.status || "draft",
       owner: owner || "Chưa phân công",
       summary: version?.process_at_a_glance || version?.purpose || version?.description || "Chưa có mô tả.",
+      purpose: version?.purpose || "",
+      description: version?.description || "",
+      scopeIn: version?.scope_in || "",
+      scopeOut: version?.scope_out || "",
+      trigger: version?.trigger || "",
+      outcome: version?.outcome || "",
+      changeSummary: version?.change_summary || "",
+      validFrom: version?.valid_from || null,
+      validUntil: version?.valid_until || null,
       mappingCount: version?.process_apqc_mappings?.length || 0,
       displayOrder: process.display_order,
       businessPurpose: version?.business_purpose || version?.purpose || "Chưa có mục đích kinh doanh.",
@@ -98,7 +122,7 @@ export default async function ProcessMapPage() {
       criticalDecisionPoints: version?.critical_decision_points || "Chưa mô tả điểm quyết định.",
       accountabilityAndImpact: version?.accountability_and_impact || "Chưa mô tả trách nhiệm và tác động.",
       accessLevel: version?.access_level || "internal",
-      reviewDueAt: version?.review_due_at,
+      reviewDueAt: version?.review_due_at || null,
       tags: version ? tagsByVersion.get(version.id) || [] : [],
       applicability: version ? applicabilityByVersion.get(version.id) || [] : [],
       systems: version ? systemsByVersion.get(version.id) || [] : [],

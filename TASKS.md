@@ -49,15 +49,16 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 ## EPIC 4 — Process Map and discovery
 
 - [x] DONE MAP-001 Build Enterprise Landscape from Supabase process data.
-- [x] DONE MAP-002 Build layered column drill-down.
+- [x] DONE MAP-002 Build canvas-first L0–L4 exploration with in-map search and level filters (replaces the retired left value-chain navigator).
 - [x] DONE MAP-003 Add breadcrumb and URL-persisted selected path.
 - [x] DONE MAP-004 Add all-descendants scope Tree/Table.
 - [x] DONE MAP-005 Add scoped expand-all behavior.
-- [~] PARTIAL MAP-006 Add accessible hover/focus preview.
+- [x] DONE MAP-006 Add accessible hover/focus preview.
 - [x] DONE MAP-007 Add persistent process detail panel.
 - [x] DONE MAP-008 Add APQC Reference/Coverage view.
 - [~] PARTIAL MAP-009 Build global search and Process Catalog.
 - [~] PARTIAL MAP-010 Verify long names, deep hierarchy, empty nodes, and 1024 px layout.
+- [x] DONE MAP-011 Add Admin-only governed process metadata and tooltip editing with version-safe drafts.
 
 ## EPIC 5 — Relationships and context
 
@@ -263,3 +264,12 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [ ] Data note — Current demo data contains L0–L2 only and all `parent_process_id` values are null. L3/L4 are intentionally shown as empty and no hierarchy links are fabricated.
 
 - [x] `MAP-010 polish` — Removed redundant center-map titles, compacted controls and level spacing, and moved the five-section preview to a viewport-fixed, scrollable layer so long Vietnamese text is not clipped by the map panel.
+
+
+## Review snapshot — 2026-10-19 Process Map metadata editor
+
+- [x] `MAP-002` — Removed the left value-chain navigator. The primary canvas now contains a code/name/owner/tag/content search bar and L0–L4 level filters, with all matched process blocks kept in their level bands.
+- [x] `MAP-006` — Each block exposes the five Executive Summary fields on hover and keyboard focus; the same content is persistently readable in the right detail panel.
+- [x] `MAP-011` — Admins can edit the five tooltip sections plus core process metadata from the right panel. Draft/rejected versions update in place; a published/current version is preserved and saving creates draft v+1.
+- [x] `SECURITY` — Migrations `20261019000019_process_map_metadata_editing.sql` and `20261019000020_consolidate_draft_applicability_policies.sql` are applied in Supabase. RLS permits only Admins to create/update their governed process drafts and copy related assignments, mappings, applicability and tags. Cloned APQC mappings are set to `proposed` for re-verification.
+- [~] `QA-002/004/005/006/007/008` — Rolled-back Admin/Viewer RLS tests and a Vercel Preview production build/TypeScript check passed. Authenticated browser edit flow, keyboard/hover visual checks, and wide/1024-px checks remain to be executed for this enhancement.

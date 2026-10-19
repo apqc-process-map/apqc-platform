@@ -59,8 +59,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 
 ## Delivery state
 
-- Current work is on `main` after PR #17.
-- Production remains on the previously merged `main` until this branch passes its final Vercel preview check and pull request merge.
+- GitHub `main` is the Vercel production source; feature branches receive isolated Preview deployments.
 - `scripts/delete-demo-processes.sql` removes demo processes, relationships, findings, documents, reading assignments, and uploaded test objects in dependency order.
 
 
@@ -91,3 +90,12 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Not yet verified: authenticated browser upload of a real binary sample, end-to-end metadata interaction in Chrome/Edge, user-acceptance test. Approver selection is planned responsibility metadata only; approval decisions and reading acknowledgments remain separate governed workflows.
 
 - Process Map polish: redundant center titles were removed and the overview preview now uses viewport-aware fixed positioning with bounded scrolling to prevent clipped long text.
+
+
+## Process Map canvas and governed metadata editing — 2026-10-19
+
+- The retired left value-chain navigator is replaced by a wide center L0–L4 canvas. Search finds live process code, Vietnamese/English name, owner, tag and overview text; chips filter levels without hiding the hierarchy bands.
+- The right panel persists the five hover-summary sections together with operational metadata. Admins can edit these fields; Viewer remains read-only.
+- Saving a draft/rejected version updates it in place. Saving a currently approved/effective version preserves that source and creates draft v+1, then reopens that exact draft. Assignments, tags and applicability are copied; APQC mappings are copied as `proposed` so verification is explicit.
+- Applied migrations `20261019000019_process_map_metadata_editing.sql` and `20261019000020_consolidate_draft_applicability_policies.sql`. Admin/Viewer RLS and relation-copy checks passed in rollback-only SQL transactions; no test drafts persisted. The Vercel Preview build compiled and type-checked successfully.
+- Security Advisor has no new schema-level security findings from this feature. The inherited account-level leaked-password-protection warning remains; authenticated browser/visual QA still requires a signed-in browser session.
