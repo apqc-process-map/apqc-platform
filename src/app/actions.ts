@@ -377,7 +377,8 @@ export async function createDocumentDraft(formData:FormData){
     throw error;
   }
   revalidatePath("/documents");
-  redirect("/documents?created=1");
+  if(!versionId)throw new Error("Không có phiên bản tài liệu mới.");
+  return {versionId};
 }
 export async function updateDocumentMetadata(formData:FormData){
   const {supabase,user,profile}=await authenticatedContext();
