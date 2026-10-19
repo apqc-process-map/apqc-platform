@@ -66,6 +66,8 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
     setEditing(false);
     const url = new URL(window.location.href);
     url.searchParams.set("selected", id);
+    url.searchParams.delete("version");
+    url.searchParams.delete("updated");
     window.history.replaceState(null, "", url);
   }
 
