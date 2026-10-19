@@ -27,6 +27,7 @@ const LEVEL_BANDS = [
 ] as const;
 
 const EDITABLE_STATUSES = new Set(["draft", "rejected"]);
+const PREVIEWABLE_LEVELS = new Set(["L2", "L3", "L4"]);
 
 function detailText(value: string | null | undefined, fallback = "Chưa cập nhật") {
   return value?.trim() || fallback;
@@ -123,9 +124,10 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
               <div className="process-level-grid">
                 {bandNodes.length ? bandNodes.map((node) => {
                   const tooltipId = `process-preview-${node.id}`;
-                  const isPreviewed = previewId === node.id;
+                  const supportsPreview = PREVIEWABLE_LEVELS.has(band.key);
+                  const isPreviewed = supportsPreview && previewId === node.id;
                   return <div className="process-block-shell" key={node.id} onMouseLeave={() => setPreviewId(null)}>
-                    <button type="button" className={`process-block${node.id === selected.id ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onMouseEnter={(event) => showPreview(node.id, event.currentTarget)} onFocus={(event) => showPreview(node.id, event.currentTarget)} onBlur={() => setPreviewId(null)} onKeyDown={(event) => { if (event.key === "Escape") setPreviewId(null); }} aria-pressed={node.id === selected.id} aria-describedby={isPreviewed ? tooltipId : undefined}>
+                    <button type="button" className={`process-block${node.id === selected.id ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onMouseEnter={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onFocus={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onBlur={supportsPreview ? () => setPreviewId(null) : undefined} onKeyDown={supportsPreview ? (event) => { if (event.key === "Escape") setPreviewId(null); } : undefined} aria-pressed={node.id === selected.id} aria-describedby={isPreviewed ? tooltipId : undefined}>
                       <span>{node.code}</span><strong>{node.name}</strong><small>{node.owner}</small>
                     </button>
                     {isPreviewed ? <div className="process-preview" id={tooltipId} role="tooltip" style={{ top: previewPosition.top, left: previewPosition.left }}>
@@ -151,7 +153,7 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
         <div className="process-detail-heading"><div><p className="section-kicker">PROCESS DETAIL</p><span className="detail-code">{selected.code} · v{selected.versionNumber}</span><h2>{selected.name}</h2><span className="detail-level">{selected.level} · {selected.status}</span></div>{canEdit ? <button type="button" className="process-edit-toggle" onClick={() => setEditing((value) => !value)} aria-expanded={editing}>{editing ? "Đóng chỉnh sửa" : "Chỉnh sửa metadata"}</button> : null}</div>
         <div className="tag-list" aria-label="Tags">{selected.tags.length ? selected.tags.map((tag) => <span className="tag-chip" key={tag.code} style={{ borderColor: tag.color, color: tag.color }}>{tag.label}</span>) : <span className="detail-muted">Chưa gắn tag</span>}</div>
         <div className="process-overview-panel">
-          <div className="detail-block"><span>Tổng quan khi hover</span><p>5 nội dung dưới đây là nội dung tooltip và có thể chỉnh sửa bởi Admin.</p></div>
+          <div className="detail-block"><span>Tổng quan điều hành</span><p>Tooltip chỉ xuất hiện khi hover hoặc focus bằng bàn phím ở L2–L4; 5 nội dung luôn có tại khung này để đọc và chỉnh sửa.</p></div>
           <dl className="process-overview-list">
             <div><dt>1. Mục đích kinh doanh</dt><dd>{selected.businessPurpose}</dd></div>
             <div><dt>2. Phạm vi & điểm đầu–cuối</dt><dd>{selected.scopeAndBoundaries}</dd></div>
@@ -166,7 +168,7 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
           <input type="hidden" name="process_id" value={selected.id} />
           <input type="hidden" name="process_version_id" value={selected.versionId} />
           <div className="process-edit-notice"><strong>{editableVersion ? "Đang sửa bản nháp." : "Bản hiện tại được bảo toàn."}</strong><span>{editableVersion ? "Lưu sẽ cập nhật bản draft/rejected hiện có." : "Lưu sẽ tạo bản draft v+1, sao chép liên kết hiện có; APQC mapping sẽ cần xác minh lại."}</span></div>
-          <fieldset className="process-edit-section"><legend>Nội dung tooltip</legend>
+          <fieldset className="process-edit-section"><legend>Tóm lược điều hành</legend>
             <label><span>1. Mục đích kinh doanh</span><textarea name="business_purpose" defaultValue={selected.businessPurpose} required maxLength={5000} /></label>
             <label><span>2. Phạm vi & điểm đầu–cuối</span><textarea name="scope_and_boundaries" defaultValue={selected.scopeAndBoundaries} required maxLength={5000} /></label>
             <label><span>3. Luồng nghiệp vụ chính</span><textarea name="process_at_a_glance" defaultValue={selected.summary} required maxLength={5000} /></label>

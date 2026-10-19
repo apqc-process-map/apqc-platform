@@ -108,7 +108,7 @@ Exit: Viewer can trace inputs/outputs and related context; Editor can propose an
 ### Phase 6 — Documents and review workflow
 
 - Add documents, versions, private files, process links, and taxonomy.
-- Validate file type/size and compute checksum server-side.
+- Validate file type/size in the intake flow, compute SHA-256 in the authenticated browser, and record the checksum with private Storage metadata.
 - Add PDF/image preview and Office download.
 - Add review threads, mentions, rejection reason, and four-eyes approval.
 - Add scheduled/effective/superseded lifecycle behavior.

@@ -23,7 +23,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - APQC catalog search/detail, hierarchy, descriptions, metrics, and attribution.
 - Data-driven Process Map with breadcrumbs, URL-persisted selection, scoped descendants, search, card/table views, APQC reference handoff, and persistent detail.
 - Centered relationship network with inbound/outbound labels, one-hop default, explicit two-hop expansion, filtering, table, and legend.
-- Private document upload Server Action with 25 MB limit, MIME/extension matching, SHA-256 checksum, Storage metadata, and rollback cleanup.
+- RLS-gated direct authenticated-browser upload to private Storage with a 25 MB client-side MIME/extension guard, SHA-256 checksum, file metadata, and cleanup if metadata recording fails.
 - Signed private file route, PDF/image preview, Office download, role-gated lifecycle action, field-level version comparison, and disposable document fixtures.
 - Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, and evidence links.
 - Notification center with per-item/bulk read actions, live finding/assignment/review/reading triggers, and a daily due-date scheduler.

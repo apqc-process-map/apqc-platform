@@ -77,7 +77,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] DONE DOC-001 Create document, version, file, and process-link migrations.
 - [x] DONE DOC-002 Seed controlled document taxonomy.
 - [x] DONE DOC-003 Configure private Supabase Storage bucket and policies.
-- [x] DONE DOC-004 Validate upload MIME type, extension, size, and checksum server-side.
+- [x] DONE DOC-004 Validate upload MIME type, extension, size, and checksum before direct private Storage upload.
 - [x] DONE DOC-005 Add PDF/image preview and Office download.
 - [x] DONE DOC-006 Require at least one process link before document publication.
 - [~] PARTIAL DOC-007 Implement lifecycle, validity, review cadence, and scheduling.
