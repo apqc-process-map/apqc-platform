@@ -105,7 +105,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `DONE FIND-001` Create finding, link, participant, reaction, and event migrations.
 - [x] `DONE FIND-002` Implement generated `FND-000123` codes.
 - [~] `PARTIAL FIND-003` Implement finding workflow and role transitions.
-- [~] `PARTIAL FIND-004` Add threaded comments, mentions, and decision comments.
+- [x] `DONE FIND-004` Add threaded comments, mentions, and decision comments.
 - [~] `PARTIAL FIND-005` Add Agree/Disagree/Need-more-information reactions.
 - [~] `PARTIAL FIND-006` Add assignment, participants, watchers, and due dates.
 - [x] `DONE FIND-007` Add severity-based SLA defaults and override.
@@ -211,3 +211,9 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [~] REL-006/008 - Relationship table and filters remain verified; centered interactive graph/explicit expansion remain.
 - [ ] QA-004/005/006/007 - Build/lint pass; authenticated browser, accessibility, and multi-viewport QA still require a signed-in session and browser coverage.
 - [ ] QA-002/008 - RLS baseline is documented; comment-write policy and full Storage/security matrix remain pending approval/verification.
+
+## Review snapshot - 2026-10-19 comment collaboration
+
+- [x] FIND-004 - Added finding comment creation for creator, assignee, and participants, with RLS policies and server action.
+- [x] SECURITY - Verified comment collaboration policies and authenticated grants in Supabase; anonymous access remains absent.
+- [ ] FIND-003/006/008 - Full transition matrix, participant assignment UI, and richer timeline remain partial.

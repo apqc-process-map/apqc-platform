@@ -50,3 +50,19 @@ export async function setFindingReaction(formData: FormData) {
   await supabase.from("finding_reactions").upsert({ finding_id: findingId, profile_id: user.id, reaction }, { onConflict: "finding_id,profile_id" });
   revalidatePath(`/findings/${findingId}`);
 }
+export async function addFindingComment(formData: FormData) {
+  const findingId = String(formData.get("finding_id") || "");
+  const body = String(formData.get("body") || "").trim();
+  if (!findingId || !body) return;
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login?error=required");
+  let { data: thread } = await supabase.from("comment_threads").select("id").eq("context_type", "finding").eq("context_id", findingId).limit(1).maybeSingle();
+  if (!thread) {
+    const created = await supabase.from("comment_threads").insert({ context_type: "finding", context_id: findingId, anchor: "finding-summary" }).select("id").single();
+    thread = created.data;
+  }
+  if (!thread) return;
+  await supabase.from("comments").insert({ thread_id: thread.id, author_id: user.id, body, is_decision: false });
+  revalidatePath(`/findings/${findingId}`);
+}
