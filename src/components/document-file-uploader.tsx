@@ -12,7 +12,8 @@ export default function DocumentFileUploader({versions}:{versions:VersionOption[
   async function handleUpload(event:FormEvent<HTMLFormElement>){
     event.preventDefault();
     if(busy)return;
-    const data=new FormData(event.currentTarget);
+    const form=event.currentTarget;
+    const data=new FormData(form);
     const versionId=String(data.get("document_version_id")||"");
     const file=data.get("file");
     if(!versionId||!(file instanceof File)||!file.size){setError("Vui lòng chọn file và bản nháp.");return;}
@@ -20,7 +21,7 @@ export default function DocumentFileUploader({versions}:{versions:VersionOption[
     try{
       await uploadPrivateDocumentFile(versionId,file);
       setMessage("Đã tải file lên và lưu thông tin.");
-      event.currentTarget?.reset();
+      form.reset();
       router.refresh();
     }catch(cause){setError(cause instanceof Error?cause.message:"Không thể tải file.");}
     finally{setBusy(false);}
