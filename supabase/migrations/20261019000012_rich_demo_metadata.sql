@@ -340,7 +340,7 @@ document_type_value_id = (
     end
 ),
 language = case d.document_code when 'DEMO-DOC-002' then 'vi' else 'vi-VN' end,
-access_level = case d.document_code when 'DEMO-DOC-002' then 'confidential' else 'internal' end,
+access_level = (case d.document_code when 'DEMO-DOC-002' then 'confidential' else 'internal' end)::public.access_level,
 allowed_roles = case d.document_code
   when 'DEMO-DOC-002' then ARRAY['editor','admin']::public.system_role[]
   else ARRAY['viewer','editor','admin']::public.system_role[]
