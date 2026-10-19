@@ -15,6 +15,14 @@ const allowedMimeTypes = new Set([
   "image/png",
   "image/jpeg",
 ]);
+const allowedFileExtensions: Record<string, string[]> = {
+  "application/pdf": ["pdf"],
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ["docx"],
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ["xlsx"],
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": ["pptx"],
+  "image/png": ["png"],
+  "image/jpeg": ["jpg", "jpeg"],
+};
 
 async function authenticatedContext() {
   const supabase = await createSupabaseServerClient();
@@ -132,6 +140,8 @@ export async function uploadDocumentFile(formData: FormData) {
   if (!documentVersionId || !(file instanceof File) || !file.size) throw new Error("Hãy chọn file cần upload.");
   if (file.size > 26_214_400) throw new Error("File vượt giới hạn 25 MB.");
   if (!allowedMimeTypes.has(file.type)) throw new Error("Chỉ chấp nhận PDF, DOCX, XLSX, PPTX, PNG hoặc JPEG.");
+  const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "";
+  if (!allowedFileExtensions[file.type]?.includes(extension)) throw new Error("Phần mở rộng file không khớp với MIME type.");
 
   const { supabase, user, profile } = await authenticatedContext();
   if (profile.role !== "admin" && profile.role !== "editor") throw new Error("Bạn không có quyền upload tài liệu.");
@@ -139,7 +149,6 @@ export async function uploadDocumentFile(formData: FormData) {
   const bytes = await file.arrayBuffer();
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   const checksum = [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, "0")).join("");
-  const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
   const storageKey = `${documentVersionId}/${crypto.randomUUID()}.${extension}`;
 
   const upload = await supabase.storage.from("process-documents").upload(storageKey, bytes, { contentType: file.type, upsert: false });
