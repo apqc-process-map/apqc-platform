@@ -398,3 +398,167 @@ export async function updateDocumentMetadata(formData:FormData){
   revalidatePath("/documents");
   redirect("/documents?updated=1");
 }
+
+
+const processAccessLevels = ["internal", "limited", "confidential", "highly_restricted"] as const;
+const processEditableStatuses = ["draft", "rejected"] as const;
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function processText(formData: FormData, field: string, label: string, max: number, required = false) {
+  const value = String(formData.get(field) || "").trim();
+  if (value.length > max) throw new Error(`${label} vượt quá ${max.toLocaleString("vi-VN")} ký tự.`);
+  if (required && !value) throw new Error(`${label} là bắt buộc.`);
+  return value || null;
+}
+
+function processDate(formData: FormData, field: string) {
+  const value = processText(formData, field, "Ngày", 10);
+  if (value && (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(value)))) throw new Error("Ngày không hợp lệ.");
+  return value;
+}
+
+function processDraftMetadata(formData: FormData) {
+  const validFrom = processDate(formData, "valid_from");
+  const validUntil = processDate(formData, "valid_until");
+  const reviewDueAt = processDate(formData, "review_due_at");
+  if (validFrom && validUntil && validUntil < validFrom) throw new Error("Ngày hết hiệu lực phải sau ngày bắt đầu.");
+  if (validFrom && reviewDueAt && reviewDueAt < validFrom) throw new Error("Ngày review phải từ ngày bắt đầu hiệu lực trở đi.");
+
+  const accessLevel = String(formData.get("access_level") || "internal");
+  if (!processAccessLevels.includes(accessLevel as typeof processAccessLevels[number])) throw new Error("Phân loại truy cập không hợp lệ.");
+  const allowedRoles = accessLevel === "internal" ? ["viewer", "editor", "admin"] : accessLevel === "highly_restricted" ? ["admin"] : ["editor", "admin"];
+
+  return {
+    name_vi: processText(formData, "name_vi", "Tên tiếng Việt", 255, true),
+    name_en: processText(formData, "name_en", "Tên tiếng Anh", 255),
+    purpose: processText(formData, "purpose", "Purpose", 5000, true),
+    description: processText(formData, "description", "Mô tả", 5000, true),
+    scope_in: processText(formData, "scope_in", "Đầu vào", 3000, true),
+    scope_out: processText(formData, "scope_out", "Đầu ra", 3000, true),
+    trigger: processText(formData, "trigger", "Trigger", 3000, true),
+    outcome: processText(formData, "outcome", "Outcome", 3000, true),
+    business_purpose: processText(formData, "business_purpose", "Mục đích kinh doanh", 5000, true),
+    scope_and_boundaries: processText(formData, "scope_and_boundaries", "Phạm vi và điểm đầu-cuối", 5000, true),
+    process_at_a_glance: processText(formData, "process_at_a_glance", "Luồng nghiệp vụ chính", 5000, true),
+    critical_decision_points: processText(formData, "critical_decision_points", "Quyết định trọng yếu", 5000, true),
+    accountability_and_impact: processText(formData, "accountability_and_impact", "Trách nhiệm và tác động", 5000, true),
+    access_level: accessLevel,
+    allowed_roles: allowedRoles,
+    valid_from: validFrom,
+    valid_until: validUntil,
+    review_due_at: reviewDueAt,
+    change_summary: processText(formData, "change_summary", "Tóm tắt thay đổi", 2000, true),
+  };
+}
+
+async function copyProcessVersionRelations(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  sourceVersionId: string,
+  targetVersionId: string,
+  userId: string,
+) {
+  const [assignmentsResult, mappingsResult, tagsResult, applicabilityResult] = await Promise.all([
+    supabase.from("process_assignments").select("profile_id,assignment_role,is_inherited,inherited_from_process_id").eq("process_version_id", sourceVersionId),
+    supabase.from("process_apqc_mappings").select("apqc_element_id,mapping_role,match_type,rationale").eq("process_version_id", sourceVersionId),
+    supabase.from("object_tags").select("tag_id").eq("object_type", "process_version").eq("object_id", sourceVersionId),
+    supabase.from("object_applicability").select("dimension,vocabulary_value_id,system_id,free_text,is_inherited,inherited_from_object_id").eq("object_type", "process_version").eq("object_id", sourceVersionId),
+  ]);
+  const readError = assignmentsResult.error || mappingsResult.error || tagsResult.error || applicabilityResult.error;
+  if (readError) throw new Error(readError.message);
+
+  if (assignmentsResult.data?.length) {
+    const { error } = await supabase.from("process_assignments").insert(assignmentsResult.data.map((row) => ({ ...row, process_version_id: targetVersionId })));
+    if (error) throw new Error(error.message);
+  }
+  if (mappingsResult.data?.length) {
+    const { error } = await supabase.from("process_apqc_mappings").insert(mappingsResult.data.map((row) => ({
+      ...row,
+      process_version_id: targetVersionId,
+      status: "proposed",
+      verified_by: null,
+      verified_at: null,
+    })));
+    if (error) throw new Error(error.message);
+  }
+  if (tagsResult.data?.length) {
+    const { error } = await supabase.from("object_tags").insert(tagsResult.data.map((row) => ({
+      object_type: "process_version",
+      object_id: targetVersionId,
+      tag_id: row.tag_id,
+      assigned_by: userId,
+    })));
+    if (error) throw new Error(error.message);
+  }
+  if (applicabilityResult.data?.length) {
+    const { error } = await supabase.from("object_applicability").insert(applicabilityResult.data.map((row) => ({
+      ...row,
+      object_type: "process_version",
+      object_id: targetVersionId,
+    })));
+    if (error) throw new Error(error.message);
+  }
+}
+
+async function removeIncompleteProcessDraft(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  versionId: string,
+) {
+  await supabase.from("object_tags").delete().eq("object_type", "process_version").eq("object_id", versionId);
+  await supabase.from("object_applicability").delete().eq("object_type", "process_version").eq("object_id", versionId);
+  await supabase.from("process_versions").delete().eq("id", versionId);
+}
+
+export async function updateProcessMetadata(formData: FormData) {
+  const processId = String(formData.get("process_id") || "");
+  const processVersionId = String(formData.get("process_version_id") || "");
+  if (!uuidPattern.test(processId) || !uuidPattern.test(processVersionId)) throw new Error("Quy trình hoặc phiên bản không hợp lệ.");
+
+  const { supabase, user, profile } = await authenticatedContext();
+  if (profile.role !== "admin") throw new Error("Chỉ Admin được chỉnh sửa metadata quy trình.");
+
+  const metadata = processDraftMetadata(formData);
+  const { data: current, error: currentError } = await supabase
+    .from("process_versions")
+    .select("id,process_id,version_number,status,allowed_roles")
+    .eq("id", processVersionId)
+    .eq("process_id", processId)
+    .maybeSingle();
+  if (currentError || !current) throw new Error(currentError?.message || "Không tìm thấy phiên bản quy trình.");
+
+  if (processEditableStatuses.includes(current.status as typeof processEditableStatuses[number])) {
+    const { error } = await supabase.from("process_versions").update({ ...metadata, updated_by: user.id }).eq("id", current.id);
+    if (error) throw new Error(error.message);
+    revalidatePath("/process-map");
+    return { versionId: current.id, createdDraft: false };
+  }
+
+  const { data: latest, error: latestError } = await supabase
+    .from("process_versions")
+    .select("version_number")
+    .eq("process_id", processId)
+    .order("version_number", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (latestError) throw new Error(latestError.message);
+
+  const { data: draft, error: draftError } = await supabase.from("process_versions").insert({
+    ...metadata,
+    process_id: processId,
+    version_number: (latest?.version_number || current.version_number) + 1,
+    status: "draft",
+    created_by: user.id,
+    updated_by: user.id,
+    supersedes_version_id: current.id,
+  }).select("id").single();
+  if (draftError || !draft) throw new Error(draftError?.message || "Không thể tạo bản nháp.");
+
+  try {
+    await copyProcessVersionRelations(supabase, current.id, draft.id, user.id);
+  } catch (error) {
+    await removeIncompleteProcessDraft(supabase, draft.id);
+    throw error;
+  }
+
+  revalidatePath("/process-map");
+  return { versionId: draft.id, createdDraft: true };
+}
