@@ -41,6 +41,7 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [previewPosition, setPreviewPosition] = useState({ top: 0, left: 0 });
   const [editing, setEditing] = useState(false);
+  const [headerExpanded, setHeaderExpanded] = useState(true);
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("selected");
@@ -101,12 +102,32 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
   const canEdit = role === "admin" && Boolean(selected?.versionId);
   const editableVersion = selected ? EDITABLE_STATUSES.has(selected.status) : false;
 
-  return <WorkspaceShell active="/process-map" eyebrow="PROCESS LANDSCAPE" title="Process Map" description="Tìm kiếm, xem tổng quan và quản trị metadata quy trình theo L0–L4." userName={userName} role={role}>
-    <Link className="text-button" href="/" aria-label="Quay lại menu chính">← Quay lại menu chính</Link>
-    <div className="map-actions"><button className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
+  const headerContent = <section className={`process-map-header-block${headerExpanded ? " is-expanded" : " is-collapsed"}`} aria-label="Thông tin và điều khiển Process Map">
+    <div className="process-map-header-main">
+      <div className="process-map-title-row">
+        <p className="eyebrow accent">PROCESS LANDSCAPE</p>
+        <span className="process-map-title-separator" aria-hidden="true" />
+        <h1>Process Map</h1>
+        <span className="process-map-header-summary">{nodes.length} quy trình · L0–L4</span>
+      </div>
+      <button type="button" className="process-map-collapse-button" onClick={() => setHeaderExpanded((value) => !value)} aria-expanded={headerExpanded} aria-controls="process-map-header-details">
+        <span aria-hidden="true">{headerExpanded ? "⌃" : "⌄"}</span>
+        {headerExpanded ? "Thu gọn" : "Mở rộng"}
+      </button>
+    </div>
+    {headerExpanded ? <div className="process-map-header-details" id="process-map-header-details">
+      <p className="process-map-header-description">Tìm kiếm, xem tổng quan và quản trị metadata quy trình theo L0–L4.</p>
+      <div className="process-map-header-controls">
+        <Link className="text-button process-map-back-link" href="/" aria-label="Quay lại menu chính">← Quay lại menu chính</Link>
+        <div className="map-actions"><button type="button" className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button type="button" className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
+      </div>
+      {selected ? <div className="map-breadcrumb process-map-header-breadcrumb" aria-label="Breadcrumb">{path.map((item, index) => <button key={item.id} onClick={() => chooseNode(item.id)}>{item.name}{index < path.length - 1 && <span> / </span>}</button>)}</div> : null}
+    </div> : null}
+  </section>;
+
+  return <WorkspaceShell active="/process-map" eyebrow="PROCESS LANDSCAPE" title="Process Map" description="Tìm kiếm, xem tổng quan và quản trị metadata quy trình theo L0–L4." userName={userName} role={role} headerContent={headerContent}>
     {errorMessage ? <div className="state-message error-state"><strong>Không thể tải Process Map</strong><span>{errorMessage}</span></div> : null}
     {!errorMessage && !selected ? <div className="state-message"><strong>Chưa có process</strong><span>Tạo process metadata để bắt đầu hierarchy.</span></div> : null}
-    {selected ? <div className="map-breadcrumb" aria-label="Breadcrumb">{path.map((item, index) => <button key={item.id} onClick={() => chooseNode(item.id)}>{item.name}{index < path.length - 1 && <span> / </span>}</button>)}</div> : null}
     {referenceMode ? <section className="reference-empty"><div className="reference-icon">◇</div><h2>APQC Reference View</h2><p>Tra cứu taxonomy APQC đã import và đối chiếu coverage với enterprise process. Hai mô hình được quản lý độc lập.</p><Link className="primary-button" href="/catalog">Mở APQC Catalog →</Link></section> : selected ? <div className="map-layout value-chain-layout process-map-workspace">
       <section className="scope-column panel value-chain-panel">
         <div className="scope-toolbar value-chain-toolbar process-search-controls">
