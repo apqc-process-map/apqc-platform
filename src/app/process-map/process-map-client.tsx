@@ -77,21 +77,6 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
   }
 
   const selected = nodes.find((node) => node.id === selectedId) || roots[0] || nodes[0];
-  const path = useMemo(() => {
-    if (!selected) return [];
-    const result: ProcessMapNode[] = [selected];
-    let current = selected;
-    const visited = new Set([current.id]);
-    while (current.parentId) {
-      const parent = nodes.find((node) => node.id === current.parentId);
-      if (!parent || visited.has(parent.id)) break;
-      result.unshift(parent);
-      visited.add(parent.id);
-      current = parent;
-    }
-    return result;
-  }, [nodes, selected]);
-
   const directChildren = nodes.filter((node) => node.parentId === selected?.id);
   const normalizedQuery = query.trim().toLocaleLowerCase("vi");
   const visibleNodes = nodes.filter((node) => {
@@ -102,26 +87,17 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
   const canEdit = role === "admin" && Boolean(selected?.versionId);
   const editableVersion = selected ? EDITABLE_STATUSES.has(selected.status) : false;
 
-  const headerContent = <section className={`process-map-header-block${headerExpanded ? " is-expanded" : " is-collapsed"}`} aria-label="Thông tin và điều khiển Process Map">
+  const headerContent = <section className={`process-map-header-block${headerExpanded ? " is-expanded" : " is-collapsed"}`} aria-label="Điều khiển Process Landscape">
     <div className="process-map-header-main">
-      <div className="process-map-title-row">
-        <p className="eyebrow accent">PROCESS LANDSCAPE</p>
-        <span className="process-map-title-separator" aria-hidden="true" />
-        <h1>Process Map</h1>
-        <span className="process-map-header-summary">{nodes.length} quy trình · L0–L4</span>
+      <p className="eyebrow accent process-map-header-label">PROCESS LANDSCAPE</p>
+      <div className="process-map-header-controls" id="process-map-header-controls" hidden={!headerExpanded}>
+        <div className="map-actions"><button type="button" className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button type="button" className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
+        {!referenceMode ? <div className="process-map-toolbar-search"><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Tìm process trên sơ đồ" placeholder="Tìm code, tên, owner, tag hoặc nội dung…" /></div> : null}
       </div>
-      <button type="button" className="process-map-collapse-button" onClick={() => setHeaderExpanded((value) => !value)} aria-expanded={headerExpanded} aria-controls="process-map-header-details">
+      <button type="button" className="process-map-collapse-button" onClick={() => setHeaderExpanded((value) => !value)} aria-expanded={headerExpanded} aria-controls="process-map-header-controls">
         <span aria-hidden="true">{headerExpanded ? "⌃" : "⌄"}</span>
         {headerExpanded ? "Thu gọn" : "Mở rộng"}
       </button>
-    </div>
-    <div className="process-map-header-details" id="process-map-header-details" hidden={!headerExpanded}>
-      <p className="process-map-header-description">Tìm kiếm, xem tổng quan và quản trị metadata quy trình theo L0–L4.</p>
-      <div className="process-map-header-controls">
-        <Link className="text-button process-map-back-link" href="/" aria-label="Quay lại menu chính">← Quay lại menu chính</Link>
-        <div className="map-actions"><button type="button" className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button type="button" className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
-      </div>
-      {selected ? <div className="map-breadcrumb process-map-header-breadcrumb" aria-label="Breadcrumb">{path.map((item, index) => <button key={item.id} onClick={() => chooseNode(item.id)}>{item.name}{index < path.length - 1 && <span> / </span>}</button>)}</div> : null}
     </div>
   </section>;
 
@@ -130,11 +106,6 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
     {!errorMessage && !selected ? <div className="state-message"><strong>Chưa có process</strong><span>Tạo process metadata để bắt đầu hierarchy.</span></div> : null}
     {referenceMode ? <section className="reference-empty"><div className="reference-icon">◇</div><h2>APQC Reference View</h2><p>Tra cứu taxonomy APQC đã import và đối chiếu coverage với enterprise process. Hai mô hình được quản lý độc lập.</p><Link className="primary-button" href="/catalog">Mở APQC Catalog →</Link></section> : selected ? <div className="map-layout value-chain-layout process-map-workspace">
       <section className="scope-column panel value-chain-panel">
-        <div className="scope-toolbar value-chain-toolbar process-search-controls">
-          <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Tìm process trên sơ đồ" placeholder="Tìm code, tên, owner, tag hoặc nội dung…" />
-          <span className="count-chip" aria-live="polite">{visibleNodes.length} / {nodes.length}</span>
-          <span className="value-chain-hint">Hover để xem nhanh · Click để mở chi tiết</span>
-        </div>
         <div className="level-filter" aria-label="Lọc theo cấp độ">
           <button type="button" className={!activeLevels.length ? "active" : ""} onClick={() => setActiveLevels([])}>Tất cả cấp</button>
           {LEVEL_BANDS.map((band) => <button key={band.key} type="button" className={activeLevels.includes(band.types[0]) || (band.key === "L4" && activeLevels.includes("task")) ? "active" : ""} onClick={() => {
