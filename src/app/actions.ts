@@ -529,7 +529,7 @@ export async function updateProcessMetadata(formData: FormData) {
     const { error } = await supabase.from("process_versions").update({ ...metadata, updated_by: user.id }).eq("id", current.id);
     if (error) throw new Error(error.message);
     revalidatePath("/process-map");
-    return { versionId: current.id, createdDraft: false };
+    redirect(`/process-map?selected=${processId}&version=${current.id}&updated=1`);
   }
 
   const { data: latest, error: latestError } = await supabase
@@ -560,5 +560,5 @@ export async function updateProcessMetadata(formData: FormData) {
   }
 
   revalidatePath("/process-map");
-  return { versionId: draft.id, createdDraft: true };
+  redirect(`/process-map?selected=${processId}&version=${draft.id}&updated=1`);
 }
