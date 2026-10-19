@@ -87,3 +87,9 @@ Process Map is a desktop-first internal demo for navigating and governing enterp
 - Document file route creates a 60-second Supabase Storage signed URL only after authenticated access and database file lookup.
 - pnpm lint and pnpm build pass with 14 routes, including /findings/[id] and /documents/files/[id].
 - Comment write policy was not changed because the live Supabase connector rejected broadening authenticated write access without a separate security approval.
+
+## 2026-10-19 comment collaboration verified
+
+- Supabase now allows finding creator, assignee, and participants to create threads/comments through explicit RLS policies; comment authors can update their own comments and add/remove mentions.
+- Finding detail now includes a comment form backed by the authenticated server action.
+- Production Webpack build passed after clearing only generated .next output; 14 routes compiled.
