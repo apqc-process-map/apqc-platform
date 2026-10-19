@@ -253,3 +253,11 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] MAP-007 — Process Map now loads the rich process metadata from Supabase and displays business purpose, scope, decision points, accountability, access, review date, systems, applicability and tags.
 - [x] CLEANUP — `scripts/delete-demo-processes.sql` now removes generic object metadata/tag assignments before deleting demo records.
 - [ ] Remaining QA-004/005/006/007 and QA-008 limitations are unchanged: authenticated browser, keyboard, multi-viewport and real-file upload verification still require an available signed-in browser session/sample.
+
+
+## Review snapshot — 2026-10-19 value-chain Process Map
+
+- [x] `MAP-006` — Center landscape now renders explicit L0–L4 bands and exposes a five-section process overview on mouse hover and keyboard focus; Escape dismisses the preview and click selects the process.
+- [x] `MAP-009` — The value-chain view reflects live enterprise process metadata rather than synthetic hierarchy cards.
+- [~] `PARTIAL MAP-010 / QA-004/005/006/007` — Responsive overflow, focus states, long-text preview layout, empty L3/L4 states, and reduced-motion support are implemented. Authenticated Chrome/Edge visual runs at 1024/1280/wide remain pending.
+- [ ] Data note — Current demo data contains L0–L2 only and all `parent_process_id` values are null. L3/L4 are intentionally shown as empty and no hierarchy links are fabricated.

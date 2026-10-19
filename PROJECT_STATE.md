@@ -70,3 +70,11 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Process Map now reads and displays purpose, boundaries, decision points, accountability, access, review date, systems, applicability and governance tags from Supabase.
 - Cleanup script removes generic applicability/tag rows before deleting demo documents and processes.
 - No binary document fixtures were invented; real-file upload testing still requires a sample file.
+
+
+## Value-chain Process Map milestone — 2026-10-19
+
+- The center workspace presents live processes in L0–L4 bands: L0 value chain, L1 E2E, L2 process, L3 subprocess, and L4 activity/task.
+- Hover and keyboard focus expose the five Executive Summary sections; Escape dismisses the preview and selection continues to drive the unchanged right-hand information panel.
+- Verified data currently provides L0–L2 only. L3/L4 display explicit empty states, and no parent-child structure is inferred because all 10 demo processes currently have null parent IDs.
+- Horizontal overflow keeps the desktop map usable at 1024 px. Authenticated multi-viewport Chrome/Edge visual QA remains pending.
