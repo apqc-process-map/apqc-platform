@@ -29,11 +29,22 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
   const [referenceMode, setReferenceMode] = useState(false);
   const [query, setQuery] = useState("");
   const [previewId, setPreviewId] = useState<string | null>(null);
+  const [previewPosition, setPreviewPosition] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("selected");
     if (requested && nodes.some((node) => node.id === requested)) setSelectedId(requested);
   }, [nodes]);
+
+  function showPreview(id: string, target: HTMLElement) {
+    const rect = target.getBoundingClientRect();
+    const width = Math.min(520, window.innerWidth - 32);
+    const left = Math.min(Math.max(16, rect.left), window.innerWidth - width - 16);
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const top = spaceBelow >= 360 ? rect.bottom + 8 : Math.max(16, rect.top - 368);
+    setPreviewPosition({ top, left });
+    setPreviewId(id);
+  }
 
   function chooseNode(id: string) {
     setSelectedId(id);
@@ -71,8 +82,7 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
     {selected ? <div className="map-breadcrumb" aria-label="Breadcrumb">{path.map((item, index) => <button key={item.id} onClick={() => chooseNode(item.id)}>{item.name}{index < path.length - 1 && <span> / </span>}</button>)}</div> : null}
     {referenceMode ? <section className="reference-empty"><div className="reference-icon">◇</div><h2>APQC Reference View</h2><p>Tra cứu taxonomy APQC đã import và đối chiếu coverage với enterprise process. Hai mô hình được quản lý độc lập.</p><Link className="primary-button" href="/catalog">Mở APQC Catalog →</Link></section> : selected ? <div className="map-layout value-chain-layout">
       <section className="map-column panel"><div className="panel-heading"><div><p className="section-kicker">ROOTS</p><h2>Value streams</h2></div><span className="count-chip">{roots.length} roots</span></div><div className="layer-list">{roots.map((node) => <button key={node.id} className={`layer-card${node.id === selected.id ? " selected" : ""}`} onClick={() => chooseNode(node.id)} title={node.summary}><span className="layer-code">{node.code}</span><strong>{node.name}</strong><small>{node.level} · {node.status}</small><span className="layer-arrow">→</span></button>)}</div></section>
-      <section className="scope-column panel value-chain-panel"><div className="panel-heading"><div><p className="section-kicker">ENTERPRISE LANDSCAPE</p><h2>Value-chain based map</h2></div><span className="count-chip">{visibleNodes.length} process</span></div><div className="scope-toolbar value-chain-toolbar"><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Tìm process trên sơ đồ" placeholder="Tìm code, process hoặc owner…" /><span>Hover hoặc focus để xem 5 nội dung tổng quan</span></div><div className="value-chain-scroll"><div className="value-chain-map" aria-label="Sơ đồ process theo cấp độ L0 đến L4">
-        <div className="value-chain-title"><span>ENTERPRISE PROCESS MAP</span><strong>Value chain based</strong></div>
+      <section className="scope-column panel value-chain-panel"><div className="scope-toolbar value-chain-toolbar"><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Tìm process trên sơ đồ" placeholder="Tìm code, process hoặc owner…" /><span className="value-chain-hint">Hover hoặc focus để xem tổng quan</span><span className="count-chip">{visibleNodes.length} process</span></div><div className="value-chain-scroll"><div className="value-chain-map" aria-label="Sơ đồ process theo cấp độ L0 đến L4">
         {LEVEL_BANDS.map((band) => {
           const allBandNodes = nodes.filter((node) => (band.types as readonly string[]).includes(node.level));
           const bandNodes = visibleNodes.filter((node) => (band.types as readonly string[]).includes(node.level));
@@ -82,11 +92,11 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
               {bandNodes.length ? bandNodes.map((node) => {
                 const tooltipId = `process-preview-${node.id}`;
                 const isPreviewed = previewId === node.id;
-                return <div className="process-block-shell" key={node.id} onMouseEnter={() => setPreviewId(node.id)} onMouseLeave={() => setPreviewId(null)}>
-                  <button type="button" className={`process-block${node.id === selected.id ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onFocus={() => setPreviewId(node.id)} onBlur={() => setPreviewId(null)} onKeyDown={(event) => { if (event.key === "Escape") setPreviewId(null); }} aria-pressed={node.id === selected.id} aria-describedby={isPreviewed ? tooltipId : undefined}>
+                return <div className="process-block-shell" key={node.id} onMouseLeave={() => setPreviewId(null)}>
+                  <button type="button" className={`process-block${node.id === selected.id ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onMouseEnter={(event) => showPreview(node.id, event.currentTarget)} onFocus={(event) => showPreview(node.id, event.currentTarget)} onBlur={() => setPreviewId(null)} onKeyDown={(event) => { if (event.key === "Escape") setPreviewId(null); }} aria-pressed={node.id === selected.id} aria-describedby={isPreviewed ? tooltipId : undefined}>
                     <span>{node.code}</span><strong>{node.name}</strong><small>{node.owner}</small>
                   </button>
-                  {isPreviewed ? <div className="process-preview" id={tooltipId} role="tooltip">
+                  {isPreviewed ? <div className="process-preview" id={tooltipId} role="tooltip" style={{ top: previewPosition.top, left: previewPosition.left }}>
                     <div className="process-preview-heading"><span>{band.key} · {node.code}</span><strong>{node.name}</strong></div>
                     <dl>
                       <div><dt>1. Mục đích kinh doanh</dt><dd>{node.businessPurpose}</dd></div>
