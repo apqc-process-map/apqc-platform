@@ -1,4 +1,8 @@
+"use client";
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { createDocumentDraft, updateDocumentMetadata } from "@/app/actions";
+import { uploadPrivateDocumentFile } from "@/lib/document-upload";
 
 type Option = { id:string; label:string; group?:string };
 type Existing = {
@@ -45,13 +49,43 @@ export default function DocumentIntake({
   selectedScopes={},selectedTags=[]
 }:Props){
   const editing=!!existing;
+  const router=useRouter();
+  const [uploading,setUploading]=useState(false);
+  const [error,setError]=useState("");
+  async function handleCreate(event:FormEvent<HTMLFormElement>){
+    event.preventDefault();
+    if(uploading)return;
+    const data=new FormData(event.currentTarget);
+    const input=data.get("file");
+    const file=input instanceof File&&input.size>0?input:null;
+    if(!file&&!String(data.get("title_vi")||"").trim()){
+      setError("Vui lòng chọn file hoặc nhập tên tài liệu.");
+      return;
+    }
+    if(file&&!String(data.get("title_vi")||"").trim())
+      data.set("title_vi",file.name.replace(/\\.[^.]+$/,"").slice(0,255));
+    data.delete("file");
+    setError("");
+    setUploading(true);
+    let created=false;
+    try{
+      const {versionId}=await createDocumentDraft(data);
+      created=true;
+      if(file)await uploadPrivateDocumentFile(versionId,file);
+      router.push("/documents?created=1");
+      router.refresh();
+    }catch(cause){
+      const message=cause instanceof Error?cause.message:"Có lỗi xảy ra khi lưu tài liệu.";
+      setError((created?"Bản nháp đã được tạo nhưng chưa đính kèm file. Bạn có thể thêm file ở bên dưới. ":"")+message);
+    }finally{setUploading(false);}
+  }
   return <section className="data-panel document-admin-panel" id={editing?"document-edit":"document-create"}>
     <div className="data-panel-heading"><div>
       <p className="section-kicker">DOCUMENT INTAKE</p>
       <h2>{editing?"Bổ sung / sửa metadata tài liệu":"Tạo & upload tài liệu mới"}</h2>
       <p>Chỉ cần tên hoặc file để lưu bản nháp. Mọi metadata còn lại đều tùy chọn, có thể bổ sung sau.</p>
     </div><span className="count-chip">{editing?"EDIT DRAFT":"PRIVATE STORAGE"}</span></div>
-    <form action={editing?updateDocumentMetadata:createDocumentDraft} className="document-intake-form">
+    <form action={editing?updateDocumentMetadata:undefined} onSubmit={editing?undefined:handleCreate} className="document-intake-form">
       {editing&&<input type="hidden" name="document_version_id" value={existing.id}/>}
       <div className="document-meta-block">
         <h3>Thông tin cơ bản</h3>
@@ -144,8 +178,9 @@ export default function DocumentIntake({
           </label>
         </div>
       </details>
+      {error&&<p role="alert" className="document-intake-error">{error}</p>}
       <div className="document-intake-footer">
-        <button type="submit" className="primary-button">{editing?"Lưu metadata":"Tạo bản nháp & upload"}</button>
+        <button type="submit" className="primary-button" disabled={uploading}>{uploading?"Đang lưu & upload…":editing?"Lưu metadata":"Tạo bản nháp & upload"}</button>
         {editing&&<a className="text-button" href="/documents">Hủy chỉnh sửa</a>}
         <small>Hệ thống tự ghi mã, phiên bản, người tạo, dung lượng và mã kiểm tra file. Không tự xuất bản.</small>
       </div>
