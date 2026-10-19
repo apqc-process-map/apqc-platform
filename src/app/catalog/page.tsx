@@ -1,4 +1,5 @@
-﻿import WorkspaceShell from "@/components/workspace-shell";
+import Link from "next/link";
+import WorkspaceShell from "@/components/workspace-shell";
 import { requireActiveAccount } from "@/lib/auth";
 
 export const instant = false;
@@ -22,7 +23,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   return <WorkspaceShell active="/catalog" eyebrow="DISCOVERY" title="Process Catalog" description="Tìm kiếm enterprise process và APQC reference trong cùng một nơi." userName={profile.display_name} role={profile.role}>
     <form className="catalog-toolbar"><input name="q" defaultValue={q} placeholder="Tìm theo mã, tên hoặc mô tả…" aria-label="Từ khóa tìm kiếm" /><select name="type" defaultValue={type} aria-label="Loại dữ liệu"><option value="all">Tất cả</option><option value="enterprise">Enterprise</option><option value="apqc">APQC</option></select><button type="submit">Tìm kiếm</button></form>
     <section className="data-panel"><div className="data-panel-heading"><div><p className="section-kicker">CATALOG</p><h2>{rows.length} kết quả</h2></div><span className="count-chip">{type === "all" ? "Enterprise + APQC" : type}</span></div>
-      {error ? <div className="state-message error-state"><strong>Không thể tải catalog</strong><span>{error}</span></div> : rows.length === 0 ? <div className="state-message"><strong>Chưa có dữ liệu phù hợp</strong><span>{term ? "Thử từ khóa khác hoặc xóa bộ lọc." : "APQC workbook và enterprise process chưa được import."}</span></div> : <div className="data-table-wrap"><table className="data-table"><thead><tr><th>Mã</th><th>Tên</th><th>Nguồn</th><th>Cấp</th><th>Trạng thái</th></tr></thead><tbody>{rows.map((row) => <tr key={row.id}><td><span className="mono-code">{row.code}</span></td><td><strong>{row.name}</strong><small>{row.detail}</small></td><td>{row.kind}</td><td>{row.level}</td><td><span className="status-badge">{row.status}</span></td></tr>)}</tbody></table></div>}
+      {error ? <div className="state-message error-state"><strong>Không thể tải catalog</strong><span>{error}</span></div> : rows.length === 0 ? <div className="state-message"><strong>Chưa có dữ liệu phù hợp</strong><span>{term ? "Thử từ khóa khác hoặc xóa bộ lọc." : "APQC workbook và enterprise process chưa được import."}</span></div> : <div className="data-table-wrap"><table className="data-table"><thead><tr><th>Mã</th><th>Tên</th><th>Nguồn</th><th>Cấp</th><th>Trạng thái</th></tr></thead><tbody>{rows.map((row) => <tr key={row.id}><td><span className="mono-code">{row.code}</span></td><td><strong>{row.kind === "APQC" ? <Link href={`/catalog/apqc/${row.id}`}>{row.name}</Link> : row.name}</strong><small>{row.detail}</small></td><td>{row.kind}</td><td>{row.level}</td><td><span className="status-badge">{row.status}</span></td></tr>)}</tbody></table></div>}
     </section>
   </WorkspaceShell>;
 }

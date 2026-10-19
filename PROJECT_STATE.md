@@ -74,3 +74,9 @@ Process Map is a desktop-first internal demo for navigating and governing enterp
 - Fixed and versioned the E8 finding notification trigger: it now reads profiles.role; the previous profiles.system_role reference blocked every new finding insert.
 - Cleanup script now removes the full demo sandbox in dependency order.
 
+
+## 2026-10-19 verified milestone
+
+- APQC detail route /catalog/apqc/[id] is implemented with parent navigation, source metadata, description, and metrics.
+- Notifications support per-item and bulk read state updates through authenticated server actions; RLS remains the database boundary.
+- pnpm lint and production pnpm build passed. Build no longer depends on fetching Google Fonts.
