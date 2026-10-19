@@ -113,3 +113,19 @@
 .document-intake-error { color:#9f1239; font-size:13px; padding:10px; border-radius:8px; background:#fff1f2; }
 .document-intake-success { color:#166534; font-size:13px; padding:10px; background:#f0fdf4; border-radius:8px; }
 @media (max-width:700px) { .document-meta-block {padding:12px;} .document-meta-grid {grid-template-columns:minmax(0,1fr);} }
+
+
+/* Compact Process Map and viewport-safe overview preview */
+.value-chain-panel>.value-chain-toolbar{padding:10px 12px;border-bottom:1px solid #eef1f3}
+.value-chain-toolbar{justify-content:flex-start}
+.value-chain-toolbar input{flex:1;min-width:180px}
+.value-chain-toolbar .value-chain-hint{margin-left:auto;white-space:nowrap}
+.value-chain-toolbar .count-chip{flex:0 0 auto}
+.value-chain-scroll{padding:10px 12px 12px}
+.value-chain-map{gap:6px}
+.process-level-band{gap:6px}
+.process-level-grid{gap:6px;min-height:50px}
+.process-block{min-height:50px;padding:8px 10px}
+.process-preview{position:fixed;top:auto;left:auto;right:auto;width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;z-index:1000}
+.process-block-shell:nth-last-child(-n+2) .process-preview{left:auto;right:auto}
+@media(max-width:1050px){.value-chain-toolbar{align-items:stretch;flex-direction:row;flex-wrap:wrap}.value-chain-toolbar .value-chain-hint{margin-left:0;order:3;width:100%;text-align:left}}
