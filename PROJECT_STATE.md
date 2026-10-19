@@ -48,7 +48,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 
 ## Pending and blocked
 
-- `supabase/migrations/20261019000012_notification_scheduler.sql` is committed but not applied. It enables `pg_cron` and creates a persistent production job at 08:00 Asia/Ho_Chi_Minh; Supabase requires explicit approval for that operational change.
+- `supabase/pending/notification_scheduler.sql` is quarantined outside the migration path and not applied. It enables `pg_cron` and creates a persistent production job at 08:00 Asia/Ho_Chi_Minh; Supabase requires explicit approval for that operational change.
 - Editor RLS behavior cannot be executed without changing the user-approved account mix or temporarily changing a production profile role.
 - Document lifecycle remains partial until a complete metadata editor exposes validity, review dates, and scheduled publication.
 - Dashboard drill-down, accessible/dismissible process previews, global cross-module search, and authenticated multi-viewport/browser QA remain partial.
