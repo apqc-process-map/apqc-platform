@@ -99,3 +99,10 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Saving a draft/rejected version updates it in place. Saving a currently approved/effective version preserves that source and creates draft v+1, then reopens that exact draft. Assignments, tags and applicability are copied; APQC mappings are copied as `proposed` so verification is explicit.
 - Applied migrations `20261019000019_process_map_metadata_editing.sql` and `20261019000020_consolidate_draft_applicability_policies.sql`. Admin/Viewer RLS and relation-copy checks passed in rollback-only SQL transactions; no test drafts persisted. The Vercel Preview build compiled and type-checked successfully.
 - Security Advisor has no new schema-level security findings from this feature. The inherited account-level leaked-password-protection warning remains; authenticated browser/visual QA still requires a signed-in browser session.
+
+
+## Compact Process Map workspace header — 2026-10-19
+
+- The Process Map header is a single compact workspace control block: **PROCESS LANDSCAPE · Process Map** stays on one row with the control summary and collapse control.
+- Its expanded details contain the description, return-to-menu action, Enterprise/APQC mode switch, and selected-process breadcrumb; collapsing preserves the short heading and restores vertical space for the canvas.
+- The control is expanded by default, uses a real button with `aria-expanded`, and has a 1024-px layout fallback that wraps secondary controls rather than clipping them.
