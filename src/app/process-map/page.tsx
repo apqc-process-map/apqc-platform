@@ -28,7 +28,8 @@ type ProcessRow = {
   process_versions: VersionRow[];
 };
 
-type TagRow = { object_id: string; governance_tags: ProcessMapTag | ProcessMapTag[] | null };
+type RawTag = { code: string; label_vi: string; color: string };
+type TagRow = { object_id: string; governance_tags: RawTag | RawTag[] | null };
 type ApplicabilityRow = {
   object_id: string;
   dimension: string;
