@@ -246,3 +246,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - DOC-013 — Requires representative Excel/CSV/PDF/DOCX samples before importer design.
 - FIND-011 — Requires approved data-handling policy and samples before AI analysis.
 - LATER-001 through LATER-010 remain intentionally deferred by scope.
+
+## Review snapshot — 2026-10-19 rich demo metadata
+
+- [x] DEMO-DATA — Applied and verified migration `20261019000012_rich_demo_metadata.sql`: 10/10 process versions have all five Executive Summary fields; 10/10 have applicability; 6 controlled tags have 15 process assignments; 32 verified demo relationships; 5 typed findings; and document metadata/tags are populated.
+- [x] MAP-007 — Process Map now loads the rich process metadata from Supabase and displays business purpose, scope, decision points, accountability, access, review date, systems, applicability and tags.
+- [x] CLEANUP — `scripts/delete-demo-processes.sql` now removes generic object metadata/tag assignments before deleting demo records.
+- [ ] Remaining QA-004/005/006/007 and QA-008 limitations are unchanged: authenticated browser, keyboard, multi-viewport and real-file upload verification still require an available signed-in browser session/sample.
