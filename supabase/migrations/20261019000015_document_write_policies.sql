@@ -19,7 +19,7 @@ on storage.objects for delete to authenticated
 using (
   bucket_id='process-documents'
   and (
-    owner_id=(select auth.uid())
+    owner_id=(select auth.uid())::text
     or (select public.current_profile_role())='admin'
   )
 );
