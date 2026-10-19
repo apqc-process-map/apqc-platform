@@ -78,7 +78,7 @@ export default function DocumentIntake({
           <label className="document-meta-wide">Từ khóa<input name="keywords" maxLength={1000} defaultValue={existing?.keywords||""} placeholder="Ví dụ: bán hàng, cửa hàng, kiểm kê"/></label>
         </div>
       </div>
-      <details className="document-meta-block" defaultOpen={editing}>
+      <details className="document-meta-block" open={editing}>
         <summary>Phân loại & phạm vi áp dụng <small>· không bắt buộc</small></summary>
         <div className="document-meta-grid">
           <label className="document-meta-wide">Quy trình liên quan (chính)
@@ -107,7 +107,7 @@ export default function DocumentIntake({
           </div>
         </div>
       </details>
-      <details className="document-meta-block" defaultOpen={editing}>
+      <details className="document-meta-block" open={editing}>
         <summary>Trách nhiệm & quyền truy cập <small>· không bắt buộc</small></summary>
         <div className="document-meta-grid">
           <label>Chủ sở hữu tài liệu<select name="owner_id" defaultValue={existing?.owner_id||""}>
@@ -122,7 +122,7 @@ export default function DocumentIntake({
           </select><small>Quyền xem bản nháp phụ thuộc vai trò; Viewer chỉ xem bản hiệu lực.</small></label>
         </div>
       </details>
-      <details className="document-meta-block" defaultOpen={editing}>
+      <details className="document-meta-block" open={editing}>
         <summary>Hiệu lực, kiểm soát & lưu trữ <small>· không bắt buộc</small></summary>
         <div className="document-meta-grid">
           <DateField name="valid_from" label="Ngày bắt đầu hiệu lực" value={existing?.valid_from}/>
