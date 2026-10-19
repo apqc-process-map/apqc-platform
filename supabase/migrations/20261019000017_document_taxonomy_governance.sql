@@ -55,6 +55,10 @@ on public.document_versions for select to authenticated
 using (
   (select public.current_profile_role())='admin'
   or (
+    (select public.current_profile_role())='editor'
+    and (created_by=(select auth.uid()) or owner_id=(select auth.uid()))
+  )
+  or (
     (select public.current_profile_role())=any(allowed_roles)
     and (
       (select public.current_profile_role())='editor'
