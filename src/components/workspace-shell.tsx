@@ -2,8 +2,8 @@ import Link from "next/link";
 import { signOut } from "@/app/actions";
 
 const navigation = [
-  ["/", "⌂", "Home"], ["/process-map", "◇", "Process Map"], ["/catalog", "▦", "Catalog"],
-  ["/relationships", "⇄", "Relationships"], ["/documents", "▤", "Documents"],
+  ["/documents", "▤", "Documents"], ["/", "⌂", "Home"], ["/process-map", "◇", "Process Map"], ["/catalog", "▦", "Catalog"],
+  ["/relationships", "⇄", "Relationships"],
   ["/findings", "!", "Findings"], ["/governance", "◌", "Governance"], ["/notifications", "♧", "Notifications"],
 ];
 type Props = { active: string; title: string; eyebrow: string; description: string; userName?: string | null; role?: string | null; children: React.ReactNode };
