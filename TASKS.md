@@ -273,3 +273,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `MAP-011` — Admins can edit the five tooltip sections plus core process metadata from the right panel. Draft/rejected versions update in place; a published/current version is preserved and saving creates draft v+1.
 - [x] `SECURITY` — Migrations `20261019000019_process_map_metadata_editing.sql` and `20261019000020_consolidate_draft_applicability_policies.sql` are applied in Supabase. RLS permits only Admins to create/update their governed process drafts and copy related assignments, mappings, applicability and tags. Cloned APQC mappings are set to `proposed` for re-verification.
 - [~] `QA-002/004/005/006/007/008` — Rolled-back Admin/Viewer RLS tests and a Vercel Preview production build/TypeScript check passed. Authenticated browser edit flow, keyboard/hover visual checks, and wide/1024-px checks remain to be executed for this enhancement.
+
+
+## Review snapshot — 2026-10-19 compact Process Map header
+
+- [x] `MAP-010` — Process Map now combines the landscape label, page name, description, return link, Enterprise/APQC switch, and selected-process breadcrumb in one compact workspace control block.
+- [x] `UX` — The block is expanded by default and can be collapsed or expanded with an accessible stateful button; the compact title row remains visible while collapsed.
+- [~] `QA-004/005/006/007` — Layout includes a 1024-px fallback for wrapped controls. Authenticated visual and keyboard browser coverage remains pending.
