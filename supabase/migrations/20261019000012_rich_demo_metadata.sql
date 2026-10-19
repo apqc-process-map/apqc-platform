@@ -143,8 +143,8 @@ set business_purpose = demo.business_purpose,
     change_summary = '[DEMO] Bổ sung metadata đầy đủ để kiểm thử giao diện và governance.',
     updated_at = now()
 from public.processes p
-where pv.process_id = p.id
-  and p.source_code = demo.source_code;
+join demo on demo.source_code = p.source_code
+where pv.process_id = p.id;
 
 -- Make applicability testable across all supported dimensions.
 with rows(source_code, dimension, value_code) as (
