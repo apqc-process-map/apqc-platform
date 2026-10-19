@@ -1,6 +1,7 @@
 import WorkspaceShell from "@/components/workspace-shell";
 import DocumentIntake from "@/components/document-intake";
-import { updateDocumentLifecycle, uploadDocumentFile } from "@/app/actions";
+import DocumentFileUploader from "@/components/document-file-uploader";
+import { updateDocumentLifecycle } from "@/app/actions";
 import { requireActiveAccount } from "@/lib/auth";
 
 export const instant = false;
@@ -77,8 +78,11 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
     {canEdit && <DocumentIntake processes={availableProcesses} people={availablePeople} approvers={availableApprovers} types={availableTypes} scopeOptions={availableScopeOptions} tags={availableTags} existing={editingDocument} primaryProcessId={editingDocument?primaryProcessId:null} selectedScopes={editingDocument?currentScope:{}} selectedTags={editingDocument?currentTags:[]}/>}
     <form className="catalog-toolbar"><input name="q" defaultValue={q} placeholder="Tìm tài liệu…" aria-label="Từ khóa tài liệu" /><select name="status" defaultValue={status} aria-label="Trạng thái tài liệu"><option value="all">Tất cả trạng thái</option>{statuses.map((item) => <option key={item}>{item}</option>)}</select><button type="submit">Tìm kiếm</button></form>
 
-    {canEdit && versions?.length ? <section className="data-panel document-admin-panel"><div className="data-panel-heading"><div><p className="section-kicker">PRIVATE UPLOAD</p><h2>Thêm file vào phiên bản</h2></div><span className="count-chip">PDF · Office · Image</span></div><form className="document-upload-form" action={uploadDocumentFile}><label>Phiên bản<select name="document_version_id" required>{versions.map((item) => <option key={item.id} value={item.id}>{item.title_vi} · v{item.version_number}</option>)}</select></label><label>File tối đa 25 MB<input type="file" name="file" required accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg" /></label><button className="primary-button" type="submit">Upload private</button></form><p className="form-note">File được lưu trong Supabase Storage private; checksum SHA-256 được tạo ở server trước khi ghi metadata.</p></section> : null}
-
+    {canEdit && (versions||[]).some(item=>["draft","rejected"].includes(item.status)) &&
+      <DocumentFileUploader versions={(versions||[]).filter(item=>["draft","rejected"].includes(item.status)).map(item=>({
+        id:item.id,label:item.title_vi+" · v"+item.version_number
+      }))}/>}
+    
     {previewFile ? <section className="data-panel document-preview-panel"><div className="data-panel-heading"><div><p className="section-kicker">SECURE PREVIEW</p><h2>{previewFile.original_file_name}</h2></div><a className="text-button" href="/documents">Đóng preview</a></div>{previewFile.mime_type === "application/pdf" ? <iframe title={`Preview ${previewFile.original_file_name}`} src={`/documents/files/${previewFile.id}`} /> : previewFile.mime_type.startsWith("image/") ? <img src={`/documents/files/${previewFile.id}`} alt={previewFile.original_file_name} /> : <div className="state-message"><strong>Office file không hỗ trợ preview an toàn trong trình duyệt.</strong><a className="primary-button" href={`/documents/files/${previewFile.id}`}>Tải file</a></div>}</section> : null}
 
     {selected ? <section className="compare-panel"><div className="data-panel-heading"><div><p className="section-kicker">VERSION COMPARISON</p><h2>{selected.title_vi}</h2></div><a href="/documents">Đóng so sánh</a></div><div className="comparison-table" role="table" aria-label="So sánh metadata"><div className="comparison-row heading" role="row"><strong>Trường</strong><strong>{previous ? `v${previous.version_number}` : "Phiên bản trước"}</strong><strong>v{selected.version_number}</strong></div>{comparisonRows.map(([label, oldValue, newValue]) => <div className={`comparison-row${String(oldValue || "") !== String(newValue || "") ? " changed" : ""}`} role="row" key={label}><span>{label}</span><span>{oldValue || "—"}</span><span>{newValue || "—"}</span></div>)}</div></section> : null}
