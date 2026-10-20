@@ -617,3 +617,9 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - “Cách đọc quan hệ” uses a horizontal, wrapping layout so the network keeps the available width.
 - Relationship statistics and network node text use compact responsive sizes; long labels are truncated instead of forcing the laptop layout wider.
 - At laptop widths, the relationship workspace uses one full-width column; at narrow widths, inbound/outbound cards use two columns and the center object moves above them.
+
+
+## 29. Relationship network lines — 2026-10-20
+
+- Relationship cards now show visible connector lines to the selected center object; inbound and outbound direction remains readable from placement and labels.
+- The user-facing hop terminology is removed. The network uses “Xem thêm liên kết” and “Thu gọn”; the legend explains that the direct connector is a direct relationship and expansion adds links from neighboring objects.
