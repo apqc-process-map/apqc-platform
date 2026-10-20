@@ -328,3 +328,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] REL-UX-003 — Place the controlled Source → Target label directly on each inbound/outbound connector.
 - [x] REL-UX-004 — Separate direct relationship lanes from neighboring-link expansion and add a laptop-width reflow that prevents connector/card overlap.
 - [x] QA-REL-002 — Vercel Preview passed authenticated center switching, document focus, neighbor expansion, connector-label rendering, zero console errors, and no horizontal/board overflow at 1024 px and 1280 px.
+
+
+## Relationship arrow endpoint polish — 2026-10-20
+
+- [x] REL-UX-005 — Replace rigid filled arrowheads with rounded connectors, hollow source points, open target chevrons, and softened rail junctions.
+- [x] REL-UX-006 — Preserve the source-to-target endpoint grammar for inbound, outbound, hover/focus, and laptop reflow states.
+- [ ] QA-REL-003 — Verify endpoint direction, connector/card alignment, focus state, overflow, and console output on Vercel Preview at 1024 px and 1280 px.

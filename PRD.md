@@ -661,3 +661,11 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - The selected center shows object type, code, name, and direct-link count. Object selectors and the relationship register also include codes for faster scanning.
 - Direct links remain the primary network. “Xem thêm liên kết” places neighboring relationships in a separate compact section instead of mixing them into the direct inbound lane.
 - At constrained laptop widths, connector lines become inline directional labels and the lanes reflow without overlapping cards or hiding long names.
+
+
+## 35. Relationship arrow endpoint polish — 2026-10-20
+
+- Direct connectors use rounded two-pixel strokes, restrained gradients, and open chevrons instead of rigid filled triangles.
+- A hollow source dot identifies where the relationship begins; the open chevron identifies the target. Inbound arrows terminate at the selected center object, while outbound arrows begin at the center and terminate at the related target node.
+- Connector rails use softened gradient fades and rounded junction points. Hover or keyboard focus highlights the connector belonging to the active node.
+- At constrained laptop widths, the same source-dot and target-chevron grammar is preserved in the inline relationship strip without overlapping cards.
