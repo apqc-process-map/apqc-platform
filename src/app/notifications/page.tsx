@@ -13,13 +13,13 @@ export default async function NotificationsPage() {
     .limit(100);
   const unreadCount = data?.filter((item) => !item.read_at).length || 0;
 
-  return <WorkspaceShell active="/notifications" eyebrow="PERSONAL INBOX" title="Notifications" description="Thông báo review, reading, finding và due date dành riêng cho bạn." userName={profile.display_name} role={profile.role}>
+  return <WorkspaceShell active="/notifications" eyebrow="ACTION LOG" title="Action Log" description="Lịch sử action từ review, reading, finding và due date dành riêng cho bạn." userName={profile.display_name} role={profile.role}>
     <section className="data-panel">
       <div className="data-panel-heading">
-        <div><p className="section-kicker">INBOX</p><h2>{unreadCount} chưa đọc</h2></div>
-        <div className="notification-actions"><span className="count-chip">{data?.length || 0} thông báo</span>{unreadCount > 0 ? <form action={markAllNotificationsRead}><button className="text-button" type="submit">Đánh dấu đã đọc hết</button></form> : null}</div>
+        <div><p className="section-kicker">ACTION LOG</p><h2>{unreadCount} chưa đọc</h2></div>
+        <div className="notification-actions"><span className="count-chip">{data?.length || 0} actions</span>{unreadCount > 0 ? <form action={markAllNotificationsRead}><button className="text-button" type="submit">Đánh dấu đã đọc hết</button></form> : null}</div>
       </div>
-      {error ? <div className="state-message error-state"><strong>Không thể tải notifications</strong><span>{error.message}</span></div> : !data?.length ? <div className="state-message"><strong>Chưa có thông báo</strong><span>Review, reading assignment và findings liên quan sẽ xuất hiện tại đây.</span></div> : <div className="notification-list">{data.map((item) => <div className={`notification-row ${item.read_at ? "" : "unread"}`} key={item.id}>
+      {error ? <div className="state-message error-state"><strong>Không thể tải Action Log</strong><span>{error.message}</span></div> : !data?.length ? <div className="state-message"><strong>Chưa có action</strong><span>Các action từ review, reading assignment và findings sẽ xuất hiện tại đây.</span></div> : <div className="notification-list">{data.map((item) => <div className={`notification-row ${item.read_at ? "" : "unread"}`} key={item.id}>
         <a href={item.deep_link || "#"} className="notification-link"><span className="notification-type">{item.type}</span><div><strong>{item.title}</strong><p>{item.body}</p><small>{new Date(item.created_at).toLocaleString("vi-VN")}</small></div></a>
         {item.read_at ? <span className="notification-read-state">Đã đọc</span> : <form action={markNotificationRead}><input type="hidden" name="notification_id" value={item.id} /><button className="notification-read" type="submit">Đã đọc</button></form>}
       </div>)}</div>}

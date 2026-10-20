@@ -26,7 +26,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - RLS-gated direct authenticated-browser upload to private Storage with a 25 MB client-side MIME/extension guard, SHA-256 checksum, file metadata, and cleanup if metadata recording fails.
 - Signed private file route, PDF/image preview, Office download, role-gated lifecycle action, field-level version comparison, and disposable document fixtures.
 - Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, and evidence links.
-- Notification center with per-item/bulk read actions, live finding/assignment/review/reading triggers, and a daily due-date scheduler.
+- Action Log (backed by notification events) with per-item/bulk read actions, live finding/assignment/review/reading triggers, and a daily due-date scheduler.
 - Governance and finding summary views.
 
 ## Security status
