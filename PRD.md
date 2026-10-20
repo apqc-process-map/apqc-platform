@@ -650,4 +650,5 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - A dedicated “Vai trò của tôi” navigation tab provides a Role Knowledge Profile for a selected business role.
 - Role knowledge is modeled through controlled object relationships from business role to document, using “Bắt buộc phải biết” and “Nên biết / tham chiếu”.
 - Knowledge scope is not authorization. Document access remains enforced by Supabase RLS and private Storage policies.
+- Role knowledge counts include every visible relationship assignment. When RLS hides the target document metadata, the UI keeps a neutral “Bị giới hạn” placeholder instead of dropping the requirement or exposing protected details.
 - Demo mappings are tagged in descriptions and can be removed without affecting real documents or roles.
