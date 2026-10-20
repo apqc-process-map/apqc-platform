@@ -3,6 +3,7 @@ import DocumentIntake from "@/components/document-intake";
 import DocumentFileUploader from "@/components/document-file-uploader";
 import { acknowledgeReadingAssignment, updateDocumentLifecycle } from "@/app/actions";
 import { requireActiveAccount } from "@/lib/auth";
+import { getServerTimestamp } from "@/lib/server-time";
 
 export const instant = false;
 
@@ -81,7 +82,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   const assignedVersionIds=assignments.map(item=>item.object_id);
   const assignedVersionsResult=assignedVersionIds.length?await supabase.from("document_versions").select("id,version_number,title_vi,document_abstract,keywords,issuing_department,valid_from,vocabulary_values(label_vi),documents(document_code),document_files(id,original_file_name,mime_type)").in("id",assignedVersionIds):{data:[],error:null};
   const assignedVersions=new Map(((assignedVersionsResult.data||[]) as unknown as AssignedVersion[]).map(item=>[item.id,item]));
-  const now=Date.now();
+  const now=await getServerTimestamp();
   const readingItems=assignments.map(assignment=>({assignment,version:assignedVersions.get(assignment.object_id)})).filter(item=>item.version).filter(({assignment,version})=>{
     const acknowledged=Boolean(assignment.reading_acknowledgments?.length);
     const overdue=!acknowledged&&Boolean(assignment.due_at)&&new Date(assignment.due_at as string).getTime()<now;
