@@ -266,7 +266,7 @@
 .relationship-summary.compact article span{font-size:8px}
 .relationship-summary.compact article strong{font-size:13px;line-height:1.25}
 .relationship-filter{margin-top:8px}
-.relationship-network-v2{padding:12px 14px 16px}
+.relationship-network-v2{container-type:inline-size;padding:12px 14px 16px}
 .relationship-network-controls{display:flex;align-items:end;justify-content:space-between;gap:14px;padding:0 2px 12px}
 .relationship-network-controls label{display:grid;gap:5px;min-width:min(390px,100%);color:#5e747f;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
 .relationship-network-controls select{height:34px;border:1px solid #d7e1e5;border-radius:6px;background:#fff;padding:0 10px;color:#244252;font-size:11px;text-transform:none}
@@ -276,7 +276,6 @@
   --network-edge-gap:112px;
   --network-half-gap:56px;
   --network-half-gap-negative:-56px;
-  container-type:inline-size;
   display:grid;
   grid-template-columns:minmax(205px,1fr) minmax(190px,.86fr) minmax(205px,1fr);
   align-items:center;
