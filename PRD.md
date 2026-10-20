@@ -642,3 +642,13 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - The selected object is rendered as a dark central card, with related objects arranged in inbound/outbound lanes around it.
 - Relationship groups use restrained semantic card colors, while connector rails keep the direction readable without overlapping cards.
 - Cards remain clickable for drill-down; long labels wrap inside the card rather than expanding the network beyond the available laptop width.
+
+
+## 33. Document relationship focus and role knowledge — 2026-10-20
+
+- Relationship provides a “Tài liệu trung tâm” selector so users can inspect all direct inbound/outbound links for a chosen document and drill down by clicking related nodes.
+- A dedicated “Vai trò của tôi” navigation tab provides a Role Knowledge Profile for a selected business role.
+- Role knowledge is modeled through controlled object relationships from business role to document, using “Bắt buộc phải biết” and “Nên biết / tham chiếu”.
+- Knowledge scope is not authorization. Document access remains enforced by Supabase RLS and private Storage policies.
+- Role knowledge counts include every visible relationship assignment. When RLS hides the target document metadata, the UI keeps a neutral “Bị giới hạn” placeholder instead of dropping the requirement or exposing protected details.
+- Demo mappings are tagged in descriptions and can be removed without affecting real documents or roles.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export type RelationshipNetworkItem = {
   id: string;
@@ -17,12 +17,17 @@ export type RelationshipNetworkItem = {
   status: string;
 };
 
-type Props = { items: RelationshipNetworkItem[] };
+type Props = { items: RelationshipNetworkItem[]; initialCenterKey?: string };
 
-export default function RelationshipNetwork({ items }: Props) {
-  const initialKey = items[0]?.sourceKey ?? "";
+export default function RelationshipNetwork({ items, initialCenterKey }: Props) {
+  const requestedCenter = initialCenterKey && items.some((item) => item.sourceKey === initialCenterKey || item.targetKey === initialCenterKey) ? initialCenterKey : "";
+  const initialKey = requestedCenter || items[0]?.sourceKey || "";
   const [centerKey, setCenterKey] = useState(initialKey);
   const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    if (requestedCenter) setCenterKey(requestedCenter);
+  }, [requestedCenter]);
 
   const objects = useMemo(() => {
     const unique = new Map<string, { key: string; label: string; type: string }>();

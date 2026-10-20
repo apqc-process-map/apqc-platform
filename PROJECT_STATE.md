@@ -12,7 +12,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 ## Verified data
 
 - APQC import: 2,017 elements, 3,284 metrics, 13 categories, levels 1–5, no missing parents, duplicate PCF IDs, or orphan metrics.
-- Demo sandbox: 10 disposable enterprise processes with complete Executive Summary metadata, 10 applicability-covered versions, 6 controlled tags/15 process tag assignments, 32 verified relationships, 5 typed findings, 3 documents with metadata/tags, and existing workflow fixtures.
+- Demo sandbox: 10 disposable enterprise processes with complete Executive Summary metadata, 10 applicability-covered versions, 6 controlled tags/15 process tag assignments, 38 verified relationships (including 6 role-to-document knowledge mappings), 5 typed findings, 3 documents with metadata/tags, and existing workflow fixtures.
 - Documents: 3 disposable documents with 4 versions covering draft, in-review, and effective states; every version has a process link and 2 document reading assignments exist.
 - Six active Auth accounts use the approved mix of three Admin and three Viewer. Credentials are not stored in Git. There is no Editor account.
 - Licensed APQC source files and private documents remain outside Git.
@@ -22,7 +22,8 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Authenticated route protection, login/session/logout, role-aware navigation, and Admin/Viewer RLS boundaries.
 - APQC catalog search/detail, hierarchy, descriptions, metrics, and attribution.
 - Data-driven Process Map with breadcrumbs, URL-persisted selection, scoped descendants, search, card/table views, APQC reference handoff, and persistent detail.
-- Centered relationship network with inbound/outbound labels, one-hop default, explicit two-hop expansion, filtering, table, and legend.
+- Centered relationship network with inbound/outbound labels, direct-link default, optional neighbor expansion, document-center filtering, table, and collapsed legend.
+- Dedicated “Vai trò của tôi” view groups assigned documents into “Bắt buộc phải biết” and “Nên biết / tham chiếu”; restricted document metadata stays hidden behind RLS while the knowledge requirement remains visible.
 - RLS-gated direct authenticated-browser upload to private Storage with a 25 MB client-side MIME/extension guard, SHA-256 checksum, file metadata, and cleanup if metadata recording fails.
 - Signed private file route, PDF/image preview, Office download, role-gated lifecycle action, field-level version comparison, and disposable document fixtures.
 - Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, and evidence links.
@@ -45,7 +46,8 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Vercel preview builds for the implementation branch are succeeding; Vercel is the build gate because Node.js is unavailable on the laptop.
 - Unauthenticated web checks return the Vietnamese login page and protected routes redirect to `/login?error=required`.
 - Local lint/build was not rerun in this session because Node.js is unavailable.
-- Authenticated browser visual QA at 1024/1280/wide, Edge golden flow, and a real private file upload/preview remain unexecuted.
+- Authenticated browser functional QA passed on Vercel Preview for role selection, RLS-restricted knowledge placeholders, document deep links, and document-centered relationship focus. No console errors or 1280 px horizontal overflow were observed.
+- Screenshot capture and forced 1024 px viewport testing timed out or remained at 1280 px in the available browser runner; Edge golden flow and a real private file upload/preview remain unexecuted.
 
 ## Pending and blocked
 
@@ -138,3 +140,12 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Relationship wording now explains controlled types, Source → Target direction, and inverse labels in Vietnamese with a concrete example.
 - Documents now has a personal “Tài liệu cần đọc của tôi” queue with search, pending/overdue/completed/required filters, assignment metadata, secure file access, and acknowledgment.
 - Reading-assignment visibility is restricted by RLS to the recipient or Editor/Admin; acknowledgment insertion is restricted to the recipient.
+
+
+## Role knowledge and document relationship focus — 2026-10-20
+
+- Relationship can be focused directly on a document from the filter row; the network selects that document as center and shows its current inbound/outbound links.
+- Navigation includes “05. Vai trò của tôi”. Active business roles can be selected to view controlled must-know and should-know document mappings.
+- Migration `20261020000022_role_knowledge_profiles.sql` adds two controlled relationship types and six disposable demo mappings without adding a new table or bypassing existing RLS.
+- A restricted target document is represented by a neutral placeholder and included in the role requirement count; protected code, title, and metadata are not exposed.
+- Verified on Vercel Preview with Viewer `linhdoan`: role changes, counts, restricted state, document deep link, and Relationship document focus passed. Supabase data queries confirmed 2 must-know + 1 should-know mappings for “Quản lý cửa hàng”.
