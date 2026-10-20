@@ -205,3 +205,17 @@ Reopen the following after receiving real samples:
 - AI overlap/conflict architecture and data policy.
 - Fine-grained organizational access model.
 - Relationship and full audit temporal models.
+
+
+## 8. Completion audit — 2026-10-20
+
+Implemented MVP phases now include global Catalog filtering/sorting, role-specific Home views, governance/finding drill-downs, governed document metadata and lifecycle controls, relationship exploration, Action Log, and version-safe Process Map editing.
+
+The remaining work is limited to:
+
+1. Authenticated multi-browser and multi-viewport QA, including keyboard/focus evidence.
+2. Complete Editor RLS/action testing, blocked by the confirmed six-user mix containing no Editor account.
+3. Real enterprise-process seeding and importer design, blocked until representative source samples are supplied.
+4. AI analysis and deferred backlog, blocked by data policy or explicit non-MVP scope.
+
+Do not mark these blockers complete using fabricated data, invented browser evidence, or an unauthorized role/account change.

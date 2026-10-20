@@ -46,12 +46,10 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("selected");
-    if (requested && nodes.some((node) => node.id === requested)) setSelectedId(requested);
+    if (!requested || !nodes.some((node) => node.id === requested)) return;
+    const frame = window.requestAnimationFrame(() => setSelectedId(requested));
+    return () => window.cancelAnimationFrame(frame);
   }, [nodes]);
-
-  useEffect(() => {
-    if (selectedId && !nodes.some((node) => node.id === selectedId)) setSelectedId(nodes[0]?.id || "");
-  }, [nodes, selectedId]);
 
   function showPreview(id: string, target: HTMLElement) {
     const rect = target.getBoundingClientRect();
@@ -73,11 +71,8 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
     window.history.replaceState(null, "", url);
   }
 
-  function toggleLevel(level: string) {
-    setActiveLevels((current) => current.includes(level) ? current.filter((item) => item !== level) : [...current, level]);
-  }
-
-  const selected = nodes.find((node) => node.id === selectedId) || roots[0] || nodes[0];
+  const effectiveSelectedId = nodes.some((node) => node.id === selectedId) ? selectedId : (roots[0]?.id || nodes[0]?.id || "");
+  const selected = nodes.find((node) => node.id === effectiveSelectedId) || roots[0] || nodes[0];
   const directChildren = nodes.filter((node) => node.parentId === selected?.id);
   const normalizedQuery = query.trim().toLocaleLowerCase("vi");
   const visibleNodes = nodes.filter((node) => {
