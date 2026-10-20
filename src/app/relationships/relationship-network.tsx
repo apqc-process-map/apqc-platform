@@ -75,7 +75,7 @@ export default function RelationshipNetwork({ items }: Props) {
         </select>
       </label>
       <button type="button" className="text-button" onClick={() => setExpanded((value) => !value)} aria-pressed={expanded}>
-        {expanded ? "Thu về 1 hop" : "Mở rộng 2 hops"}
+        {expanded ? "Thu về 1 hop" : "Xem thêm liên kết"}
       </button>
     </div>
     <div className="network-board" aria-label={`Mạng quan hệ quanh ${center.label}`}>
