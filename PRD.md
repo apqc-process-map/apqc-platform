@@ -635,3 +635,10 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 
 - Relationship connectors use a vertical rail on each inbound/outbound side instead of independent arrows crossing or stacking over one another.
 - Each card connects to its side rail, and the rail connects toward the center object; compact mode removes rails when the layout becomes a single-column mobile view.
+
+
+## 32. Reference-style relationship network — 2026-10-20
+
+- The selected object is rendered as a dark central card, with related objects arranged in inbound/outbound lanes around it.
+- Relationship groups use restrained semantic card colors, while connector rails keep the direction readable without overlapping cards.
+- Cards remain clickable for drill-down; long labels wrap inside the card rather than expanding the network beyond the available laptop width.

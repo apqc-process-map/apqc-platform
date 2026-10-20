@@ -61,7 +61,7 @@ export default function RelationshipNetwork({ items }: Props) {
     const nodeLabel = side === "in" ? item.sourceLabel : item.targetLabel;
     const nodeType = side === "in" ? item.sourceType : item.targetType;
     const relationLabel = side === "in" ? item.inverseLabel : item.typeLabel;
-    return <button key={`${item.id}-${side}`} className={`network-connection ${side === "in" ? "is-inbound" : "is-outbound"}`} onClick={() => setCenterKey(nodeKey)}>
+    return <button key={`${item.id}-${side}`} className={`network-connection tone-${item.group} ${side === "in" ? "is-inbound" : "is-outbound"}`} onClick={() => setCenterKey(nodeKey)}>
       <span className={`legend-dot tone-${item.group}`} />
       <span><strong>{nodeLabel}</strong><small>{nodeType} · {relationLabel} · {item.status}</small></span>
     </button>;
