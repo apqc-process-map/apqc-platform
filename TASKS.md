@@ -327,4 +327,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] REL-UX-002 — Show governed codes on process, document, role, system, risk, KPI, business-object, and finding nodes when available.
 - [x] REL-UX-003 — Place the controlled Source → Target label directly on each inbound/outbound connector.
 - [x] REL-UX-004 — Separate direct relationship lanes from neighboring-link expansion and add a laptop-width reflow that prevents connector/card overlap.
-- [ ] QA-REL-002 — Verify rendered layout, long labels, center switching, expansion, and console output on Vercel Preview before production merge.
+- [x] QA-REL-002 — Vercel Preview passed authenticated center switching, document focus, neighbor expansion, connector-label rendering, zero console errors, and no horizontal/board overflow at 1024 px and 1280 px.
