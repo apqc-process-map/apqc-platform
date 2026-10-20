@@ -629,3 +629,9 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 
 - Relationship statistics and filters use compact heights and typography to preserve vertical space.
 - Inbound and outbound relationships use visible connector lines with arrowheads pointing toward the center reading direction.
+
+
+## 31. Non-overlapping relationship connectors — 2026-10-20
+
+- Relationship connectors use a vertical rail on each inbound/outbound side instead of independent arrows crossing or stacking over one another.
+- Each card connects to its side rail, and the rail connects toward the center object; compact mode removes rails when the layout becomes a single-column mobile view.
