@@ -623,3 +623,9 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 
 - Relationship cards now show visible connector lines to the selected center object; inbound and outbound direction remains readable from placement and labels.
 - The user-facing hop terminology is removed. The network uses “Xem thêm liên kết” and “Thu gọn”; the legend explains that the direct connector is a direct relationship and expansion adds links from neighboring objects.
+
+
+## 30. Relationship controls and arrow connectors — 2026-10-20
+
+- Relationship statistics and filters use compact heights and typography to preserve vertical space.
+- Inbound and outbound relationships use visible connector lines with arrowheads pointing toward the center reading direction.
