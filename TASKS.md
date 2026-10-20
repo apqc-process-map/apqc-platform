@@ -98,7 +98,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - APQC-007 remains partial: Catalog search and attribution display use imported records, but a dedicated APQC detail screen is not implemented.
 - PROC-011 remains blocked until representative enterprise samples are supplied.
 - MAP-001/005/006/009/010 remain partial because the map still uses synthetic fixtures and full browser/long-text QA is not complete.
-- REL-006/008 remain partial: the relationship table, legend, filters, and one-hop boundary exist; interactive centered graph expansion is not implemented.
+- REL-006/008 are implemented: the relationship table, filters, centered direct-link graph, document focus, and explicit neighboring-link expansion exist; the current milestone adds coded nodes and labeled connector lanes.
 - DOC-007 remains partial: upload, preview/download, role-gated lifecycle actions and comparison now exist; metadata editing for validity/review scheduling is not yet exposed as a complete form.
 - DOC-013 remains blocked until representative Excel/CSV/PDF/DOCX samples are supplied.
 
@@ -203,14 +203,14 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] APQC-007 — Catalog APQC rows now open a protected detail page with hierarchy, parent navigation, description, and imported metrics.
 - [x] NOTIF-002 — Notification center now supports per-item and bulk mark-as-read through server actions scoped to the authenticated recipient.
 - [x] BUILD — Removed build-time Google Font fetching; production build uses local system font fallbacks and succeeds offline.
-- [ ] Remaining partial work continues with finding workflow UI, relationship graph expansion, document upload/preview/lifecycle, and QA matrix.
+- [ ] Remaining partial work continues with finding workflow UI, document upload/preview/lifecycle, and the broader QA matrix.
 
 ## Review snapshot - 2026-10-19 continuation
 
 - [~] FIND-003/006/008 - Finding detail now supports RLS-governed status/assignment updates and displays activity timeline; full role transition matrix and comment workflow remain incomplete.
 - [x] FIND-005 - Finding detail exposes Agree/Disagree/Need-more-information actions backed by existing own-reaction RLS.
 - [~] DOC-005 - Authenticated server route now creates 60-second signed links for stored files; inline PDF/image preview and Office-specific UX remain.
-- [~] REL-006/008 - Relationship table and filters remain verified; centered interactive graph/explicit expansion remain.
+- [x] REL-006/008 - Relationship table, filters, centered interactive graph, document focus, and explicit neighboring-link expansion are implemented.
 - [ ] QA-004/005/006/007 - Build/lint pass; authenticated browser, accessibility, and multi-viewport QA still require a signed-in session and browser coverage.
 - [ ] QA-002/008 - RLS baseline is documented; comment-write policy and full Storage/security matrix remain pending approval/verification.
 
@@ -320,3 +320,11 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] REL-UX — Replace unexplained “Controlled type / Có hướng” wording with “Loại quan hệ chuẩn”, Source → Target guidance, inverse labels, and a concrete business example.
 - [x] DOC-READ-001 — Add a personal required-reading area with search, status filters, assignment metadata, secure file access, and acknowledgment action.
 - [x] SEC-READ-001 — Scope reading-assignment and acknowledgment SELECT policies to the recipient or Editor/Admin; allow acknowledgment INSERT only for the recipient.
+
+
+## Relationship coded-lane visual refinement — 2026-10-20
+
+- [x] REL-UX-002 — Show governed codes on process, document, role, system, risk, KPI, business-object, and finding nodes when available.
+- [x] REL-UX-003 — Place the controlled Source → Target label directly on each inbound/outbound connector.
+- [x] REL-UX-004 — Separate direct relationship lanes from neighboring-link expansion and add a laptop-width reflow that prevents connector/card overlap.
+- [x] QA-REL-002 — Vercel Preview passed authenticated center switching, document focus, neighbor expansion, connector-label rendering, zero console errors, and no horizontal/board overflow at 1024 px and 1280 px.

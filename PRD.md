@@ -652,3 +652,12 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - Knowledge scope is not authorization. Document access remains enforced by Supabase RLS and private Storage policies.
 - Role knowledge counts include every visible relationship assignment. When RLS hides the target document metadata, the UI keeps a neutral “Bị giới hạn” placeholder instead of dropping the requirement or exposing protected details.
 - Demo mappings are tagged in descriptions and can be removed without affecting real documents or roles.
+
+
+## 34. Coded relationship lanes and connector labels — 2026-10-20
+
+- Every relationship node displays its governed object code when available; enterprise process codes are always shown above the process name.
+- Direct inbound and outbound relationships use separate lanes. Each connector carries the controlled Source → Target relationship label, such as “Được sử dụng bởi” or “Dùng biểu mẫu”, so the arrow can be understood without opening the legend.
+- The selected center shows object type, code, name, and direct-link count. Object selectors and the relationship register also include codes for faster scanning.
+- Direct links remain the primary network. “Xem thêm liên kết” places neighboring relationships in a separate compact section instead of mixing them into the direct inbound lane.
+- At constrained laptop widths, connector lines become inline directional labels and the lanes reflow without overlapping cards or hiding long names.

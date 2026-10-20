@@ -22,7 +22,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Authenticated route protection, login/session/logout, role-aware navigation, and Admin/Viewer RLS boundaries.
 - APQC catalog search/detail, hierarchy, descriptions, metrics, and attribution.
 - Data-driven Process Map with breadcrumbs, URL-persisted selection, scoped descendants, search, card/table views, APQC reference handoff, and persistent detail.
-- Centered relationship network with inbound/outbound labels, direct-link default, optional neighbor expansion, document-center filtering, table, and collapsed legend.
+- Centered relationship network with governed object codes, controlled labels placed on Source → Target connectors, direct inbound/outbound lanes, optional neighbor expansion, document-center filtering, table, and collapsed legend.
 - Dedicated “Vai trò của tôi” view groups assigned documents into “Bắt buộc phải biết” and “Nên biết / tham chiếu”; restricted document metadata stays hidden behind RLS while the knowledge requirement remains visible.
 - RLS-gated direct authenticated-browser upload to private Storage with a 25 MB client-side MIME/extension guard, SHA-256 checksum, file metadata, and cleanup if metadata recording fails.
 - Signed private file route, PDF/image preview, Office download, role-gated lifecycle action, field-level version comparison, and disposable document fixtures.
@@ -43,11 +43,11 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 ## Verification
 
 - `supabase/tests/lifecycle_and_notifications.sql` passed in a rolled-back transaction for severity SLA, completeness output, inverse labels, document publication gate, and four-eyes approval.
-- Vercel preview builds for the implementation branch are succeeding; Vercel is the build gate because Node.js is unavailable on the laptop.
+- Vercel preview builds for the implementation branch are succeeding. The bundled workspace Node.js runtime is used for local lint and production builds because no system Node.js installation is required.
 - Unauthenticated web checks return the Vietnamese login page and protected routes redirect to `/login?error=required`.
-- Local lint/build was not rerun in this session because Node.js is unavailable.
-- Authenticated browser functional QA passed on Vercel Preview for role selection, RLS-restricted knowledge placeholders, document deep links, and document-centered relationship focus. No console errors or 1280 px horizontal overflow were observed.
-- Screenshot capture and forced 1024 px viewport testing timed out or remained at 1280 px in the available browser runner; Edge golden flow and a real private file upload/preview remain unexecuted.
+- Local ESLint completed with zero errors (one pre-existing Document `<img>` performance warning), and the Next.js production build/type-check passed all 15 generated routes.
+- Authenticated browser functional QA passed on Vercel Preview for role selection, RLS-restricted knowledge placeholders, document deep links, document-centered relationship focus, relationship center switching, and neighbor expansion. Relationship layout had no page or board overflow at 1024 px and 1280 px, and no console errors were observed.
+- Screenshot capture still times out in the available browser runner; Relationship visual QA therefore used rendered DOM geometry and interaction checks at explicit 1024 px and 1280 px viewports. The full Edge golden flow and a real private file upload/preview remain unexecuted.
 
 ## Pending and blocked
 
@@ -149,3 +149,11 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Migration `20261020000022_role_knowledge_profiles.sql` adds two controlled relationship types and six disposable demo mappings without adding a new table or bypassing existing RLS.
 - A restricted target document is represented by a neutral placeholder and included in the role requirement count; protected code, title, and metadata are not exposed.
 - Verified on Vercel Preview with Viewer `linhdoan`: role changes, counts, restricted state, document deep link, and Relationship document focus passed. Supabase data queries confirmed 2 must-know + 1 should-know mappings for “Quản lý cửa hàng”.
+
+
+## Coded Relationship network milestone — 2026-10-20
+
+- Relationship nodes and the relationship table show governed process, document, role, system, risk, KPI, business-object, and finding codes when available.
+- Direct inbound/outbound connectors display the controlled relationship label on the Source → Target path; neighboring relationships remain in a separate optional expansion so direction is not ambiguous.
+- The network reflows from three lanes to a two-column laptop layout without horizontal overflow. Authenticated Vercel Preview checks passed at 1024 px and 1280 px, including center switching, document focus, expansion/collapse, long Vietnamese labels, and zero console errors.
+- No database migration was required; the page reads existing code columns through the authenticated Supabase client and existing RLS.
