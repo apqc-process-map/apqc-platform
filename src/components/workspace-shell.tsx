@@ -2,9 +2,14 @@ import Link from "next/link";
 import { signOut } from "@/app/actions";
 
 const navigation = [
-  ["/documents", "▤", "Documents"], ["/", "⌂", "Home"], ["/process-map", "◇", "Process Map"], ["/catalog", "▦", "Catalog"],
-  ["/relationships", "⇄", "Relationships"],
-  ["/findings", "!", "Findings"], ["/governance", "◌", "Governance"], ["/notifications", "♧", "Notifications"],
+  ["/", "⌂", "01. Home"],
+  ["/documents", "▤", "02. Document"],
+  ["/process-map", "◇", "03. Process Map"],
+  ["/relationships", "⇄", "04. Relationship"],
+  ["/findings", "!", "05. Finding"],
+  ["/catalog", "▦", "06. Catalog"],
+  ["/governance", "◌", "07. Governance"],
+  ["/notifications", "♧", "08. Action Log"],
 ];
 type Props = {
   active: string;

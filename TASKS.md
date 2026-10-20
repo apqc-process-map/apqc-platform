@@ -115,7 +115,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `DONE FIND-010` Seed representative manual findings for the demo.
 - [ ] `BLOCKED FIND-011` Define AI analysis only after data policy and sample review.
 
-## EPIC 8 — Dashboards and notifications
+## EPIC 8 — Dashboards and Action Log
 
 - [x] `DONE DASH-001` Build Viewer Home.
 - [~] `PARTIAL DASH-002` Build Editor Home.

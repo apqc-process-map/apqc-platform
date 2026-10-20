@@ -82,19 +82,18 @@ Authorization must be enforced by Supabase RLS. UI hiding is not sufficient.
 
 ## 6. Information architecture
 
-Primary navigation:
+Primary workspace navigation is numbered and appears in this order:
 
-1. **Home** — role-specific dashboard.
-2. **Process Map** — enterprise landscape, layered hierarchy, scope list, and relationship entry points.
-3. **Catalog** — searchable and sortable processes and APQC references.
-4. **Documents** — document library and versions.
-5. **Governance** — completeness, reviews, validity, acknowledgment, and APQC coverage.
-6. **Review Queue** — drafts, comments, comparisons, and approvals.
-7. **Findings & Actions** — issue workflow and collaboration.
-8. **Notifications** — in-app notification center.
-9. **Admin** — demo users, controlled vocabularies, and configuration.
+1. **01. Home** — role-specific dashboard.
+2. **02. Document** — private document library, versions, upload, and metadata.
+3. **03. Process Map** — enterprise landscape, layered hierarchy, scope list, and relationship entry points.
+4. **04. Relationship** — cross-process/context network separate from the hierarchy.
+5. **05. Finding** — issue workflow, decisions, SLA, and collaboration.
+6. **06. Catalog** — searchable and sortable enterprise processes and APQC references.
+7. **07. Governance** — completeness, reviews, validity, acknowledgment, and APQC coverage.
+8. **08. Action Log** — personal in-app action history generated from notification events.
 
-Viewer does not see Review Queue or Admin actions. Navigation and actions remain permission-aware.
+The Action Log keeps the existing `/notifications` route, notification records, read/unread state, deep links, and RLS. Review and Admin capabilities remain permission-aware actions within the relevant workspaces rather than separate top-level tabs in the current MVP.
 
 ## 7. Process Map experience
 
@@ -513,7 +512,9 @@ Bands: Complete 90–100; Needs attention 70–89; Incomplete below 70. Show the
 - Created versus resolved trend, backlog aging, workload, Critical/High list, and Pending Decision list.
 - Click-through from chart/card to the filtered finding list.
 
-## 20. Notifications
+## 20. Action Log
+
+User-facing name: **Action Log**. The technical `notifications` table and event service remain unchanged.
 
 In-app only for the MVP:
 
@@ -524,7 +525,7 @@ In-app only for the MVP:
 - Process role assignment.
 - Finding mention, assignment, status change, decision, or approaching due date.
 
-Notification center supports read/unread state and deep links.
+Action Log supports read/unread state and deep links.
 
 ## 21. Visual and interaction direction
 

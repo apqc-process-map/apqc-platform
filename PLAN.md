@@ -126,14 +126,14 @@ Exit: the document/process authoring, approval, effective publication, and ackno
 
 Exit: a seeded conflict can be assigned, discussed, resolved, validated, closed, and reopened by the correct roles.
 
-### Phase 8 — Dashboards and notifications
+### Phase 8 — Dashboards and Action Log
 
 - Build role-specific Home views.
 - Add governance dashboard and transparent completeness breakdown.
 - Add Finding dashboard with drill-down.
-- Add notification center and event generation.
+- Add Action Log backed by notification event generation.
 
-Exit: dashboards and notifications update from actual state transitions in the golden flow.
+Exit: dashboards and Action Log update from actual state transitions in the golden flow.
 
 ### Phase 9 — Hardening and deployment
 
