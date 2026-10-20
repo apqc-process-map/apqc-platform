@@ -341,6 +341,14 @@ Admin manages controlled vocabulary values. The MVP does not include custom-fiel
 
 Each document has one primary type and optional tags.
 
+### Library management
+
+- Search covers Vietnamese/English title, abstract, keywords, and issuing department.
+- Filter by lifecycle status, controlled document type, document group, language, access level, risk rating, and owner.
+- Sort by latest/oldest update, title, nearest review due date, and latest validity start date.
+- Library cards show the governed metadata needed for quick triage: code/version, type/group, language, access level, risk, owner, issuing department, validity, review due date, keywords, files, and lifecycle status.
+- Filters are URL-backed so the result set can be refreshed or shared without introducing saved views in the MVP.
+
 ### Lifecycle
 
 Shared process/document lifecycle:

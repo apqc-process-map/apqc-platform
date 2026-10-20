@@ -113,3 +113,10 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - The compact Process Map workspace card now shows only **PROCESS LANDSCAPE**, left-aligned Enterprise/APQC Reference controls, and the enterprise-process search field; redundant title, count, description, return action, and breadcrumb were removed.
 - The search keeps its existing live filtering behavior and is hidden in APQC Reference mode because that mode hands off to the separate Catalog reference view.
 - The card remains expanded by default and collapsible; at 1024 px its controls wrap inside the same frame instead of clipping.
+
+
+## Document library management — 2026-10-20
+
+- Document intake retains PRD-aligned draft metadata: controlled type/group, language, abstract, keywords, process link, applicability, tags, owner, designated approver, access level, validity/review dates, risk, legal basis, retention, and change summary.
+- Document library management supports URL-backed search, governed metadata filters, and sorting by update, title, review due date, and validity start.
+- No database migration is required; the implementation uses the existing RLS-protected metadata schema and private Storage flow.
