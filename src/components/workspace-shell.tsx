@@ -6,10 +6,11 @@ const navigation = [
   ["/documents", "▤", "02. Document"],
   ["/process-map", "◇", "03. Process Map"],
   ["/relationships", "⇄", "04. Relationship"],
-  ["/findings", "!", "05. Finding"],
-  ["/catalog", "▦", "06. Catalog"],
-  ["/governance", "◌", "07. Governance"],
-  ["/notifications", "♧", "08. Action Log"],
+  ["/role-knowledge", "◎", "05. Vai trò của tôi"],
+  ["/findings", "!", "06. Finding"],
+  ["/catalog", "▦", "07. Catalog"],
+  ["/governance", "◌", "08. Governance"],
+  ["/notifications", "♧", "09. Action Log"],
 ];
 type Props = {
   active: string;

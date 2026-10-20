@@ -12,8 +12,8 @@ function key(type: string, id: string) {
   return `${type}:${id}`;
 }
 
-export default async function RelationshipsPage({ searchParams }: { searchParams: Promise<{ group?: string; status?: string }> }) {
-  const { group = "all", status = "all" } = await searchParams;
+export default async function RelationshipsPage({ searchParams }: { searchParams: Promise<{ group?: string; status?: string; focus?: string }> }) {
+  const { group = "all", status = "all", focus = "" } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
 
   const [
@@ -88,12 +88,17 @@ export default async function RelationshipsPage({ searchParams }: { searchParams
   });
 
   const groups = [...new Set(types.map((type) => type.group_code))];
+  const documentFocusOptions = new Map<string, string>();
+  for (const item of networkItems) {
+    if (item.sourceType === "document") documentFocusOptions.set(item.sourceKey, item.sourceLabel);
+    if (item.targetType === "document") documentFocusOptions.set(item.targetKey, item.targetLabel);
+  }
   const loadError = error || typeResult.error || processResult.error || documentResult.error;
 
   return <WorkspaceShell active="/relationships" eyebrow="MẠNG LƯỚI LIÊN KẾT" title="Quan hệ" description="Xem một đối tượng cung cấp, phụ thuộc, quản lý hoặc liên quan tới đối tượng nào." userName={profile.display_name} role={profile.role}>
     <div className="relationship-summary compact"><article><span>Loại</span><strong>{types.length}</strong></article><article><span>Đang hiển thị</span><strong>{relationships?.length || 0}</strong></article><article><span>Phạm vi</span><strong>1–2 bước</strong></article></div>
-    <form className="catalog-toolbar compact"><select name="group" defaultValue={group} aria-label="Nhóm quan hệ"><option value="all">Tất cả nhóm</option>{groups.map((item) => <option key={item} value={item}>{item}</option>)}</select><select name="status" defaultValue={status} aria-label="Trạng thái"><option value="all">Tất cả trạng thái</option><option value="proposed">Proposed</option><option value="verified">Verified</option><option value="rejected">Rejected</option></select><button type="submit">Áp dụng</button></form>
-    <div className="relationship-layout"><section className="data-panel"><div className="data-panel-heading relationship-panel-heading"><h2>Quan hệ</h2></div>{loadError ? <div className="state-message error-state"><strong>Không thể tải quan hệ</strong><span>{loadError.message}</span></div> : <RelationshipNetwork items={networkItems} />}</section>
+    <form className="catalog-toolbar compact relationship-filter"><select name="focus" defaultValue={focus} aria-label="Tài liệu trung tâm"><option value="">Tất cả tài liệu</option>{[...documentFocusOptions].map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select><select name="group" defaultValue={group} aria-label="Nhóm quan hệ"><option value="all">Tất cả nhóm</option>{groups.map((item) => <option key={item} value={item}>{item}</option>)}</select><select name="status" defaultValue={status} aria-label="Trạng thái"><option value="all">Tất cả trạng thái</option><option value="proposed">Proposed</option><option value="verified">Verified</option><option value="rejected">Rejected</option></select><button type="submit">Áp dụng</button></form>
+    <div className="relationship-layout"><section className="data-panel"><div className="data-panel-heading relationship-panel-heading"><h2>Quan hệ</h2></div>{loadError ? <div className="state-message error-state"><strong>Không thể tải quan hệ</strong><span>{loadError.message}</span></div> : <RelationshipNetwork items={networkItems} initialCenterKey={focus} />}</section>
       <details className="legend-panel relationship-legend"><summary className="legend-summary"><span className="legend-summary-copy"><span className="section-kicker">CHÚ GIẢI</span><strong>Cách đọc quan hệ</strong></span><span className="legend-summary-hint">Mở khi cần</span></summary><div className="legend-content"><div className="legend-direction"><strong>Quan hệ một chiều được đọc từ Nguồn → Đích.</strong><span>Đường liền nối đối tượng trung tâm với quan hệ trực tiếp. “Xem thêm liên kết” hiển thị thêm các liên kết của đối tượng kế cận.</span></div><p className="legend-help">Mỗi loại dùng cùng một cách gọi trong toàn hệ thống. Mũi tên cho biết cách đọc từ đối tượng nguồn sang đối tượng đích.</p><div className="legend-type-list">{types.map((type) => <div className="legend-row" key={type.id}><span className={`legend-dot tone-${type.group_code}`} /><div><strong>{type.label_vi}</strong><small>{type.is_directed ? `Nguồn → Đích · Chiều ngược: ${type.inverse_label_vi}` : "Áp dụng như nhau ở cả hai chiều"}</small></div></div>)}</div></div></details>
     </div>
     {networkItems.length ? <section className="data-panel relationship-table-panel"><div className="data-panel-heading relationship-panel-heading"><h2>Danh sách</h2><span className="count-chip">{networkItems.length}</span></div><div className="relationship-list">{networkItems.map((item) => <article key={item.id}><span className="object-pill">{item.sourceType}</span><div><strong>{item.sourceLabel} → {item.targetLabel}</strong><small>{item.typeLabel}{item.directed ? ` · Chiều ngược: ${item.inverseLabel}` : " · Hai chiều"}</small></div><span className="object-pill target">{item.targetType}</span><span className="status-badge">{item.status}</span></article>)}</div></section> : null}
