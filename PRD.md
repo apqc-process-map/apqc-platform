@@ -602,3 +602,11 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - Relationship explanations are consolidated into one “Chú giải” frame beside the network.
 - The frame is collapsed by default and uses a native keyboard-accessible disclosure; users expand it only when they need the source-to-target direction, inverse labels, or controlled relationship-type guidance.
 - The standalone direction note is removed to prevent duplicate explanations; the network and relationship register remain visible.
+
+
+## 27. Compact relationship layout — 2026-10-20
+
+- Relationship statistics use compact labels and typography to reduce vertical space.
+- Redundant graph headings and helper text are removed; the relationship network keeps only the concise title “Quan hệ”.
+- The legend relationship types are arranged horizontally and wrap when needed; the legend remains collapsed by default.
+- The network control uses “Xem thêm liên kết” instead of exposing hop terminology in the primary action. One hop means a direct relationship from the selected center; two hops includes relationships of neighboring objects as well.
