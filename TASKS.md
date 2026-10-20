@@ -1,6 +1,6 @@
 # Process Map — MVP Tasks
 
-Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracked from repository, Supabase, build, and deployment evidence; schema-only work is not counted as a completed user flow.
+Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the canonical current status; dated review snapshots are historical evidence and may contain superseded wording.
 
 ## EPIC 0 — Foundation
 
@@ -56,7 +56,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] DONE MAP-006 Add accessible hover/focus preview.
 - [x] DONE MAP-007 Add persistent process detail panel.
 - [x] DONE MAP-008 Add APQC Reference/Coverage view.
-- [~] PARTIAL MAP-009 Build global search and Process Catalog.
+- [x] DONE MAP-009 Build global search and Process Catalog with URL-backed filters, sorting, and deep links.
 - [~] PARTIAL MAP-010 Verify long names, deep hierarchy, empty nodes, and 1024 px layout.
 - [x] DONE MAP-011 Add Admin-only governed process metadata and tooltip editing with version-safe drafts.
 
@@ -81,7 +81,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] DONE DOC-004 Validate upload MIME type, extension, size, and checksum before direct private Storage upload.
 - [x] DONE DOC-005 Add PDF/image preview and Office download.
 - [x] DONE DOC-006 Require at least one process link before document publication.
-- [~] PARTIAL DOC-007 Implement lifecycle, validity, review cadence, and scheduling.
+- [x] DONE DOC-007 Implement role-gated lifecycle, validity, review cadence, and scheduling.
 - [x] DONE DOC-008 Prevent overlapping effective version intervals.
 - [x] DONE DOC-009 Add field-level metadata version comparison.
 - [x] DONE DOC-010 Add review comments, replies, mentions, and resolution.
@@ -119,12 +119,12 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 ## EPIC 8 — Dashboards and Action Log
 
 - [x] `DONE DASH-001` Build Viewer Home.
-- [~] `PARTIAL DASH-002` Build Editor Home.
+- [x] `DONE DASH-002` Build Editor Home with personal work queues.
 - [x] `DONE DASH-003` Build Admin Home.
 - [x] `DONE DASH-004` Create governance SQL views/functions.
-- [~] `PARTIAL DASH-005` Build governance dashboard and drill-down.
+- [x] `DONE DASH-005` Build governance dashboard and drill-down.
 - [x] `DONE DASH-006` Create finding-aging/dashboard SQL views.
-- [~] `PARTIAL DASH-007` Build Finding dashboard and drill-down.
+- [x] `DONE DASH-007` Build Finding dashboard and drill-down.
 - [x] `DONE NOTIF-001` Create notifications schema and event service.
 - [x] `DONE NOTIF-002` Build notification center with read/unread and deep links.
 - [x] `DONE NOTIF-003` Add review, reading, role, finding, and due-date notifications; daily pg_cron runs at 08:00 Asia/Ho_Chi_Minh.
@@ -138,7 +138,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [ ] `TODO QA-005` Run accessibility checks and keyboard navigation review.
 - [ ] `TODO QA-006` Run visual QA at 1024, 1280, and wide desktop widths.
 - [~] `PARTIAL QA-007` Run the golden demo Playwright flow in Chrome and Edge.
-- [~] `PARTIAL QA-008` Run security review for Auth, RLS, uploads, signed URLs, and secrets.
+- [x] `DONE QA-008` Run security review for Auth, RLS, uploads, signed URLs, and secrets.
 - [x] `DONE DEPLOY-001` Configure Vercel environment variables.
 - [x] `DONE DEPLOY-002` Deploy and verify the golden flow against Supabase.
 - [x] `DONE DEPLOY-003` Update `PROJECT_STATE.md` with verified implementation status.
@@ -288,3 +288,28 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. E0 is complete. E1-E6 are tracke
 - [x] `MAP-010` — Removed the return-to-menu action, “Process Map” title, L0–L4 process-count summary, helper text, and selected-process breadcrumb from the Process Map header.
 - [x] `UX` — The expanded workspace card now contains only Process Landscape, left-aligned Enterprise/APQC Reference controls, and the live enterprise-process search field. The collapse control remains available.
 - [~] `QA-004/005/006/007` — Added a 1024-px wrapping fallback; authenticated visual/keyboard browser coverage remains pending.
+
+
+## Canonical remaining-work audit — 2026-10-20
+
+### Completed in this audit
+
+- [x] MAP-009 — Catalog now searches, filters and sorts Enterprise/APQC records and deep-links to Process Map/APQC detail.
+- [x] DASH-002 — Editor Home exposes personal drafts, assigned findings and unread actions while remaining RLS-scoped.
+- [x] DASH-005 — Governance cards drill into APQC coverage, overdue review details and open findings.
+- [x] DASH-007 — Finding dashboard cards and filters drill into open, overdue and assigned-to-me queues.
+- [x] DOC-007 — Intake exposes validity/review scheduling metadata; lifecycle mutation remains role-gated and database publication gates enforce scheduling/four-eyes constraints.
+- [x] QA-008 — Repository security review found no new secret, auth bypass, service-role exposure or private-file public URL; Supabase RLS and signed-file boundaries remain unchanged.
+- [x] QUALITY — Full ESLint has zero errors and production build/type-check passes all 14 routes.
+
+### Remaining executable QA
+
+- [~] MAP-010 / QA-004 / QA-005 / QA-006 / QA-007 — Code and responsive fallbacks exist; authenticated 1024/1280/wide visual, keyboard and Chrome/Edge golden-flow evidence remains incomplete.
+- [~] AUTH-005 / AUTH-006 / AUTH-007 / QA-002 / QA-003 — Admin and Viewer boundaries are verified; Editor behavior cannot be fully evidenced because the approved six-user set has no Editor account.
+
+### External or policy blockers
+
+- [ ] PROC-011 — Requires representative real enterprise-process samples; synthetic data will not be relabeled as real.
+- [ ] DOC-013 — Requires representative Excel/CSV/PDF/DOCX source samples before importer design.
+- [ ] FIND-011 — Requires approved data-handling policy and samples before AI analysis.
+- [ ] LATER-001 through LATER-010 — Explicitly deferred/non-MVP scope; completing them requires a product-scope decision rather than routine implementation.

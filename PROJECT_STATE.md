@@ -120,3 +120,14 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Document intake retains PRD-aligned draft metadata: controlled type/group, language, abstract, keywords, process link, applicability, tags, owner, designated approver, access level, validity/review dates, risk, legal basis, retention, and change summary.
 - Document library management supports URL-backed search, governed metadata filters, and sorting by update, title, review due date, and validity start.
 - No database migration is required; the implementation uses the existing RLS-protected metadata schema and private Storage flow.
+
+
+## Remaining MVP audit — 2026-10-20
+
+- Global Catalog supports Enterprise/APQC search, source/status/level filters, sorting, and deep links.
+- Home has explicit Viewer, Editor, and Admin compositions; Editor queues remain RLS-scoped.
+- Governance and Finding dashboards expose URL-backed drill-downs for coverage, review, open/overdue, and assigned queues.
+- Process Map lint regressions were removed; full ESLint has zero errors and production build/type-check passes 14 routes.
+- Security review found no new authorization bypass, secret exposure, service-role client use, or public document URL.
+- Remaining evidence gaps are authenticated 1024/1280/wide and Chrome/Edge/keyboard QA plus the Editor role matrix.
+- Real process seeding, importer design, and AI analysis remain blocked on representative samples/data policy; deferred backlog remains outside MVP.
