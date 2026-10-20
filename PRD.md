@@ -595,3 +595,10 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - Each assignment shows document code/version, required/reference flag, controlled type, issuing department, effective date, assignment date, due date, acknowledgment state, and a secure file action.
 - A user may acknowledge only an assignment addressed to their own profile; RLS remains the authorization boundary.
 - Relationship UI uses Vietnamese business wording. “Directed” means the stored relationship is read from Source → Target; the inverse label describes the same record when viewed from the target.
+
+
+## 26. Collapsible relationship legend — 2026-10-20
+
+- Relationship explanations are consolidated into one “Chú giải” frame beside the network.
+- The frame is collapsed by default and uses a native keyboard-accessible disclosure; users expand it only when they need the source-to-target direction, inverse labels, or controlled relationship-type guidance.
+- The standalone direction note is removed to prevent duplicate explanations; the network and relationship register remain visible.
