@@ -586,3 +586,12 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - Full audit trail and retention.
 - Fine-grained draft visibility.
 - Advanced archive rules.
+
+
+## 25. Required-reading discovery and relationship language — 2026-10-20
+
+- The Document page must provide a dedicated “Tài liệu cần đọc của tôi” area before the general library.
+- A Viewer can search assigned documents by code, title, abstract, keyword, or issuing department and filter by pending, overdue, acknowledged, required, or all assigned items.
+- Each assignment shows document code/version, required/reference flag, controlled type, issuing department, effective date, assignment date, due date, acknowledgment state, and a secure file action.
+- A user may acknowledge only an assignment addressed to their own profile; RLS remains the authorization boundary.
+- Relationship UI uses Vietnamese business wording. “Directed” means the stored relationship is read from Source → Target; the inverse label describes the same record when viewed from the target.
