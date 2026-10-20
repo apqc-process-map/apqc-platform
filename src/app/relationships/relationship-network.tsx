@@ -61,7 +61,7 @@ export default function RelationshipNetwork({ items }: Props) {
     const nodeLabel = side === "in" ? item.sourceLabel : item.targetLabel;
     const nodeType = side === "in" ? item.sourceType : item.targetType;
     const relationLabel = side === "in" ? item.inverseLabel : item.typeLabel;
-    return <button key={`${item.id}-${side}`} className="network-connection" onClick={() => setCenterKey(nodeKey)}>
+    return <button key={`${item.id}-${side}`} className={`network-connection ${side === "in" ? "is-inbound" : "is-outbound"}`} onClick={() => setCenterKey(nodeKey)}>
       <span className={`legend-dot tone-${item.group}`} />
       <span><strong>{nodeLabel}</strong><small>{nodeType} · {relationLabel} · {item.status}</small></span>
     </button>;
@@ -75,7 +75,7 @@ export default function RelationshipNetwork({ items }: Props) {
         </select>
       </label>
       <button type="button" className="text-button" onClick={() => setExpanded((value) => !value)} aria-pressed={expanded}>
-        {expanded ? "Thu về 1 hop" : "Xem thêm liên kết"}
+        {expanded ? "Thu gọn" : "Xem thêm liên kết"}
       </button>
     </div>
     <div className="network-board" aria-label={`Mạng quan hệ quanh ${center.label}`}>
