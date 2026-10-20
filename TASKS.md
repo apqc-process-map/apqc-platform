@@ -313,3 +313,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [ ] DOC-013 — Requires representative Excel/CSV/PDF/DOCX source samples before importer design.
 - [ ] FIND-011 — Requires approved data-handling policy and samples before AI analysis.
 - [ ] LATER-001 through LATER-010 — Explicitly deferred/non-MVP scope; completing them requires a product-scope decision rather than routine implementation.
+
+
+## Relationship wording and required reading — 2026-10-20
+
+- [x] REL-UX — Replace unexplained “Controlled type / Có hướng” wording with “Loại quan hệ chuẩn”, Source → Target guidance, inverse labels, and a concrete business example.
+- [x] DOC-READ-001 — Add a personal required-reading area with search, status filters, assignment metadata, secure file access, and acknowledgment action.
+- [x] SEC-READ-001 — Scope reading-assignment and acknowledgment SELECT policies to the recipient or Editor/Admin; allow acknowledgment INSERT only for the recipient.

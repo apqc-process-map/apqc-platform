@@ -131,3 +131,10 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Security review found no new authorization bypass, secret exposure, service-role client use, or public document URL.
 - Remaining evidence gaps are authenticated 1024/1280/wide and Chrome/Edge/keyboard QA plus the Editor role matrix.
 - Real process seeding, importer design, and AI analysis remain blocked on representative samples/data policy; deferred backlog remains outside MVP.
+
+
+## Required reading and relationship language — 2026-10-20
+
+- Relationship wording now explains controlled types, Source → Target direction, and inverse labels in Vietnamese with a concrete example.
+- Documents now has a personal “Tài liệu cần đọc của tôi” queue with search, pending/overdue/completed/required filters, assignment metadata, secure file access, and acknowledgment.
+- Reading-assignment visibility is restricted by RLS to the recipient or Editor/Admin; acknowledgment insertion is restricted to the recipient.

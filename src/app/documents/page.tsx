@@ -1,8 +1,9 @@
 import WorkspaceShell from "@/components/workspace-shell";
 import DocumentIntake from "@/components/document-intake";
 import DocumentFileUploader from "@/components/document-file-uploader";
-import { updateDocumentLifecycle } from "@/app/actions";
+import { acknowledgeReadingAssignment, updateDocumentLifecycle } from "@/app/actions";
 import { requireActiveAccount } from "@/lib/auth";
+import { getServerTimestamp } from "@/lib/server-time";
 
 export const instant = false;
 
@@ -17,8 +18,8 @@ const sortOptions = [
   ["valid_from_desc", "Hiệu lực mới nhất"],
 ] as const;
 
-export default async function DocumentsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; type?: string; group?: string; language?: string; access?: string; risk?: string; owner?: string; sort?: string; compare?: string; preview?: string; edit?: string; created?: string; updated?: string }> }) {
-  const { q = "", status = "all", type = "all", group = "all", language = "all", access = "all", risk = "all", owner = "all", sort = "updated_desc", compare, preview, edit, created, updated } = await searchParams;
+export default async function DocumentsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; type?: string; group?: string; language?: string; access?: string; risk?: string; owner?: string; sort?: string; read_q?: string; read_status?: string; compare?: string; preview?: string; edit?: string; created?: string; updated?: string }> }) {
+  const { q = "", status = "all", type = "all", group = "all", language = "all", access = "all", risk = "all", owner = "all", sort = "updated_desc", read_q = "", read_status = "pending", compare, preview, edit, created, updated } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
   let query = supabase.from("document_versions").select("id, document_id, version_number, status, title_vi, title_en, document_group, language, document_abstract, change_summary, valid_from, valid_until, review_due_at, access_level, risk_rating, issuing_department, keywords, legal_reference, retention_note, updated_at, owner_id, created_by, document_type_value_id, vocabulary_values(label_vi), documents(document_code), document_files(id, original_file_name, mime_type, size_bytes)").limit(100);
   if (q.trim()) query = query.or(`title_vi.ilike.%${q.trim()}%,title_en.ilike.%${q.trim()}%,document_abstract.ilike.%${q.trim()}%,keywords.ilike.%${q.trim()}%,issuing_department.ilike.%${q.trim()}%`);
@@ -42,7 +43,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   const previewFile = preview ? files.find((file) => file.id === preview) : null;
   const canEdit = profile.role === "admin" || profile.role === "editor";
   const scopeDimensions = ["legal_entity","department","location","channel","product_service","employee_audience"];
-  const [processRows, peopleRows, typeRows, scopeRows, tagRows, editingResult, linkedRows, appliedRows, markedRows] = await Promise.all([
+  const [processRows, peopleRows, typeRows, scopeRows, tagRows, editingResult, linkedRows, appliedRows, markedRows, assignmentResult] = await Promise.all([
     canEdit ? supabase.from("processes").select("id,process_code,process_versions(name_vi)").order("display_order").limit(150) : Promise.resolve({data: []}),
     supabase.from("profiles").select("id,display_name,role").eq("is_active",true).order("display_name"),
     supabase.from("vocabulary_values").select("id,label_vi,document_group_code,vocabularies!inner(code)").eq("vocabularies.code","document_type").eq("is_active",true).order("display_order"),
@@ -52,6 +53,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
     canEdit && edit ? supabase.from("document_process_links").select("process_id,link_role").eq("document_version_id",edit).eq("link_role","primary").limit(1) : Promise.resolve({data: []}),
     canEdit && edit ? supabase.from("object_applicability").select("dimension,vocabulary_value_id").eq("object_type","document_version").eq("object_id",edit) : Promise.resolve({data: []}),
     canEdit && edit ? supabase.from("object_tags").select("tag_id").eq("object_type","document_version").eq("object_id",edit) : Promise.resolve({data: []}),
+    supabase.from("reading_assignments").select("id,object_id,required,assigned_at,due_at,reading_acknowledgments(acknowledged_at)").eq("profile_id",profile.id).eq("object_type","document_version").order("due_at",{ascending:true,nullsFirst:false}),
   ]);
   const availableProcesses = ((processRows.data||[]) as unknown as {id:string;process_code:string;process_versions:{name_vi:string}[]|null}[]).map(row=>({id:row.id,label:row.process_code+" · "+(row.process_versions?.[0]?.name_vi || "Quy trình")}));
   const people = (peopleRows.data||[]) as {id:string;display_name:string;role:string}[];
@@ -74,6 +76,23 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   }
   const currentTags = ((markedRows.data||[]) as {tag_id:string}[]).map(row=>row.tag_id);
   const primaryProcessId = ((linkedRows.data||[]) as {process_id:string}[])[0]?.process_id||null;
+  type ReadingAssignment={id:string;object_id:string;required:boolean;assigned_at:string;due_at:string|null;reading_acknowledgments:{acknowledged_at:string}[]|null};
+  type AssignedVersion={id:string;version_number:number;title_vi:string;document_abstract:string|null;keywords:string|null;issuing_department:string|null;valid_from:string|null;vocabulary_values:{label_vi:string}|null;documents:{document_code:string}|null;document_files:{id:string;original_file_name:string;mime_type:string}[]|null};
+  const assignments=(assignmentResult.data||[]) as unknown as ReadingAssignment[];
+  const assignedVersionIds=assignments.map(item=>item.object_id);
+  const assignedVersionsResult=assignedVersionIds.length?await supabase.from("document_versions").select("id,version_number,title_vi,document_abstract,keywords,issuing_department,valid_from,vocabulary_values(label_vi),documents(document_code),document_files(id,original_file_name,mime_type)").in("id",assignedVersionIds):{data:[],error:null};
+  const assignedVersions=new Map(((assignedVersionsResult.data||[]) as unknown as AssignedVersion[]).map(item=>[item.id,item]));
+  const now=await getServerTimestamp();
+  const readingItems=assignments.map(assignment=>({assignment,version:assignedVersions.get(assignment.object_id)})).filter(item=>item.version).filter(({assignment,version})=>{
+    const acknowledged=Boolean(assignment.reading_acknowledgments?.length);
+    const overdue=!acknowledged&&Boolean(assignment.due_at)&&new Date(assignment.due_at as string).getTime()<now;
+    if(read_status==="pending"&&acknowledged)return false;
+    if(read_status==="overdue"&&!overdue)return false;
+    if(read_status==="completed"&&!acknowledged)return false;
+    if(read_status==="required"&&!assignment.required)return false;
+    const needle=read_q.trim().toLocaleLowerCase("vi");
+    return !needle||[version?.title_vi,version?.documents?.document_code,version?.document_abstract,version?.keywords,version?.issuing_department].some(value=>value?.toLocaleLowerCase("vi").includes(needle));
+  });
 
   const comparisonRows = selected ? [
     ["Tiêu đề tiếng Việt", previous?.title_vi, selected.title_vi],
@@ -94,9 +113,15 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
     ["Trạng thái", previous?.status, selected.status],
   ] : [];
 
-  return <WorkspaceShell active="/documents" eyebrow="DOCUMENT CONTROL" title="Documents" description="Thư viện tài liệu riêng tư với version, validity và review cadence." userName={profile.display_name} role={profile.role}>
+  return <WorkspaceShell active="/documents" eyebrow="QUẢN LÝ TÀI LIỆU" title="Tài liệu" description="Tìm tài liệu áp dụng cho công việc và theo dõi các tài liệu bạn phải đọc." userName={profile.display_name} role={profile.role}>
     {(created || updated) && <div className="state-message" role="status"><strong>{created ? "Đã tạo bản nháp tài liệu." : "Đã lưu metadata."}</strong><span>Thông tin đã lưu trong Supabase.</span></div>}
     {canEdit && <DocumentIntake processes={availableProcesses} people={availablePeople} approvers={availableApprovers} types={availableTypes} scopeOptions={availableScopeOptions} tags={availableTags} existing={editingDocument} primaryProcessId={editingDocument?primaryProcessId:null} selectedScopes={editingDocument?currentScope:{}} selectedTags={editingDocument?currentTags:[]}/>}
+    <section className="reading-panel" aria-labelledby="required-reading-title">
+      <div className="document-library-controls-heading"><div><p className="section-kicker">DÀNH CHO TÔI</p><h2 id="required-reading-title">Tài liệu cần đọc của tôi</h2><p className="reading-panel-intro">Danh sách được giao trực tiếp cho tài khoản của bạn. Ưu tiên tài liệu quá hạn và chưa xác nhận.</p></div><span className="count-chip">{readingItems.length} tài liệu</span></div>
+      <form className="reading-filter-form"><label>Tìm trong tài liệu được giao<input name="read_q" defaultValue={read_q} placeholder="Mã, tên, từ khóa, đơn vị ban hành…" /></label><label>Trạng thái<select name="read_status" defaultValue={read_status}><option value="pending">Chưa xác nhận</option><option value="overdue">Quá hạn</option><option value="completed">Đã xác nhận</option><option value="required">Tất cả bắt buộc đọc</option><option value="all">Tất cả được giao</option></select></label><button type="submit">Lọc danh sách</button><a className="text-button" href="/documents?read_status=all">Xóa bộ lọc</a></form>
+      {!readingItems.length?<div className="reading-empty"><strong>Không có tài liệu phù hợp.</strong><span>{assignments.length?"Hãy thử đổi từ khóa hoặc trạng thái lọc.":"Hiện chưa có tài liệu nào được giao cho tài khoản của bạn."}</span></div>:<div className="reading-list">{readingItems.map(({assignment,version})=>{if(!version)return null;const acknowledgedAt=assignment.reading_acknowledgments?.[0]?.acknowledged_at;const overdue=!acknowledgedAt&&Boolean(assignment.due_at)&&new Date(assignment.due_at as string).getTime()<now;const firstFile=version.document_files?.[0];return <article key={assignment.id} className={overdue?"overdue":""}><div><span className="mono-code">{version.documents?.document_code||"—"} · v{version.version_number}</span><h3>{version.title_vi}</h3><p>{version.document_abstract||"Chưa có tóm tắt."}</p><div className="reading-metadata"><span>{assignment.required?"Bắt buộc đọc":"Tham khảo"}</span>{version.vocabulary_values?.label_vi&&<span>Loại: {version.vocabulary_values.label_vi}</span>}{version.issuing_department&&<span>Ban hành: {version.issuing_department}</span>}{version.valid_from&&<span>Hiệu lực: {version.valid_from}</span>}<span>Giao ngày: {new Date(assignment.assigned_at).toLocaleDateString("vi-VN")}</span><span>Hạn đọc: {assignment.due_at?new Date(assignment.due_at).toLocaleDateString("vi-VN"):"Không đặt hạn"}</span></div></div><div className="reading-actions"><span className={`reading-status ${acknowledgedAt?"done":overdue?"late":"pending"}`}>{acknowledgedAt?`Đã xác nhận ${new Date(acknowledgedAt).toLocaleDateString("vi-VN")}`:overdue?"Quá hạn":"Chưa xác nhận"}</span>{firstFile?<a className="text-button" href={firstFile.mime_type==="application/pdf"||firstFile.mime_type.startsWith("image/")?`/documents?preview=${firstFile.id}`:`/documents/files/${firstFile.id}`}>Mở tài liệu</a>:<span className="missing-file">Chưa có file</span>}{!acknowledgedAt&&<form action={acknowledgeReadingAssignment}><input type="hidden" name="assignment_id" value={assignment.id}/><button type="submit" className="primary-button">Xác nhận đã đọc</button></form>}</div></article>})}</div>}
+    </section>
+
     <section className="document-library-controls" aria-labelledby="document-library-filter-title">
       <div className="document-library-controls-heading">
         <div><p className="section-kicker">DOCUMENT LIBRARY</p><h2 id="document-library-filter-title">Tìm, lọc và sắp xếp</h2></div>

@@ -53,6 +53,20 @@ export async function markAllNotificationsRead() {
   revalidatePath("/notifications");
 }
 
+export async function acknowledgeReadingAssignment(formData: FormData) {
+  const assignmentId = String(formData.get("assignment_id") || "");
+  if (!assignmentId) throw new Error("Không tìm thấy yêu cầu đọc tài liệu.");
+  const { supabase, user } = await authenticatedContext();
+  const { data: assignment, error: readError } = await supabase
+    .from("reading_assignments").select("id").eq("id", assignmentId)
+    .eq("profile_id", user.id).eq("object_type", "document_version").maybeSingle();
+  if (readError || !assignment) throw new Error("Yêu cầu đọc không tồn tại hoặc không thuộc tài khoản của bạn.");
+  const { error } = await supabase.from("reading_acknowledgments")
+    .upsert({ assignment_id: assignment.id }, { onConflict: "assignment_id", ignoreDuplicates: true });
+  if (error) throw new Error(error.message);
+  revalidatePath("/documents");
+}
+
 export async function updateFindingWorkflow(formData: FormData) {
   const findingId = String(formData.get("finding_id") || "");
   const requestedStatus = String(formData.get("status") || "");
