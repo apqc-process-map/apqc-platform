@@ -610,3 +610,10 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - Redundant graph headings and helper text are removed; the relationship network keeps only the concise title “Quan hệ”.
 - The legend relationship types are arranged horizontally and wrap when needed; the legend remains collapsed by default.
 - The network control uses “Xem thêm liên kết” instead of exposing hop terminology in the primary action. One hop means a direct relationship from the selected center; two hops includes relationships of neighboring objects as well.
+
+
+## 28. Responsive relationship layout — 2026-10-20
+
+- “Cách đọc quan hệ” uses a horizontal, wrapping layout so the network keeps the available width.
+- Relationship statistics and network node text use compact responsive sizes; long labels are truncated instead of forcing the laptop layout wider.
+- At laptop widths, the relationship workspace uses one full-width column; at narrow widths, inbound/outbound cards use two columns and the center object moves above them.
