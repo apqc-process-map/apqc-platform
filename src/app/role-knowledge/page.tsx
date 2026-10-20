@@ -24,7 +24,7 @@ export default async function RoleKnowledgePage({ searchParams }: { searchParams
     const latest = [...(document.document_versions || [])].sort((a, b) => b.version_number - a.version_number)[0];
     return [document.id, { ...document, latest }];
   }));
-  const items = ((result.data || []) as RelationRow[]).map((relation) => ({ relation, document: documents.get(relation.target_id), kind: types.get(relation.relationship_type_id) })).filter((item) => item.document?.latest);
+  const items = ((result.data || []) as RelationRow[]).map((relation) => ({ relation, document: documents.get(relation.target_id), kind: types.get(relation.relationship_type_id) })).filter((item) => item.kind);
   const must = items.filter((item) => item.kind === "role_must_know_document");
   const should = items.filter((item) => item.kind === "role_should_know_document");
   const loadError = roleResult.error || typeResult.error || documentResult.error || result.error;
@@ -32,8 +32,11 @@ export default async function RoleKnowledgePage({ searchParams }: { searchParams
   const bucket = (title: string, description: string, rows: typeof items, tone: string) => <section className={"knowledge-bucket " + tone}>
     <div className="knowledge-bucket-heading"><div><h2>{title}</h2><p>{description}</p></div><span>{rows.length}</span></div>
     {rows.length ? <div className="knowledge-document-list">{rows.map(({ relation, document }) => {
-      const latest = document!.latest!;
-      return <article key={relation.id}><div><span className="mono-code">{document!.document_code} · v{latest.version_number}</span><h3>{latest.title_vi}</h3><p>{relation.description || latest.document_abstract || "Chưa có diễn giải."}</p><small>Trạng thái: {latest.status}</small></div><Link className="text-button" href={"/documents?search=" + encodeURIComponent(document!.document_code)}>Mở tài liệu</Link></article>;
+      if (!document?.latest) {
+        return <article key={relation.id} className="knowledge-document-restricted"><div><span className="mono-code">TÀI LIỆU GIỚI HẠN</span><h3>Chưa có quyền xem metadata tài liệu</h3><p>Quan hệ kiến thức của chức danh đã tồn tại, nhưng RLS hoặc quyền tài liệu chưa cho phép tài khoản hiện tại xem chi tiết.</p><small>Liên hệ quản trị viên để đối soát quyền truy cập.</small></div><span className="knowledge-restriction-badge">Bị giới hạn</span></article>;
+      }
+      const latest = document.latest;
+      return <article key={relation.id}><div><span className="mono-code">{document.document_code} · v{latest.version_number}</span><h3>{latest.title_vi}</h3><p>{relation.description || latest.document_abstract || "Chưa có diễn giải."}</p><small>Trạng thái: {latest.status}</small></div><Link className="text-button" href={"/documents?search=" + encodeURIComponent(document.document_code)}>Mở tài liệu</Link></article>;
     })}</div> : <div className="knowledge-empty">Chưa có tài liệu được gán cho nhóm này.</div>}
   </section>;
 
@@ -42,7 +45,7 @@ export default async function RoleKnowledgePage({ searchParams }: { searchParams
     {loadError ? <div className="state-message error-state"><strong>Không thể tải knowledge profile</strong><span>{loadError.message}</span></div> : selectedRole ? <>
       <section className="role-profile-summary"><div><span className="section-kicker">ROLE KNOWLEDGE PROFILE</span><h2>{selectedRole.name}</h2><p>{selectedRole.description || "Chưa có mô tả vai trò."}</p></div><div className="role-profile-counts"><span><b>{must.length}</b>Bắt buộc</span><span><b>{should.length}</b>Nên biết</span></div></section>
       <div className="knowledge-grid">{bucket("Bắt buộc phải biết", "Tài liệu cốt lõi phục vụ trách nhiệm của chức danh.", must, "must")}{bucket("Nên biết / tham chiếu", "Tài liệu hỗ trợ, dùng khi nghiệp vụ phát sinh.", should, "should")}</div>
-      <div className="knowledge-security-note"><strong>Phạm vi kiến thức không phải quyền truy cập.</strong><span>Người dùng chỉ mở được tài liệu khi RLS và quyền Storage cho phép.</span></div>
+      <div className="knowledge-security-note"><strong>Phạm vi kiến thức không phải quyền truy cập.</strong><span>Số lượng gồm mọi tài liệu đã gán cho chức danh; chi tiết chỉ hiển thị khi RLS và quyền Storage cho phép.</span></div>
     </> : <div className="knowledge-empty">Chưa có chức danh hoạt động.</div>}
   </WorkspaceShell>;
 }
