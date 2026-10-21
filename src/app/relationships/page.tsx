@@ -1,3 +1,4 @@
+import Form from "next/form";
 import WorkspaceShell from "@/components/workspace-shell";
 import { requireActiveAccount } from "@/lib/auth";
 import RelationshipMetadataForm, {
@@ -167,7 +168,7 @@ export default async function RelationshipsPage({
 
   return <WorkspaceShell active="/relationships" eyebrow="MẠNG LƯỚI LIÊN KẾT" title="Quan hệ" description="Xem một đối tượng cung cấp, phụ thuộc, quản lý hoặc liên quan tới đối tượng nào." userName={profile.display_name} role={profile.role}>
     <div className="relationship-summary compact"><article><span>Loại quan hệ</span><strong>{types.length}</strong></article><article><span>Đang hiển thị</span><strong>{relationships.length}</strong></article><article><span>Phạm vi</span><strong>Liên kết trực tiếp</strong></article></div>
-    <form className="catalog-toolbar compact relationship-filter"><select name="focus" defaultValue={focus} aria-label="Tài liệu trung tâm"><option value="">Tất cả tài liệu</option>{[...documentFocusOptions].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><select name="group" defaultValue={group} aria-label="Nhóm quan hệ"><option value="all">Tất cả nhóm</option>{groups.map((item) => <option key={item} value={item}>{item}</option>)}</select><select name="status" defaultValue={status} aria-label="Trạng thái"><option value="all">Tất cả trạng thái</option><option value="proposed">Đề xuất</option><option value="verified">Đã xác minh</option><option value="rejected">Từ chối</option></select><button type="submit">Áp dụng</button></form>
+    <Form action="/relationships" scroll={false} className="catalog-toolbar compact relationship-filter"><select name="focus" defaultValue={focus} aria-label="Tài liệu trung tâm"><option value="">Tất cả tài liệu</option>{[...documentFocusOptions].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><select name="group" defaultValue={group} aria-label="Nhóm quan hệ"><option value="all">Tất cả nhóm</option>{groups.map((item) => <option key={item} value={item}>{item}</option>)}</select><select name="status" defaultValue={status} aria-label="Trạng thái"><option value="all">Tất cả trạng thái</option><option value="proposed">Đề xuất</option><option value="verified">Đã xác minh</option><option value="rejected">Từ chối</option></select><button type="submit">Áp dụng</button></Form>
 
     <div className="relationship-management-bar">
       <span>{canManage ? "Tạo hoặc cập nhật metadata quan hệ theo danh mục chuẩn." : "Viewer có quyền xem; Editor hoặc Admin quản lý metadata quan hệ."}</span>
