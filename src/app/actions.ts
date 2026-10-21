@@ -216,7 +216,8 @@ type DocumentDraftMetadata = {
 const documentGroups = ["governance","execution","communication","evidence","planning","external","other"];
 const documentScopeDimensions = ["legal_entity","department","location","channel","product_service","employee_audience"] as const;
 type ScopeDimension = typeof documentScopeDimensions[number];
-type DocumentExtras = { processId:string|null; scopes:{dimension:ScopeDimension; vocabulary_value_id:string}[]; tagIds:string[] };
+type KnowledgeLevel="must"|"should"|"none";
+type DocumentExtras = { processId:string|null; scopes:{dimension:ScopeDimension; vocabulary_value_id:string}[]; tagIds:string[]; knowledge:Record<string,KnowledgeLevel> };
 function optionalString(data:FormData,field:string,max=1000):string|null {
   const value=String(data.get(field)||"").trim();
   if(value.length>max) throw new Error("Trường "+field+" vượt quá "+max+" ký tự.");
@@ -238,14 +239,15 @@ function documentFile(data:FormData):File|null {
 }
 async function validateDraftForm(
   supabase:Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  data:FormData
+  data:FormData,
+  fallbackGroup="other"
 ):Promise<{metadata:DocumentDraftMetadata;extras:DocumentExtras}> {
   const valid_from=optionalDate(data,"valid_from");
   const valid_until=optionalDate(data,"valid_until");
   if(valid_from&&valid_until&&valid_until<valid_from)throw new Error("Ngày kết thúc phải từ ngày bắt đầu hiệu lực trở đi.");
   const document_type_value_id=optionalString(data,"document_type_value_id",80);
-  let document_group=optionalString(data,"document_group",100)||"other";
-  if(!documentGroups.includes(document_group)) throw new Error("Nhóm tài liệu không hợp lệ.");
+  // Group is derived from the selected type; retain legacy groups for untyped drafts.
+  let document_group=documentGroups.includes(fallbackGroup.toLowerCase())?fallbackGroup.toLowerCase():"other";
   if(document_type_value_id){
     const {data:found,error}=await supabase.from("vocabulary_values")
       .select("id,document_group_code,vocabularies!inner(code)")
@@ -291,6 +293,25 @@ async function validateDraftForm(
     const {data:tags,error}=await supabase.from("governance_tags").select("id").in("id",tagIds).eq("is_active",true);
     if(error||!tags||tags.length!==tagIds.length)throw new Error("Nhãn tài liệu không hợp lệ.");
   }
+  const knowledge:Record<string,KnowledgeLevel>={};
+  for(const [field,level] of [
+    ["knowledge_must","must"],["knowledge_should","should"],["knowledge_none","none"]
+  ] as const){
+    for(const roleId of data.getAll(field).map(String)){
+      if(!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(roleId))throw new Error("Mã chức danh không hợp lệ.");
+      if(knowledge[roleId] && knowledge[roleId]!==level)
+        throw new Error("Mỗi chức danh chỉ được chọn vào một nhóm cần biết.");
+      knowledge[roleId]=level;
+    }
+  }
+  const selectedRoleIds=Object.keys(knowledge);
+  if(selectedRoleIds.length>500)throw new Error("Có quá nhiều chức danh được chọn.");
+  if(selectedRoleIds.length){
+    const {data:activeRoles,error:roleError}=await supabase.from("business_roles")
+      .select("id").in("id",selectedRoleIds).eq("is_active",true);
+    if(roleError||!activeRoles||activeRoles.length!==selectedRoleIds.length)
+      throw new Error("Có chức danh không hợp lệ hoặc ngừng sử dụng.");
+  }
   const metadata:DocumentDraftMetadata={
     title_vi:optionalString(data,"title_vi",255)||"",
     title_en:optionalString(data,"title_en",255),
@@ -308,7 +329,7 @@ async function validateDraftForm(
     risk_rating,access_level,allowed_roles
   };
   if(!["vi","en","vi-en"].includes(metadata.language)) throw new Error("Ngôn ngữ không hợp lệ.");
-  return {metadata,extras:{processId,scopes,tagIds}};
+  return {metadata,extras:{processId,scopes,tagIds,knowledge}};
 }
 async function saveDocumentRelations(
   supabase:Awaited<ReturnType<typeof createSupabaseServerClient>>,
@@ -342,6 +363,19 @@ async function saveDocumentRelations(
     if(added.error)throw new Error(added.error.message);
   }
 }
+async function saveDocumentKnowledge(
+  supabase:Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  documentId:string,knowledge:Record<string,KnowledgeLevel>
+){
+  // Database RPC checks Admin role, editable version, known roles and saves all changes atomically.
+  const {error}=await supabase.rpc("set_document_knowledge_audience",{
+    p_document_id:documentId,p_assignments:knowledge
+  });
+  if(error)throw new Error("Không thể lưu đối tượng cần biết: "+error.message);
+  revalidatePath("/role-knowledge");
+  revalidatePath("/relationships");
+}
+
 async function saveDraftFile(
   supabase:Awaited<ReturnType<typeof createSupabaseServerClient>>,
   userId:string,versionId:string,file:File
@@ -368,6 +402,8 @@ export async function createDocumentDraft(formData:FormData){
   if(!["admin","editor"].includes(profile.role))throw new Error("Bạn không có quyền tạo tài liệu.");
   const file=documentFile(formData);
   const {metadata,extras}=await validateDraftForm(supabase,formData);
+  if(profile.role!=="admin"&&Object.keys(extras.knowledge).length)
+    throw new Error("Chỉ Admin được phân loại nhóm chức danh cần biết.");
   if(!file&&!metadata.title_vi)throw new Error("Hãy nhập tên tài liệu hoặc chọn file.");
   if(!metadata.title_vi)metadata.title_vi=file!.name.replace(/\.[^.]+$/,"").slice(0,255);
   const identity=await supabase.from("documents").insert({created_by:user.id}).select("id").single();
@@ -382,6 +418,7 @@ export async function createDocumentDraft(formData:FormData){
     versionId=version.data.id;
     await saveDocumentRelations(supabase,user.id,version.data.id,extras,false);
     if(file)await saveDraftFile(supabase,user.id,version.data.id,file);
+    if(profile.role==="admin")await saveDocumentKnowledge(supabase,documentId,extras.knowledge);
   }catch(error){
     if(versionId){
       await supabase.from("object_tags").delete().eq("object_type","document_version").eq("object_id",versionId);
@@ -401,16 +438,19 @@ export async function updateDocumentMetadata(formData:FormData){
   if(!["admin","editor"].includes(profile.role))throw new Error("Không có quyền chỉnh sửa.");
   const versionId=String(formData.get("document_version_id")||"");
   const {data:current,error:readError}=await supabase.from("document_versions")
-    .select("id,status,created_by,owner_id").eq("id",versionId).maybeSingle();
+    .select("id,document_id,document_group,status,created_by,owner_id").eq("id",versionId).maybeSingle();
   if(readError||!current)throw new Error("Không tìm thấy phiên bản tài liệu.");
   if(!["draft","rejected"].includes(current.status))throw new Error("Chỉ chỉnh sửa bản nháp hoặc bị từ chối.");
   if(profile.role==="editor"&&current.created_by!==user.id&&current.owner_id!==user.id)
     throw new Error("Bạn không phụ trách tài liệu này.");
-  const {metadata,extras}=await validateDraftForm(supabase,formData);
+  const {metadata,extras}=await validateDraftForm(supabase,formData,current.document_group);
+  if(profile.role!=="admin"&&Object.keys(extras.knowledge).length)
+    throw new Error("Chỉ Admin được phân loại nhóm chức danh cần biết.");
   if(!metadata.title_vi)throw new Error("Tên tài liệu không được để trống.");
   const {data:updated,error}=await supabase.from("document_versions").update(metadata).eq("id",versionId).select("id").single();
   if(error||!updated)throw new Error(error?.message||"Không thể lưu metadata.");
   await saveDocumentRelations(supabase,user.id,versionId,extras,true);
+  if(profile.role==="admin")await saveDocumentKnowledge(supabase,current.document_id,extras.knowledge);
   revalidatePath("/documents");
   redirect("/documents?updated=1");
 }
