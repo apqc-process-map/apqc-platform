@@ -1,4 +1,5 @@
 import Form from "next/form";
+import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { requireActiveAccount } from "@/lib/auth";
 import RelationshipMetadataForm, {
@@ -171,7 +172,7 @@ export default async function RelationshipsPage({
 
     <div className="relationship-management-bar">
       <span>{canManage ? "Tạo hoặc cập nhật metadata quan hệ theo danh mục chuẩn." : "Viewer có quyền xem; Editor hoặc Admin quản lý metadata quan hệ."}</span>
-      {canManage ? <a className="primary-button" href="/relationships?manage=new#relationship-metadata">Tạo quan hệ</a> : null}
+      {canManage ? <Link className="primary-button" href="/relationships?manage=new#relationship-metadata">Tạo quan hệ</Link> : null}
     </div>
     {saved ? <div className="success-banner" role="status">{saved === "created" ? "Đã tạo quan hệ." : "Đã cập nhật metadata quan hệ."}</div> : null}
     {edit && !canEditSelected ? <div className="state-message error-state"><strong>Không thể chỉnh sửa</strong><span>Quan hệ không tồn tại hoặc tài khoản không có quyền sửa bản ghi này.</span></div> : null}
@@ -186,7 +187,7 @@ export default async function RelationshipsPage({
       if (!item) return null;
       const mayEdit = profile.role === "admin" || (profile.role === "editor" && relationship.created_by === profile.id && ["proposed", "rejected"].includes(relationship.status));
       const validity = [relationship.valid_from ? "Từ " + displayDate(relationship.valid_from) : "", relationship.valid_until ? "đến " + displayDate(relationship.valid_until) : ""].filter(Boolean).join(" ");
-      return <article key={item.id}><span className="object-pill">{item.sourceType}</span><div className="relationship-record-copy"><strong><span className="relationship-inline-code">{item.sourceCode || "—"}</span>{item.sourceLabel} → <span className="relationship-inline-code">{item.targetCode || "—"}</span>{item.targetLabel}</strong><small>{item.typeLabel}{item.directed ? ` · Chiều ngược: ${item.inverseLabel}` : " · Hai chiều"}</small>{relationship.description ? <p>{relationship.description}</p> : null}<span className="relationship-record-meta">{validity || "Không giới hạn hiệu lực"}{relationship.evidence_text ? " · Có bằng chứng" : " · Chưa có bằng chứng"}</span></div><span className="object-pill target">{item.targetType}</span><span className="status-badge">{item.status}</span>{mayEdit ? <a className="relationship-edit-link" href={`/relationships?edit=${item.id}#relationship-metadata`}>Sửa</a> : null}</article>;
+      return <article key={item.id}><span className="object-pill">{item.sourceType}</span><div className="relationship-record-copy"><strong><span className="relationship-inline-code">{item.sourceCode || "—"}</span>{item.sourceLabel} → <span className="relationship-inline-code">{item.targetCode || "—"}</span>{item.targetLabel}</strong><small>{item.typeLabel}{item.directed ? ` · Chiều ngược: ${item.inverseLabel}` : " · Hai chiều"}</small>{relationship.description ? <p>{relationship.description}</p> : null}<span className="relationship-record-meta">{validity || "Không giới hạn hiệu lực"}{relationship.evidence_text ? " · Có bằng chứng" : " · Chưa có bằng chứng"}</span></div><span className="object-pill target">{item.targetType}</span><span className="status-badge">{item.status}</span>{mayEdit ? <Link className="relationship-edit-link" href={`/relationships?edit=${item.id}#relationship-metadata`}>Sửa</Link> : null}</article>;
     })}</div></section> : null}
   </WorkspaceShell>;
 }
