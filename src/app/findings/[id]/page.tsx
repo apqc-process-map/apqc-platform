@@ -38,7 +38,7 @@ export default async function FindingDetailPage({ params }: { params: Promise<{ 
   const isDocumentFinding=finding.finding_domain==="document";
   const [actionResponse,linkResponse,versionsResponse,issueTypeResponse]=await Promise.all([
     isDocumentFinding?supabase.from("finding_actions")
-      .select("id,action_title,description,assignee_id,due_at,status,progress_percent,last_update,completion_evidence,updated_at")
+      .select("id,action_title,description,assignee_id,created_by,due_at,status,progress_percent,last_update,completion_evidence,updated_at")
       .eq("finding_id",id).order("created_at",{ascending:true}):Promise.resolve({data:[],error:null}),
     isDocumentFinding?supabase.from("finding_links")
       .select("id,object_id,object_type,link_role,evidence_excerpt").eq("finding_id",id)
@@ -149,13 +149,13 @@ export default async function FindingDetailPage({ params }: { params: Promise<{ 
             <div className="finding-progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={action.progress_percent}><span style={{width:action.progress_percent+"%"}}/></div>
             {action.last_update&&<p><strong>Cập nhật:</strong> {action.last_update}</p>}
             {action.completion_evidence&&<p><strong>Kết quả / bằng chứng:</strong> {action.completion_evidence}</p>}
-            {canEdit&&<details className="finding-action-edit"><summary>Cập nhật action</summary>
+            {(canEdit || (profile.role==="editor" && (action.assignee_id===profile.id || action.created_by===profile.id)))&&<details className="finding-action-edit"><summary>Cập nhật action</summary>
               <form action={updateFindingAction} className="finding-action-fields">
                 <input name="finding_id" type="hidden" value={finding.id}/><input name="action_id" type="hidden" value={action.id}/>
                 <label>Trạng thái<select name="status" defaultValue={action.status}>{Object.entries(actionStatusLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
                 <label>Tiến độ (%)<input type="number" name="progress_percent" min="0" max="100" defaultValue={action.progress_percent}/></label>
-                <label>Người thực hiện<select name="assignee_id" defaultValue={action.assignee_id||""}><option value="">Chưa giao</option>{(profiles||[]).filter(x=>x.role==="editor"||x.role==="admin").map(p=><option value={p.id} key={p.id}>{p.display_name}</option>)}</select></label>
-                <label>Hạn hoàn tất<input type="date" name="due_at" defaultValue={action.due_at||""}/></label>
+                {canEdit&&<><label>Người thực hiện<select name="assignee_id" defaultValue={action.assignee_id||""}><option value="">Chưa giao</option>{(profiles||[]).filter(x=>x.role==="editor"||x.role==="admin").map(p=><option value={p.id} key={p.id}>{p.display_name}</option>)}</select></label>
+                <label>Hạn hoàn tất<input type="date" name="due_at" defaultValue={action.due_at||""}/></label></>}
                 <label className="finding-full">Cập nhật tiến độ / lý do vướng mắc<textarea name="last_update" rows={2} maxLength={3000} defaultValue={action.last_update||""}/></label>
                 <label className="finding-full">Kết quả / dẫn chứng đóng action<textarea name="completion_evidence" rows={2} maxLength={3000} defaultValue={action.completion_evidence||""} placeholder="Bắt buộc khi hoàn thành action"/></label>
                 <button className="primary-button" type="submit">Lưu tiến độ</button>
