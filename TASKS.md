@@ -346,3 +346,12 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] SEC-REL-001 — Rollback-only database probes passed: Admin create/update is allowed with audit stamping; Viewer create/update is denied; no probe data persisted.
 - [x] QA-REL-004 — Vercel Preview passed Admin create/edit rendering, existing metadata prefill, Source/Target controlled-type filtering, Viewer read-only controls, 1280/1024 px overflow checks, and zero console errors.
 - [~] QA-REL-005 — Editor-specific browser flow remains unexecuted because the approved six-user account set contains no Editor profile; Editor RLS is implemented and policy-inspected.
+
+
+## Layered Process metadata card — 2026-10-21
+
+- [x] PROC-META-001 — Audit Process Map against the M-Files reference and distinguish Business Process selection from Document metadata.
+- [x] PROC-META-002 — Expand the Process Map read model for hierarchy, assignments, allowed roles, applicability dimensions, systems, APQC mapping detail, lifecycle dates, actors, and audit timestamps.
+- [x] PROC-META-003 — Replace the partial right panel with six layered metadata sections that keep every property visible.
+- [x] PROC-META-004 — Add explicit missing-field rows, overall completion, per-section missing counts, and system-field labels.
+- [ ] QA-PROC-META-001 — Verify authenticated Vercel Preview and production at 1280 px and 1024 px, including process switching, long values, missing states, overflow, and console errors.

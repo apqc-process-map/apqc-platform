@@ -175,3 +175,13 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Viewer is read-only. Editor may create proposed records and revise only their own proposed/rejected records; Admin may manage and verify any relationship. Verified records require both description and evidence.
 - Supabase migrations 20261021000023 through 20261021000026 are applied. Admin insert/update and Viewer-denial probes passed inside rollback transactions; no test relationship persisted.
 - Vercel Preview QA passed for Admin create/edit rendering, metadata prefill, controlled-type filtering, Viewer control hiding, 1280/1024 px layout without horizontal overflow, and zero console errors. Editor browser QA remains unavailable because the approved account set contains no Editor.
+
+
+## Layered Process metadata card milestone — 2026-10-21
+
+- Selecting an enterprise process now drives an M-Files-inspired metadata card in the persistent right panel; Document metadata remains in the Document module.
+- The card exposes all currently modelled Process properties across classification/hierarchy, governance, Executive Summary, business flow, controlled lookups, APQC mappings, lifecycle and audit groups.
+- Empty properties remain visible with an explicit warning state. Overall completion and per-group missing counts make metadata gaps discoverable without entering edit mode.
+- Process Map now reads source code, allowed roles, all assignments, structured applicability, APQC mapping details, superseded version, lifecycle events, actors, and timestamps through the authenticated Supabase client and existing RLS.
+- No database migration, new dependency, custom metadata-field creation, or authorization change is required.
+- Local ESLint and TypeScript verification passed; authenticated Vercel Preview/production visual QA is pending delivery.
