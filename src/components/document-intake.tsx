@@ -5,6 +5,12 @@ import { createDocumentDraft, updateDocumentMetadata } from "@/app/actions";
 import { uploadPrivateDocumentFile, validateDocumentFile } from "@/lib/document-upload";
 
 type Option = { id:string; label:string; group?:string };
+type KnowledgeLevel = "must" | "should" | "none";
+const knowledgeGroups: { key: KnowledgeLevel; label: string; description: string; field: string }[] = [
+  { key:"must", label:"Phải biết", description:"Cần hiểu và tuân thủ để thực hiện trách nhiệm", field:"knowledge_must" },
+  { key:"should", label:"Nên biết / tham chiếu", description:"Hữu ích khi phối hợp hoặc phát sinh nghiệp vụ", field:"knowledge_should" },
+  { key:"none", label:"Không áp dụng", description:"Không thuộc phạm vi kiến thức cần thiết của chức danh", field:"knowledge_none" },
+];
 type Existing = {
   id:string; title_vi:string; title_en?:string|null; document_group:string; language:string;
   document_abstract?:string|null; change_summary:string; valid_from?:string|null; valid_until?:string|null;
@@ -14,7 +20,8 @@ type Existing = {
   risk_rating?:string|null; access_level?:string|null;
 };
 type Props = {
-  processes:Option[]; people:Option[]; approvers:Option[]; types:Option[];
+  processes:Option[]; people:Option[]; approvers:Option[]; types:Option[]; businessRoles:Option[];
+  canManageKnowledge:boolean; selectedKnowledge?:Record<string,KnowledgeLevel>;
   scopeOptions:Record<string,Option[]>; tags:Option[];
   existing?:Existing|null; primaryProcessId?:string|null; selectedScopes?:Record<string,string[]>; selectedTags?:string[];
 };
@@ -45,13 +52,17 @@ function DateField({name,label,value}:{name:string;label:string;value?:string|nu
   return <label>{label}<input name={name} type="date" defaultValue={value||""}/></label>;
 }
 export default function DocumentIntake({
-  processes,people,approvers,types,scopeOptions,tags,existing,primaryProcessId,
-  selectedScopes={},selectedTags=[]
+  processes,people,approvers,types,businessRoles,canManageKnowledge,selectedKnowledge={},
+  scopeOptions,tags,existing,primaryProcessId,selectedScopes={},selectedTags=[]
 }:Props){
   const editing=!!existing;
   const router=useRouter();
   const [uploading,setUploading]=useState(false);
   const [error,setError]=useState("");
+  const [typeId,setTypeId]=useState(existing?.document_type_value_id||"");
+  const [knowledge,setKnowledge]=useState<Record<string,KnowledgeLevel>>(selectedKnowledge);
+  const derivedGroup=types.find(type=>type.id===typeId)?.group;
+  const groupLabel=groups.find(([code])=>code===(derivedGroup||existing?.document_group?.toLowerCase()||"other"))?.[1]||"Chưa phân loại";
   async function handleCreate(event:FormEvent<HTMLFormElement>){
     event.preventDefault();
     if(uploading)return;
@@ -100,13 +111,15 @@ export default function DocumentIntake({
             <input name="file" type="file" accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg"/>
             <small>PDF, Word, Excel, PowerPoint hoặc ảnh · tối đa 25 MB · lưu riêng tư</small>
           </label>}
-          <label>Loại tài liệu<select name="document_type_value_id" defaultValue={existing?.document_type_value_id||""}>
+          <label>Loại tài liệu<select name="document_type_value_id" value={typeId} onChange={event=>setTypeId(event.target.value)}>
             <option value="">— Chưa phân loại —</option>
             {groups.map(([code,label])=><optgroup key={code} label={label}>{types.filter(item=>item.group===code).map(item=><option value={item.id} key={item.id}>{item.label}</option>)}</optgroup>)}
           </select></label>
-          <label>Nhóm tài liệu<select name="document_group" defaultValue={existing?.document_group?.toLowerCase()||"other"}>
-            {groups.map(([code,label])=><option key={code} value={code}>{label}</option>)}
-          </select><small>Nếu chọn Loại, nhóm sẽ được xác định theo loại.</small></label>
+          <div className="document-scope-group" aria-live="polite">
+            <strong>Nhóm tài liệu (tự động)</strong>
+            <span>{groupLabel}</span>
+            <small>Nhóm được xác định theo loại; không cần nhập lần hai.</small>
+          </div>
           <label>Tên tiếng Anh<input name="title_en" maxLength={255} defaultValue={existing?.title_en||""}/></label>
           <label>Ngôn ngữ<select name="language" defaultValue={existing?.language||"vi"}>
             <option value="vi">Tiếng Việt</option><option value="en">Tiếng Anh</option><option value="vi-en">Song ngữ</option>
@@ -158,6 +171,36 @@ export default function DocumentIntake({
             {accessLevels.map(([value,label])=><option key={value} value={value}>{label}</option>)}
           </select><small>Quyền xem bản nháp phụ thuộc vai trò; Viewer chỉ xem bản hiệu lực.</small></label>
         </div>
+      </details>
+      <details className="document-meta-block" open={editing}>
+        <summary>Đối tượng cần biết <small>· theo chức danh · không bắt buộc</small></summary>
+        <p>Chọn nhiều chức danh cho từng nhóm. Mỗi chức danh chỉ thuộc một nhóm của cùng tài liệu; chưa chọn nghĩa là chưa xác định.</p>
+        {!canManageKnowledge&&<p>Chỉ Admin được xác nhận phân loại kiến thức theo chức danh. Các trường dưới đây chỉ để xem.</p>}
+        <div className="document-meta-grid">
+          {knowledgeGroups.map(group=><div className="document-meta-wide document-scope-group" key={group.key}>
+            <strong>{group.label} · {businessRoles.filter(role=>knowledge[role.id]===group.key).length} chức danh</strong>
+            <small>{group.description}</small>
+            <div className="document-meta-choice-group">
+              {businessRoles.map(role=><label key={role.id} className="document-meta-choice">
+                <input type="checkbox" name={canManageKnowledge?group.field:undefined} value={role.id}
+                  checked={knowledge[role.id]===group.key} disabled={!canManageKnowledge}
+                  onChange={event=>setKnowledge(current=>{
+                    const next={...current};
+                    if(event.target.checked)next[role.id]=group.key;
+                    else if(next[role.id]===group.key)delete next[role.id];
+                    return next;
+                  })}/>
+                <span>{role.label}</span>
+              </label>)}
+            </div>
+          </div>)}
+          <div className="document-meta-wide document-scope-group">
+            <strong>Chưa xác định · {businessRoles.filter(role=>!knowledge[role.id]).length} chức danh</strong>
+            <small>Không đồng nghĩa với "Không áp dụng". Chỉ những chức danh đã được phân loại mới được ghi nhận.</small>
+            <span>{businessRoles.filter(role=>!knowledge[role.id]).map(role=>role.label).join(", ")||"Đã phân loại tất cả chức danh."}</span>
+          </div>
+        </div>
+        <small>Phân loại kiến thức không tự cấp quyền xem tài liệu và không tự tạo yêu cầu xác nhận đã đọc.</small>
       </details>
       <details className="document-meta-block" open={editing}>
         <summary>Hiệu lực, kiểm soát & lưu trữ <small>· không bắt buộc</small></summary>
