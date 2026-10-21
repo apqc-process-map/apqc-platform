@@ -353,7 +353,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE FIND-012 Document-first 06 workspace, with manual overlap, duplication, version/effective-date and relationship conflict types and multiple version-linked evidence records.
 - [x] DONE FIND-013 Require explicit action decision with justification for no-action disposition.
 - [x] DONE FIND-014 Create action tracker with assignee, due date, status, progress, blockers, completion evidence and database closure guards.
-- [x] DONE FIND-015 Preserve legacy general findings via separate all-findings filter; document-centric navigation now primary.
+- [x] DONE FIND-015 Preserve legacy general finding records in the database **without** an all-findings/single-document switch on tab 06.
 - [~] PARTIAL QA-FIND-01 Preview TypeScript/build and transactional Supabase workflow tested; authenticated end-to-end browser interactions and attachment evidence input require user-session QA.
 - [ ] BLOCKED FIND-011 AI extraction, automatic duplicate and conflict detection requires policy approval and representative file samples; not launched.
 
@@ -362,4 +362,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE FIND-016 Restrict tab 06 to findings with at least two distinct documents; remove legacy/general findings view from this tab without deleting its records.
 - [x] DONE FIND-017 Enforce two distinct document identities in the create-finding action, for every issue type including Other.
 - [x] DONE FIND-018 Prevent closing a document finding without two different linked documents at the database gate.
-- [x] DONE DEMO-FIND-01 Reuse 8 existing cross-document DEMO findings and 16 demo metadata document records mapped to enterprise processes; do not duplicate seed.
+- [x] DONE DEMO-FIND-01 Verify and reuse **8 cross-document DEMO findings**, **16** draft metadata-only demo documents, **16** fictional version excerpts, and **10** actions mapped to the existing 10 enterprise processes; no duplicate seeding.
+- [x] DONE QA-FIND-02 Supabase rolled-back test: closure rejects v1/v2 of the same document, accepts evidence from two different documents; all eight seeded examples satisfy the rule.
+- [x] DONE QA-FIND-03 Vercel preview and production build/type-check passed for PR #46 (commit `eca17a0`).
+- [~] PARTIAL QA-FIND-04 Full authenticated browser create/edit/action-progress/close workflow and role-specific Editor QA remain outstanding; no real-file conflict detection has been tested.
