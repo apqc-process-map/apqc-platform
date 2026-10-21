@@ -419,3 +419,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [ ] DOC-COPY-QA-001 — Authenticated browser test: create, select all groups/types, change type, save/reopen, check group display/spacing on desktop/mobile.
 - [ ] DOC-COPY-QA-002 — Cross-check card and filter results, all lifecycle labels, document comparisons, and file attachment upload on Vercel Production.
 - [ ] DOC-COPY-QA-003 — Check keyboard/focus/contrast and narrow layouts; run Admin and Viewer sessions (and Editor when an account is available).
+
+### 2026-10-21 — Deployment blocked by Vercel daily quota
+
+- [x] DOC-COPY-007 — GitHub PR #52 merged into main, commit `ad9ee0207ee9d46fc6b687e632e971b27a7d691e`; Supabase 23 types / 7 groups / 20 versions / 0 broken type links verified.
+- [ ] DOC-COPY-DEPLOY-001 — Remove or resolve Vercel deployment quota blocker (HTTP 402 `api-deployments-free-per-day`, CI context Vercel=FAILURE due to `build-rate-limit`). Trigger/retry production build of main commit `ad9ee020...` and verify READY plus alias.
+- [ ] DOC-COPY-DEPLOY-002 — Verify Next.js build/TypeScript for the final main commit; earlier READY previews covered only earlier intermediate commits.
+- [ ] DOC-COPY-QA-004 — Finish signed-in Production UI/visual workflows once deployment is actually READY.
