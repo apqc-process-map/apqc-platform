@@ -334,4 +334,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 
 - [x] REL-UX-005 — Replace rigid filled arrowheads with rounded connectors, hollow source points, open target chevrons, and softened rail junctions.
 - [x] REL-UX-006 — Preserve the source-to-target endpoint grammar for inbound, outbound, hover/focus, and laptop reflow states.
-- [ ] QA-REL-003 — Verify endpoint direction, connector/card alignment, focus state, overflow, and console output on Vercel Preview at 1024 px and 1280 px.
+- [x] QA-REL-003 — Vercel Preview verified endpoint direction, connector/card alignment, 2 px rounded strokes, hollow source points, open target chevrons, 1024 px compact reflow without horizontal overflow, center switching/drill-down, and zero console errors.
