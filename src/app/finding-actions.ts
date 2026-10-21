@@ -125,9 +125,15 @@ export async function updateFindingAction(formData:FormData){
   const {supabase,user,profile}=await session();
   const findingId=textField(formData,"finding_id",80,true);
   const id=textField(formData,"action_id",80,true);
-  const {data:actionTarget}=await supabase.from("finding_actions").select("id,assignee_id").eq("id",id).eq("finding_id",findingId).maybeSingle();
-  if(!actionTarget)throw new Error("Không tìm thấy action.");
-  if(actionTarget.assignee_id!==user.id)await allowedManager(supabase,user.id,profile.role,findingId);
+  const {data:action,error:actionError}=await supabase.from("finding_actions")
+    .select("id,assignee_id,created_by,due_at").eq("id",id).eq("finding_id",findingId).maybeSingle();
+  if(actionError||!action)throw new Error("Không tìm thấy action.");
+  const {data:finding,error:findingError}=await supabase.from("findings")
+    .select("id,created_by,assignee_id,finding_domain").eq("id",findingId).maybeSingle();
+  if(findingError||!finding||finding.finding_domain!=="document")throw new Error("Finding không hợp lệ.");
+  const isManager=profile.role==="admin"||finding.created_by===user.id||finding.assignee_id===user.id;
+  const isWorker=action.assignee_id===user.id||action.created_by===user.id;
+  if(!isManager&&!isWorker)throw new Error("Bạn không được giao thực hiện action này.");
   const status=textField(formData,"status",30,true);
   if(!["todo","in_progress","blocked","done","cancelled"].includes(status))throw new Error("Trạng thái action không hợp lệ.");
   const progress=Number(formData.get("progress_percent")||0);
@@ -136,18 +142,15 @@ export async function updateFindingAction(formData:FormData){
   const completion_evidence=textField(formData,"completion_evidence",3000)||null;
   if(status==="blocked"&&!last_update)throw new Error("Action bị vướng mắc cần mô tả nguyên nhân.");
   if(status==="done"&&!completion_evidence)throw new Error("Action hoàn thành cần có kết quả hoặc dẫn chứng.");
-  const due_at=dateField(formData,"due_at");
-  const assignee_id=await validateAssignee(supabase,textField(formData,"assignee_id",80));
-  const {data:existing}=await supabase.from("finding_actions").select("id,assignee_id,created_by").eq("id",id).eq("finding_id",findingId).maybeSingle();
-  if(!existing)throw new Error("Action không còn tồn tại.");
-  if(profile.role!=="admin"&&existing.assignee_id!==user.id&&existing.created_by!==user.id){
-    const {data:f}=await supabase.from("findings").select("created_by,assignee_id").eq("id",findingId).single();
-    if(f?.created_by!==user.id&&f?.assignee_id!==user.id)throw new Error("Bạn không được giao cập nhật action này.");
+  const patch:{
+    status:string;progress_percent:number;last_update:string|null;completion_evidence:string|null;
+    due_at?:string|null;assignee_id?:string|null
+  }={status,progress_percent:status==="done"?100:progress,last_update,completion_evidence};
+  if(isManager){
+    patch.due_at=dateField(formData,"due_at");
+    patch.assignee_id=await validateAssignee(supabase,textField(formData,"assignee_id",80));
   }
-  const {error}=await supabase.from("finding_actions").update({
-    status,progress_percent:status==="done"?100:progress,last_update,completion_evidence,
-    due_at,assignee_id
-  }).eq("id",id).eq("finding_id",findingId);
+  const {error}=await supabase.from("finding_actions").update(patch).eq("id",id).eq("finding_id",findingId);
   if(error)throw new Error(error.message);
   refresh(findingId);
 }
