@@ -407,3 +407,15 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [ ] DOC-KNOW-QA-002 — Check Tab 05 and Document cards after actual role edits, including restricted document placeholders.
 - [ ] DOC-KNOW-QA-003 — Confirm Viewer cannot mutate; Editor sees the role groups read-only; knowledge classifications do not create user reading/notification assignments.
 - [ ] DOC-KNOW-QA-004 — Real signed-in Production browser smoke test; successful deployment/build alone does not prove E2E correctness.
+
+## 2026-10-21 — Tab 02 document terminology and presentation QA
+
+- [x] DOC-COPY-001 — Audit 23 controlled document type labels and seven groups; eliminate duplicate synonyms and unclear combined captions.
+- [x] DOC-COPY-002 — Apply in-place migration of nine `document_type` Vietnamese labels while preserving UUID/code/group mappings and existing version links.
+- [x] DOC-COPY-003 — Fix read-only derived group display spacing/line breaks for all viewports; clarify the no-type state.
+- [x] DOC-COPY-004 — Centralize Vietnamese group/lifecycle/access/risk/language label mapping and date formatting; use in Document filters, cards and version comparison.
+- [x] DOC-COPY-005 — Translate file upload form and remaining mixed-language metadata captions; keep independent scope/audience/access semantics distinct.
+- [x] DOC-COPY-006 — Fix case-sensitive group filtering to include existing mixed-case `document_group` codes.
+- [ ] DOC-COPY-QA-001 — Authenticated browser test: create, select all groups/types, change type, save/reopen, check group display/spacing on desktop/mobile.
+- [ ] DOC-COPY-QA-002 — Cross-check card and filter results, all lifecycle labels, document comparisons, and file attachment upload on Vercel Production.
+- [ ] DOC-COPY-QA-003 — Check keyboard/focus/contrast and narrow layouts; run Admin and Viewer sessions (and Editor when an account is available).

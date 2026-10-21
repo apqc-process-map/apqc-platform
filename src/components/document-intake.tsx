@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createDocumentDraft, updateDocumentMetadata } from "@/app/actions";
 import { uploadPrivateDocumentFile, validateDocumentFile } from "@/lib/document-upload";
+import { documentGroupOptions, documentLanguageOptions, documentRiskOptions, documentOptionLabel } from "@/lib/document-display";
 
 type Option = { id:string; label:string; group?:string };
 type KnowledgeLevel = "must" | "should" | "none";
@@ -25,22 +26,14 @@ type Props = {
   scopeOptions:Record<string,Option[]>; tags:Option[];
   existing?:Existing|null; primaryProcessId?:string|null; selectedScopes?:Record<string,string[]>; selectedTags?:string[];
 };
-const groups=[
-  ["governance","Quản trị / chính sách"],
-  ["execution","Quy trình / thực thi"],
-  ["communication","Truyền thông / hướng dẫn"],
-  ["evidence","Hồ sơ / bằng chứng"],
-  ["planning","Kế hoạch / dự án"],
-  ["external","Pháp lý / tài liệu ngoài"],
-  ["other","Khác"]
-];
+const groups=documentGroupOptions;
 const dimensions=[
   ["legal_entity","Đơn vị pháp nhân"],
   ["department","Phòng ban / khối áp dụng"],
   ["location","Địa bàn / khu vực"],
   ["channel","Kênh hoạt động"],
   ["product_service","Sản phẩm / dịch vụ"],
-  ["employee_audience","Đối tượng nhân viên"]
+  ["employee_audience","Nhóm nhân viên áp dụng"]
 ];
 const accessLevels=[
   ["internal","Nội bộ · tất cả vai trò"],
@@ -62,7 +55,14 @@ export default function DocumentIntake({
   const [typeId,setTypeId]=useState(existing?.document_type_value_id||"");
   const [knowledge,setKnowledge]=useState<Record<string,KnowledgeLevel>>(selectedKnowledge);
   const derivedGroup=types.find(type=>type.id===typeId)?.group;
-  const groupLabel=groups.find(([code])=>code===(derivedGroup||existing?.document_group?.toLowerCase()||"other"))?.[1]||"Chưa phân loại";
+  const groupLabel=typeId
+    ? documentOptionLabel(groups,derivedGroup,"Chưa xác định")
+    : existing?.document_group
+      ? documentOptionLabel(groups,existing.document_group)
+      : "Chưa phân loại";
+  const groupHint=typeId ? "Tự xác định theo loại tài liệu đã chọn."
+    : existing?.document_group ? "Nhóm đã lưu trước đây; chọn loại để xác định nhóm chuẩn."
+    : "Chọn loại tài liệu để hệ thống tự xác định nhóm.";
   async function handleCreate(event:FormEvent<HTMLFormElement>){
     event.preventDefault();
     if(uploading)return;
@@ -95,10 +95,10 @@ export default function DocumentIntake({
   }
   return <section className="data-panel document-admin-panel" id={editing?"document-edit":"document-create"}>
     <div className="data-panel-heading"><div>
-      <p className="section-kicker">DOCUMENT INTAKE</p>
-      <h2>{editing?"Bổ sung / sửa metadata tài liệu":"Tạo & upload tài liệu mới"}</h2>
-      <p>Chỉ cần tên hoặc file để lưu bản nháp. Mọi metadata còn lại đều tùy chọn, có thể bổ sung sau.</p>
-    </div><span className="count-chip">{editing?"EDIT DRAFT":"PRIVATE STORAGE"}</span></div>
+      <p className="section-kicker">{editing?"CHỈNH SỬA TÀI LIỆU":"THÊM TÀI LIỆU"}</p>
+      <h2>{editing?"Chỉnh sửa thông tin tài liệu":"Thêm tài liệu mới"}</h2>
+      <p>Nhập tên hoặc chọn tệp để tạo bản nháp. Các thông tin khác có thể bổ sung sau.</p>
+    </div><span className="count-chip">{editing?"BẢN NHÁP":"LƯU TRỮ NỘI BỘ"}</span></div>
     <form action={editing?updateDocumentMetadata:undefined} onSubmit={editing?undefined:handleCreate} className="document-intake-form">
       {editing&&<input type="hidden" name="document_version_id" value={existing.id}/>}
       <div className="document-meta-block">
@@ -111,33 +111,35 @@ export default function DocumentIntake({
             <input name="file" type="file" accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg"/>
             <small>PDF, Word, Excel, PowerPoint hoặc ảnh · tối đa 25 MB · lưu riêng tư</small>
           </label>}
-          <label>Loại tài liệu<select name="document_type_value_id" value={typeId} onChange={event=>setTypeId(event.target.value)}>
-            <option value="">— Chưa phân loại —</option>
-            {groups.map(([code,label])=><optgroup key={code} label={label}>{types.filter(item=>item.group===code).map(item=><option value={item.id} key={item.id}>{item.label}</option>)}</optgroup>)}
-          </select></label>
-          <div className="document-scope-group" aria-live="polite">
-            <strong>Nhóm tài liệu (tự động)</strong>
-            <span>{groupLabel}</span>
-            <small>Nhóm được xác định theo loại; không cần nhập lần hai.</small>
+          <label>Loại tài liệu
+            <select name="document_type_value_id" value={typeId} onChange={event=>setTypeId(event.target.value)}>
+              <option value="">— Chưa chọn loại —</option>
+              {groups.map(group=><optgroup key={group.value} label={group.label}>{types.filter(item=>item.group===group.value).map(item=><option value={item.id} key={item.id}>{item.label}</option>)}</optgroup>)}
+            </select>
+          </label>
+          <div className="document-derived-group" role="status" aria-live="polite">
+            <span className="document-derived-label">Nhóm tài liệu <span className="document-derived-automatic">(tự động)</span></span>
+            <output className="document-derived-value">{groupLabel}</output>
+            <small>{groupHint}</small>
           </div>
-          <label>Tên tiếng Anh<input name="title_en" maxLength={255} defaultValue={existing?.title_en||""}/></label>
+          <label>Tên tài liệu (tiếng Anh)<input name="title_en" maxLength={255} defaultValue={existing?.title_en||""}/></label>
           <label>Ngôn ngữ<select name="language" defaultValue={existing?.language||"vi"}>
-            <option value="vi">Tiếng Việt</option><option value="en">Tiếng Anh</option><option value="vi-en">Song ngữ</option>
+            {documentLanguageOptions.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}
           </select></label>
           <label className="document-meta-wide">Tóm tắt nội dung<textarea name="document_abstract" rows={2} maxLength={3000} defaultValue={existing?.document_abstract||""} placeholder="Mục đích, nội dung chính và giá trị sử dụng"/></label>
           <label className="document-meta-wide">Từ khóa<input name="keywords" maxLength={1000} defaultValue={existing?.keywords||""} placeholder="Ví dụ: bán hàng, cửa hàng, kiểm kê"/></label>
         </div>
       </div>
       <details className="document-meta-block" open={editing}>
-        <summary>Phân loại & phạm vi áp dụng <small>· không bắt buộc</small></summary>
+        <summary>Phạm vi áp dụng & liên kết quy trình <small>· không bắt buộc</small></summary>
         <div className="document-meta-grid">
-          <label className="document-meta-wide">Quy trình liên quan (chính)
+          <label className="document-meta-wide">Quy trình liên quan chính
             <select name="process_id" defaultValue={primaryProcessId||""}>
               <option value="">— Có thể bổ sung sau —</option>
               {processes.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}
             </select>
           </label>
-          <label className="document-meta-wide">Mô tả phạm vi / ngoại lệ<textarea name="applicability_note" rows={2} maxLength={2000} defaultValue={existing?.applicability_note||""} placeholder="Đối tượng áp dụng, phạm vi, những trường hợp không áp dụng"/></label>
+          <label className="document-meta-wide">Phạm vi và trường hợp ngoại lệ<textarea name="applicability_note" rows={2} maxLength={2000} defaultValue={existing?.applicability_note||""} placeholder="Nêu rõ nơi áp dụng và các trường hợp không áp dụng"/></label>
           {dimensions.map(([dimension,label])=><div key={dimension} className="document-scope-group">
             <strong>{label}</strong>
             <div className="document-meta-choice-group">
@@ -163,11 +165,11 @@ export default function DocumentIntake({
           <label>Chủ sở hữu tài liệu<select name="owner_id" defaultValue={existing?.owner_id||""}>
             <option value="">— Chưa chọn —</option>{people.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}
           </select></label>
-          <label>Người dự kiến phê duyệt<select name="designated_approver_id" defaultValue={existing?.designated_approver_id||""}>
+          <label>Người phê duyệt dự kiến<select name="designated_approver_id" defaultValue={existing?.designated_approver_id||""}>
             <option value="">— Chưa chọn —</option>{approvers.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}
           </select><small>Người này chỉ được ghi nhận dự kiến, chưa thực hiện phê duyệt.</small></label>
           <label>Đơn vị ban hành<input name="issuing_department" maxLength={255} defaultValue={existing?.issuing_department||""} placeholder="Ví dụ: Khối Bán lẻ"/></label>
-          <label>Mức truy cập<select name="access_level" defaultValue={existing?.access_level||"internal"}>
+          <label>Mức độ truy cập<select name="access_level" defaultValue={existing?.access_level||"internal"}>
             {accessLevels.map(([value,label])=><option key={value} value={value}>{label}</option>)}
           </select><small>Quyền xem bản nháp phụ thuộc vai trò; Viewer chỉ xem bản hiệu lực.</small></label>
         </div>
@@ -203,20 +205,19 @@ export default function DocumentIntake({
         <small>Phân loại kiến thức không tự cấp quyền xem tài liệu và không tự tạo yêu cầu xác nhận đã đọc.</small>
       </details>
       <details className="document-meta-block" open={editing}>
-        <summary>Hiệu lực, kiểm soát & lưu trữ <small>· không bắt buộc</small></summary>
+        <summary>Hiệu lực, rà soát & lưu trữ <small>· không bắt buộc</small></summary>
         <div className="document-meta-grid">
           <DateField name="valid_from" label="Ngày bắt đầu hiệu lực" value={existing?.valid_from}/>
           <DateField name="valid_until" label="Ngày hết hiệu lực" value={existing?.valid_until}/>
           <DateField name="review_due_at" label="Ngày rà soát tiếp theo" value={existing?.review_due_at}/>
           <label>Mức độ rủi ro<select name="risk_rating" defaultValue={existing?.risk_rating||""}>
             <option value="">— Chưa đánh giá —</option>
-            <option value="low">Thấp</option><option value="medium">Trung bình</option>
-            <option value="high">Cao</option><option value="critical">Trọng yếu</option>
+            {documentRiskOptions.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}
           </select></label>
-          <label className="document-meta-wide">Căn cứ ban hành / tài liệu pháp lý liên quan
+          <label className="document-meta-wide">Căn cứ ban hành
             <textarea name="legal_reference" rows={2} maxLength={1500} defaultValue={existing?.legal_reference||""}/>
           </label>
-          <label className="document-meta-wide">Lưu trữ / thời hạn lưu trữ
+          <label className="document-meta-wide">Quy định lưu trữ
             <textarea name="retention_note" rows={2} maxLength={1500} defaultValue={existing?.retention_note||""}/>
           </label>
           <label className="document-meta-wide">Ghi chú thay đổi
@@ -226,7 +227,7 @@ export default function DocumentIntake({
       </details>
       {error&&<p role="alert" className="document-intake-error">{error}</p>}
       <div className="document-intake-footer">
-        <button type="submit" className="primary-button" disabled={uploading}>{uploading?"Đang lưu & upload…":editing?"Lưu metadata":"Tạo bản nháp & upload"}</button>
+        <button type="submit" className="primary-button" disabled={uploading}>{uploading?"Đang lưu và tải tệp…":editing?"Lưu thông tin":"Tạo bản nháp"}</button>
         {editing&&<a className="text-button" href="/documents">Hủy chỉnh sửa</a>}
         <small>Hệ thống tự ghi mã, phiên bản, người tạo, dung lượng và mã kiểm tra file. Không tự xuất bản.</small>
       </div>

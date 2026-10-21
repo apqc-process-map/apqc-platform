@@ -320,6 +320,13 @@ Relationships represent current state in the MVP. Temporal history is deferred.
 - **Consumption**: Tab 05 `/role-knowledge` and Tab 02 library cards use verified classification. It does **not** change document/Storage permissions, issue individual `reading_assignments`, send notifications, or set `reading_acknowledgments`.
 - **Migration**: `supabase/migrations/20261021000034_document_knowledge_audience.sql` applied to the current APQC project.
 
+### Controlled document type naming and derived group (2026-10-21)
+
+- Migration `supabase/migrations/20261021000035_normalize_document_type_labels.sql` updates nine `vocabulary_values.label_vi` descriptions under the `document_type` vocabulary; it preserves all 23 rows' UUIDs, `code`, `document_group_code`, active flags, order, and existing foreign-key links.
+- The UI maps stable group codes to human-readable labels through `src/lib/document-display.ts`; it maps stable status, access, language and risk enum codes to Vietnamese text without writing translated values to persisted enum fields.
+- `document_versions.document_group` can include legacy mixed-case group codes. The Document group filter uses case-insensitive `.ilike()` to match those saved values. A group is derived from the selected type on document editing; a draft with no type retains its preexisting group value. New untyped drafts remain stored as `other` and the intake display says `Chưa phân loại` until a type is chosen.
+- Date columns remain ISO dates in PostgreSQL. Document cards and comparison render DD/MM/YYYY without altering stored values.
+
 ### `process_business_object_flows`
 
 Optional specialized table if graph/query ergonomics require it; otherwise represent through `object_relationships`.
