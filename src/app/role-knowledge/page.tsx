@@ -1,3 +1,4 @@
+import Form from "next/form";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { requireActiveAccount } from "@/lib/auth";
@@ -41,7 +42,7 @@ export default async function RoleKnowledgePage({ searchParams }: { searchParams
   </section>;
 
   return <WorkspaceShell active="/role-knowledge" eyebrow="KNOWLEDGE VIEW" title="Vai trò của tôi" description="Chọn một chức danh để xem những tài liệu bắt buộc phải biết và tài liệu nên tham chiếu." userName={profile.display_name} role={profile.role}>
-    <form className="role-knowledge-filter"><label>Chức danh<select name="role" defaultValue={selectedRole?.id || ""}>{roles.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><button type="submit">Xem vai trò</button></form>
+    <Form action="/role-knowledge" scroll={false} className="role-knowledge-filter"><label>Chức danh<select name="role" defaultValue={selectedRole?.id || ""}>{roles.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><button type="submit">Xem vai trò</button></Form>
     {loadError ? <div className="state-message error-state"><strong>Không thể tải knowledge profile</strong><span>{loadError.message}</span></div> : selectedRole ? <>
       <section className="role-profile-summary"><div><span className="section-kicker">ROLE KNOWLEDGE PROFILE</span><h2>{selectedRole.name}</h2><p>{selectedRole.description || "Chưa có mô tả vai trò."}</p></div><div className="role-profile-counts"><span><b>{must.length}</b>Bắt buộc</span><span><b>{should.length}</b>Nên biết</span></div></section>
       <div className="knowledge-grid">{bucket("Bắt buộc phải biết", "Tài liệu cốt lõi phục vụ trách nhiệm của chức danh.", must, "must")}{bucket("Nên biết / tham chiếu", "Tài liệu hỗ trợ, dùng khi nghiệp vụ phát sinh.", should, "should")}</div>
