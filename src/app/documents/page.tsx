@@ -1,3 +1,4 @@
+import Form from "next/form";
 import WorkspaceShell from "@/components/workspace-shell";
 import DocumentIntake from "@/components/document-intake";
 import DocumentFileUploader from "@/components/document-file-uploader";
@@ -118,7 +119,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
     {canEdit && <DocumentIntake processes={availableProcesses} people={availablePeople} approvers={availableApprovers} types={availableTypes} scopeOptions={availableScopeOptions} tags={availableTags} existing={editingDocument} primaryProcessId={editingDocument?primaryProcessId:null} selectedScopes={editingDocument?currentScope:{}} selectedTags={editingDocument?currentTags:[]}/>}
     <section className="reading-panel" aria-labelledby="required-reading-title">
       <div className="document-library-controls-heading"><div><p className="section-kicker">DÀNH CHO TÔI</p><h2 id="required-reading-title">Tài liệu cần đọc của tôi</h2><p className="reading-panel-intro">Danh sách được giao trực tiếp cho tài khoản của bạn. Ưu tiên tài liệu quá hạn và chưa xác nhận.</p></div><span className="count-chip">{readingItems.length} tài liệu</span></div>
-      <form className="reading-filter-form"><label>Tìm trong tài liệu được giao<input name="read_q" defaultValue={read_q} placeholder="Mã, tên, từ khóa, đơn vị ban hành…" /></label><label>Trạng thái<select name="read_status" defaultValue={read_status}><option value="pending">Chưa xác nhận</option><option value="overdue">Quá hạn</option><option value="completed">Đã xác nhận</option><option value="required">Tất cả bắt buộc đọc</option><option value="all">Tất cả được giao</option></select></label><button type="submit">Lọc danh sách</button><a className="text-button" href="/documents?read_status=all">Xóa bộ lọc</a></form>
+      <Form action="/documents" scroll={false} className="reading-filter-form"><label>Tìm trong tài liệu được giao<input name="read_q" defaultValue={read_q} placeholder="Mã, tên, từ khóa, đơn vị ban hành…" /></label><label>Trạng thái<select name="read_status" defaultValue={read_status}><option value="pending">Chưa xác nhận</option><option value="overdue">Quá hạn</option><option value="completed">Đã xác nhận</option><option value="required">Tất cả bắt buộc đọc</option><option value="all">Tất cả được giao</option></select></label><button type="submit">Lọc danh sách</button><a className="text-button" href="/documents?read_status=all">Xóa bộ lọc</a></Form>
       {!readingItems.length?<div className="reading-empty"><strong>Không có tài liệu phù hợp.</strong><span>{assignments.length?"Hãy thử đổi từ khóa hoặc trạng thái lọc.":"Hiện chưa có tài liệu nào được giao cho tài khoản của bạn."}</span></div>:<div className="reading-list">{readingItems.map(({assignment,version})=>{if(!version)return null;const acknowledgedAt=assignment.reading_acknowledgments?.[0]?.acknowledged_at;const overdue=!acknowledgedAt&&Boolean(assignment.due_at)&&new Date(assignment.due_at as string).getTime()<now;const firstFile=version.document_files?.[0];return <article key={assignment.id} className={overdue?"overdue":""}><div><span className="mono-code">{version.documents?.document_code||"—"} · v{version.version_number}</span><h3>{version.title_vi}</h3><p>{version.document_abstract||"Chưa có tóm tắt."}</p><div className="reading-metadata"><span>{assignment.required?"Bắt buộc đọc":"Tham khảo"}</span>{version.vocabulary_values?.label_vi&&<span>Loại: {version.vocabulary_values.label_vi}</span>}{version.issuing_department&&<span>Ban hành: {version.issuing_department}</span>}{version.valid_from&&<span>Hiệu lực: {version.valid_from}</span>}<span>Giao ngày: {new Date(assignment.assigned_at).toLocaleDateString("vi-VN")}</span><span>Hạn đọc: {assignment.due_at?new Date(assignment.due_at).toLocaleDateString("vi-VN"):"Không đặt hạn"}</span></div></div><div className="reading-actions"><span className={`reading-status ${acknowledgedAt?"done":overdue?"late":"pending"}`}>{acknowledgedAt?`Đã xác nhận ${new Date(acknowledgedAt).toLocaleDateString("vi-VN")}`:overdue?"Quá hạn":"Chưa xác nhận"}</span>{firstFile?<a className="text-button" href={firstFile.mime_type==="application/pdf"||firstFile.mime_type.startsWith("image/")?`/documents?preview=${firstFile.id}`:`/documents/files/${firstFile.id}`}>Mở tài liệu</a>:<span className="missing-file">Chưa có file</span>}{!acknowledgedAt&&<form action={acknowledgeReadingAssignment}><input type="hidden" name="assignment_id" value={assignment.id}/><button type="submit" className="primary-button">Xác nhận đã đọc</button></form>}</div></article>})}</div>}
     </section>
 
@@ -127,7 +128,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
         <div><p className="section-kicker">DOCUMENT LIBRARY</p><h2 id="document-library-filter-title">Tìm, lọc và sắp xếp</h2></div>
         <a className="text-button" href="/documents">Xóa bộ lọc</a>
       </div>
-      <form className="document-filter-form">
+      <Form action="/documents" scroll={false} className="document-filter-form">
         <label className="document-filter-search">Tìm kiếm
           <input name="q" defaultValue={q} placeholder="Tên, tóm tắt, từ khóa, đơn vị ban hành…" />
         </label>
@@ -140,7 +141,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
         <label>Chủ sở hữu<select name="owner" defaultValue={owner}><option value="all">Tất cả</option>{availablePeople.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
         <label>Sắp xếp<select name="sort" defaultValue={sort}>{sortOptions.map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <button type="submit">Áp dụng</button>
-      </form>
+      </Form>
     </section>
 
     {canEdit && (versions||[]).some(item=>["draft","rejected"].includes(item.status)) &&
