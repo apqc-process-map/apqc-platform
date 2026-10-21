@@ -480,10 +480,10 @@ Admin can adjust defaults; an individual due date can override the default.
 
 ### Document cross-reference findings (06 · Finding & Action)
 
-The primary 06 workspace is the **document conflict and overlap register**. Existing generic process findings remain accessible through a secondary all-findings view and are not migrated or deleted.
+The 06 workspace is exclusively the **cross-document conflict and overlap register**. Existing generic/single-document findings are retained in the database for historical integrity but are not listed on tab 06, even using URL filters.
 
 - Manual classification: exact duplication, semantic duplication, scope overlap, content/condition conflict, conflicting versions or effective dates, contradictory inter-document relationships, supersession candidate and other document issue.
-- A comparison finding must identify at least two concrete **document versions**; single-document exceptions are permitted only for the "other" type.
+- Every finding on tab 06 must compare **at least two distinct document identities**, each linked to a concrete document version. Two versions of the same document do not qualify. There is no one-document exception, including the "other" type.
 - Record precise evidence/clauses for each linked document version, impact on operations, severity, owner, due date and lifecycle stage. Never infer a confirmed conflict solely because two documents share a title or process.
 - Decide explicitly whether correction is required, with a reason when no action is necessary. Action-required findings can contain multiple separately assigned corrective actions.
 - Each corrective action records title, outcome, assignee, deadline, status (to do / in progress / blocked / done / cancelled), progress percentage, last update, and completion evidence. Blocked actions need an explanation; completed actions need a result/evidence.
