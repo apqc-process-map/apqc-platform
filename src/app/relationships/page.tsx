@@ -50,6 +50,7 @@ export default async function RelationshipsPage({
     roleResult,
     objectResult,
     findingResult,
+    relationshipResult,
   ] = await Promise.all([
     supabase.from("relationship_types").select("id,code,group_code,label_vi,inverse_label_vi,is_directed,allowed_source_types,allowed_target_types").eq("is_active", true).order("group_code"),
     supabase.from("processes").select("id,process_code,process_versions(name_vi,version_number)").is("archived_at", null),
@@ -60,14 +61,12 @@ export default async function RelationshipsPage({
     supabase.from("business_roles").select("id,code,name").eq("is_active", true),
     supabase.from("business_objects").select("id,code,name").eq("is_active", true),
     supabase.from("findings").select("id,finding_code,title"),
+    supabase.from("object_relationships")
+      .select("id,source_type,source_id,target_type,target_id,relationship_type_id,label,description,evidence_text,status,valid_from,valid_until,created_by,updated_at,relationship_types(code,group_code,label_vi,inverse_label_vi,is_directed)")
+      .order("updated_at", { ascending: false }).limit(200),
   ]);
 
   const types = (typeResult.data || []) as RelationshipTypeRow[];
-  const relationshipResult = await supabase
-    .from("object_relationships")
-    .select("id,source_type,source_id,target_type,target_id,relationship_type_id,label,description,evidence_text,status,valid_from,valid_until,created_by,updated_at,relationship_types(code,group_code,label_vi,inverse_label_vi,is_directed)")
-    .order("updated_at", { ascending: false })
-    .limit(200);
   const allRelationships = relationshipResult.data || [];
   const relationships = allRelationships.filter((item) => {
     const relationshipType = item.relationship_types as unknown as { group_code: string } | null;
