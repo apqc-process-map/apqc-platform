@@ -670,6 +670,9 @@ export async function saveRelationshipMetadata(formData: FormData) {
   const requestedStatus = String(formData.get("status") || "proposed");
   if (!relationshipStatuses.includes(requestedStatus as typeof relationshipStatuses[number])) throw new Error("Trạng thái không hợp lệ.");
   const status = profile.role === "admin" ? requestedStatus : "proposed";
+  if (status === "verified" && (!description || !evidenceText)) {
+    throw new Error("Quan hệ đã xác minh bắt buộc có mô tả nghiệp vụ và bằng chứng.");
+  }
 
   let duplicateQuery = supabase
     .from("object_relationships")
