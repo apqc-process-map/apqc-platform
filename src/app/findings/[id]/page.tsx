@@ -13,8 +13,10 @@ const reactionLabels: Record<string, string> = {
 };
 
 function eventDescription(event: { event_type: string; from_value: unknown; to_value: unknown }) {
-  const from = event.from_value as { status?: string; assignee_id?: string } | null;
-  const to = event.to_value as { status?: string; assignee_id?: string } | null;
+  const from = event.from_value as { status?: string; assignee_id?: string; progress?: number } | null;
+  const to = event.to_value as { status?: string; assignee_id?: string; progress?: number; title?: string; last_update?: string } | null;
+  if (event.event_type === "action_created") return `Tạo action${to?.title ? " «"+to.title+"»" : ""} với tiến độ ${to?.progress ?? 0}%.`;
+  if (event.event_type === "action_updated") return `Cập nhật action: ${from?.progress ?? 0}% → ${to?.progress ?? 0}%${to?.last_update ? " · "+to.last_update : ""}.`;
   if (event.event_type === "created") return `Tạo finding với trạng thái ${statusLabels[to?.status || ""] || to?.status || "mới"}.`;
   if (event.event_type === "status_changed") return `Chuyển từ ${statusLabels[from?.status || ""] || from?.status || "—"} sang ${statusLabels[to?.status || ""] || to?.status || "—"}.`;
   if (event.event_type === "assignment_changed") return "Thay đổi người phụ trách.";
