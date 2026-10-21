@@ -430,6 +430,29 @@ This is a scoped activity timeline even though a full platform audit trail is de
 
 Default due dates derive from severity: Critical 2 days, High 7, Medium 14, Low 30. Explicit due dates override defaults.
 
+
+### `finding_actions` (Document corrective-action tracker)
+
+- `id uuid` — primary key
+- `finding_id uuid` — linked finding with cascading removal
+- `action_title text`, optional `description text`
+- `assignee_id uuid nullable`, `due_at date nullable`
+- `status text` — `todo | in_progress | blocked | done | cancelled`
+- `progress_percent integer` — 0–100, 100 on completion
+- `last_update text nullable`, `completion_evidence text nullable`
+- `created_by uuid`, created/updated/completed timestamps
+- RLS: visible finding required for reads, Admin/Editor with finding-owner or action-owner authorization for writes
+
+Additional `findings` columns:
+
+- `finding_domain text` — `general | document` (legacy defaults to general).
+- `action_decision text` — `pending | required | not_required`.
+- `action_decision_reason text nullable` — required for `not_required`.
+- `impact_summary text nullable` — explicit operational implication.
+- `finding_links` associates multiple concrete `document_version` rows with per-version evidence.
+
+The document-finding closure gate is enforced by a database trigger, separately from the existing generic finding workflow. No automated document-content comparison is part of this model.
+
 ## 11. Notifications
 
 ### `notifications`

@@ -346,3 +346,13 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] SEC-REL-001 — Rollback-only database probes passed: Admin create/update is allowed with audit stamping; Viewer create/update is denied; no probe data persisted.
 - [x] QA-REL-004 — Vercel Preview passed Admin create/edit rendering, existing metadata prefill, Source/Target controlled-type filtering, Viewer read-only controls, 1280/1024 px overflow checks, and zero console errors.
 - [~] QA-REL-005 — Editor-specific browser flow remains unexecuted because the approved six-user account set contains no Editor profile; Editor RLS is implemented and policy-inspected.
+
+
+## 2026-10-21 — Document Findings & Action Tracker
+
+- [x] DONE FIND-012 Document-first 06 workspace, with manual overlap, duplication, version/effective-date and relationship conflict types and multiple version-linked evidence records.
+- [x] DONE FIND-013 Require explicit action decision with justification for no-action disposition.
+- [x] DONE FIND-014 Create action tracker with assignee, due date, status, progress, blockers, completion evidence and database closure guards.
+- [x] DONE FIND-015 Preserve legacy general findings via separate all-findings filter; document-centric navigation now primary.
+- [~] PARTIAL QA-FIND-01 Preview TypeScript/build and transactional Supabase workflow tested; authenticated end-to-end browser interactions and attachment evidence input require user-session QA.
+- [ ] BLOCKED FIND-011 AI extraction, automatic duplicate and conflict detection requires policy approval and representative file samples; not launched.
