@@ -114,7 +114,7 @@ BEGIN
       end loop;
       -- Process context: these are real process map records; conflicts remain purely hypothetical.
       insert into public.finding_links(finding_id,object_type,object_id,link_role,evidence_excerpt)
-      select distinct fl.finding_id,'process_version',pv.id,'evidence',
+      select distinct fl.finding_id,'process_version',pv.id,'evidence'::public.finding_link_role,
         '[DEMO] Bối cảnh quy trình: '||p.process_code||' – '||pv.name_vi||'; không xác nhận xung đột thực tế.'
       from public.finding_links fl
         join public.document_process_links l on l.document_version_id=fl.object_id
