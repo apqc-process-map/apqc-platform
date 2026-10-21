@@ -21,6 +21,8 @@ BEGIN
   select array_agg(id order by display_name) into admins from public.profiles where role='admin' and is_active=true;
   if coalesce(array_length(admins,1),0) < 3 then raise exception 'Need three active Admin accounts for demo assignments'; end if;
   owner_id := admins[1];
+  -- Existing audit trigger requires the actor in auth.uid() during status changes.
+  perform set_config('request.jwt.claim.sub',owner_id::text,true);
   if (select count(*) from public.processes where process_code between 'PROC-000011' and 'PROC-000020') <> 10 then
     raise exception 'Current 10 process catalog missing expected codes'; end if;
 
