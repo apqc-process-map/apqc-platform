@@ -1,3 +1,4 @@
+import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { markAllNotificationsRead, markNotificationRead } from "@/app/actions";
 import { requireActiveAccount } from "@/lib/auth";
@@ -20,7 +21,7 @@ export default async function NotificationsPage() {
         <div className="notification-actions"><span className="count-chip">{data?.length || 0} actions</span>{unreadCount > 0 ? <form action={markAllNotificationsRead}><button className="text-button" type="submit">Đánh dấu đã đọc hết</button></form> : null}</div>
       </div>
       {error ? <div className="state-message error-state"><strong>Không thể tải Action Log</strong><span>{error.message}</span></div> : !data?.length ? <div className="state-message"><strong>Chưa có action</strong><span>Các action từ review, reading assignment và findings sẽ xuất hiện tại đây.</span></div> : <div className="notification-list">{data.map((item) => <div className={`notification-row ${item.read_at ? "" : "unread"}`} key={item.id}>
-        <a href={item.deep_link || "#"} className="notification-link"><span className="notification-type">{item.type}</span><div><strong>{item.title}</strong><p>{item.body}</p><small>{new Date(item.created_at).toLocaleString("vi-VN")}</small></div></a>
+        {item.deep_link?.startsWith("/") && !item.deep_link.startsWith("//") ? <Link href={item.deep_link} className="notification-link"><span className="notification-type">{item.type}</span><div><strong>{item.title}</strong><p>{item.body}</p><small>{new Date(item.created_at).toLocaleString("vi-VN")}</small></div></Link> : <a href={item.deep_link || "#"} className="notification-link"><span className="notification-type">{item.type}</span><div><strong>{item.title}</strong><p>{item.body}</p><small>{new Date(item.created_at).toLocaleString("vi-VN")}</small></div></a>}
         {item.read_at ? <span className="notification-read-state">Đã đọc</span> : <form action={markNotificationRead}><input type="hidden" name="notification_id" value={item.id} /><button className="notification-read" type="submit">Đã đọc</button></form>}
       </div>)}</div>}
     </section>

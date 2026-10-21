@@ -1,3 +1,4 @@
+import Form from "next/form";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { createDocumentFinding } from "@/app/finding-actions";
@@ -37,7 +38,7 @@ export default async function FindingsPage({searchParams}:{
   if(assigned==="unassigned")query=query.is("assignee_id",null);
   const [findingsResult,allDocuments,typesResult,peopleResult] = await Promise.all([
     query,
-    canWrite ? supabase.from("document_versions").select("id,title_vi,version_number,documents(document_code)")
+    canWrite ? supabase.from("document_versions").select("id,document_id,title_vi,version_number,documents(document_code)")
       .order("updated_at",{ascending:false}).limit(200) : Promise.resolve({data:[],error:null}),
     supabase.from("vocabulary_values").select("id,code,label_vi,vocabularies!inner(code)")
       .eq("vocabularies.code","finding_type").eq("is_active",true).order("display_order"),
@@ -54,10 +55,15 @@ export default async function FindingsPage({searchParams}:{
   ]);
   const links=(linksResult.data||[]) as FindingLink[];
   const actions=(actionsResult.data||[]) as ActionRow[];
-  const relevantDocs=[...new Set(links.map(l=>l.object_id))];
-  const linkedDocuments=relevantDocs.length?await supabase.from("document_versions")
-    .select("id,document_id,title_vi,version_number,documents(document_code)").in("id",relevantDocs):{data:[]};
-  const docMap=new Map(((linkedDocuments.data||[]) as unknown as DocumentRow[]).map(doc=>[doc.id,doc]));
+  const docMap=new Map(((allDocuments.data||[]) as unknown as DocumentRow[]).map(doc=>[doc.id,doc]));
+  // The intake already loads recent versions; reuse them and fetch only missing
+  // older linked versions, avoiding a third sequential DB request for normal cases.
+  const missingDocs=[...new Set(links.map(l=>l.object_id))].filter(id=>!docMap.has(id));
+  if(missingDocs.length){
+    const moreDocs=await supabase.from("document_versions")
+      .select("id,document_id,title_vi,version_number,documents(document_code)").in("id",missingDocs);
+    for(const doc of (moreDocs.data||[]) as unknown as DocumentRow[])docMap.set(doc.id,doc);
+  }
   const types=(typesResult.data||[]) as {id:string;code:string;label_vi:string}[];
   const typeMap=new Map(types.map(t=>[t.id,t]));
   const people=(peopleResult.data||[]) as {id:string;display_name:string;role:string}[];
@@ -113,13 +119,13 @@ export default async function FindingsPage({searchParams}:{
     <div className="finding-view-row">
       <div><strong>Danh sách vấn đề giữa các tài liệu</strong><p>Chỉ hiển thị finding liên quan ít nhất 2 tài liệu khác nhau; dữ liệu finding chung cũ được giữ lại ngoài danh sách này.</p></div>
     </div>
-    <form className="catalog-toolbar finding-filter-toolbar">
+    <Form action="/findings" scroll={false} className="catalog-toolbar finding-filter-toolbar">
       <select name="status" defaultValue={status} aria-label="Trạng thái finding"><option value="all">Tất cả trạng thái</option><option value="open">Đang mở</option>{Object.entries(issueStatuses).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select>
       <select name="type" defaultValue={type} aria-label="Loại finding"><option value="all">Mọi loại vấn đề</option>{allowedTypes.map(t=><option key={t.code} value={t.code}>{t.label_vi}</option>)}</select>
       <select name="severity" defaultValue={severity} aria-label="Mức độ"><option value="all">Mọi mức độ</option>{Object.entries(severityLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select>
       <select name="assigned" defaultValue={assigned} aria-label="Người phụ trách"><option value="all">Mọi người phụ trách</option><option value="me">Được giao cho tôi</option><option value="unassigned">Chưa giao</option></select>
       <button type="submit">Lọc</button>
-    </form>
+    </Form>
     <section className="data-panel">
       <div className="data-panel-heading"><div><p className="section-kicker">ISSUE REGISTER</p><h2>{filtered.length} finding</h2></div><span className="count-chip">Issue → Action → Kết quả</span></div>
       {findingsResult.error?<div className="state-message error-state"><strong>Không thể tải findings</strong><span>{findingsResult.error.message}</span></div>:
