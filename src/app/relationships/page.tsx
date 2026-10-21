@@ -1,3 +1,4 @@
+import { noteSlowPage } from "@/lib/page-perf";
 import Form from "next/form";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
@@ -40,6 +41,8 @@ export default async function RelationshipsPage({
 }) {
   const { group = "all", status = "all", focus = "", edit = "", manage = "", saved = "" } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
+  // Safe, post-response timing with no user or document identifiers.
+  noteSlowPage("/relationships", performance.now());
 
   const [
     typeResult,

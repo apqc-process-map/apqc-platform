@@ -380,3 +380,13 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [ ] PERF-QA-002 — Compare before/after actual browser page transition P75, function TTFB, LCP, INP; check Vietnam client latency and consider alternative region if worse.
 - [ ] PERF-QA-003 — Observe the first 24h runtime PPR errors and navigation logs after Production; target zero `blocking-prerender-random` and `HANGING_PROMISE_REJECTION`.
 - [ ] PERF-QA-004 — Verify full user workflows across Documents/Findings/Relationships filter/create/edit/preview/refresh after soft-navigation changes.
+
+
+## 2026-10-21 — Performance follow-up verification
+
+- [x] PERF-007 — Preserve refreshed session cookies across redirect and add private/no-store headers for pinned SSR client.
+- [x] PERF-008 — Parallelize independent Finding detail queries and Role Knowledge relationship reads; prevent unbounded Finding event history reads.
+- [x] PERF-009 — Add nonblocking, PII-free server-side slow-route and auth latency instrumentation.
+- [ ] PERF-QA-005 — Exercise actual authenticated token-refresh, redirect, and protected-route flows; verify cookie updates and Cache-Control response headers.
+- [ ] PERF-QA-006 — Use new `apqc_slow_page` / `apqc_slow_auth` logs after real traffic to identify remaining slow routes; record P75 latency and compare pre/post request durations by a representative user session.
+- [ ] PERF-QA-007 — Browser smoke test Finding detail, role selection, 100-event history cap and existing action edit permissions.

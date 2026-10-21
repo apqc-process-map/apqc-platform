@@ -1,3 +1,4 @@
+import { noteSlowPage } from "@/lib/page-perf";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { addFindingComment, removeFindingParticipant, setFindingParticipant, setFindingReaction, updateFindingWorkflow } from "@/app/actions";
@@ -26,30 +27,33 @@ function eventDescription(event: { event_type: string; from_value: unknown; to_v
 export default async function FindingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { supabase, profile } = await requireActiveAccount();
-  const [{ data: finding, error }, { data: profiles }, { data: events }, { data: reactions }, { data: comments }, { data: participants }] = await Promise.all([
+  // Safe, post-response timing with no user or document identifiers.
+  noteSlowPage("/findings/detail", performance.now());
+  // All ten queries depend only on route ID and RLS; execute in one concurrent
+  // wave instead of waiting for finding metadata before fetching its actions.
+  const [findingResult, profileResult, eventResult, reactionResult, commentResult,
+    participantResult, actionResponse, linkResponse, versionsResponse, typeResult] = await Promise.all([
     supabase.from("findings").select("id,finding_code,title,description,severity,priority,status,created_by,assignee_id,due_at,resolution_summary,created_at,updated_at,finding_domain,action_decision,action_decision_reason,impact_summary,finding_type_value_id").eq("id", id).maybeSingle(),
     supabase.from("profiles").select("id,display_name,role").eq("is_active", true).order("display_name"),
-    supabase.from("finding_events").select("id,event_type,from_value,to_value,created_at,actor_id").eq("finding_id", id).order("created_at", { ascending: false }),
+    supabase.from("finding_events").select("id,event_type,from_value,to_value,created_at,actor_id").eq("finding_id", id).order("created_at", { ascending: false }).limit(100),
     supabase.from("finding_reactions").select("profile_id,reaction").eq("finding_id", id),
     supabase.from("comment_threads").select("id,is_resolved,comments(id,body,author_id,created_at,is_decision)").eq("context_type", "finding").eq("context_id", id),
     supabase.from("finding_participants").select("profile_id,participant_role").eq("finding_id", id),
+    supabase.from("finding_actions").select("id,action_title,description,assignee_id,created_by,due_at,status,progress_percent,last_update,completion_evidence,updated_at").eq("finding_id",id).order("created_at",{ascending:true}),
+    supabase.from("finding_links").select("id,object_id,object_type,link_role,evidence_excerpt").eq("finding_id",id).eq("object_type","document_version"),
+    supabase.from("document_versions").select("id,version_number,title_vi,valid_from,valid_until,status,documents(document_code)").order("updated_at",{ascending:false}).limit(200),
+    supabase.from("vocabulary_values").select("id,label_vi,vocabularies!inner(code)").eq("vocabularies.code","finding_type").eq("is_active",true),
   ]);
+  const { data: finding, error } = findingResult;
+  const { data: profiles } = profileResult;
+  const { data: events } = eventResult;
+  const { data: reactions } = reactionResult;
+  const { data: comments } = commentResult;
+  const { data: participants } = participantResult;
 
   if (error || !finding) return <WorkspaceShell active="/findings" eyebrow="FINDINGS & ACTIONS" title="Không tìm thấy finding" description="Bản ghi không tồn tại hoặc bạn không có quyền xem." userName={profile.display_name} role={profile.role}><Link className="text-button" href="/findings">← Quay lại Findings</Link></WorkspaceShell>;
 
   const isDocumentFinding=finding.finding_domain==="document";
-  const [actionResponse,linkResponse,versionsResponse,issueTypeResponse]=await Promise.all([
-    isDocumentFinding?supabase.from("finding_actions")
-      .select("id,action_title,description,assignee_id,created_by,due_at,status,progress_percent,last_update,completion_evidence,updated_at")
-      .eq("finding_id",id).order("created_at",{ascending:true}):Promise.resolve({data:[],error:null}),
-    isDocumentFinding?supabase.from("finding_links")
-      .select("id,object_id,object_type,link_role,evidence_excerpt").eq("finding_id",id)
-      .eq("object_type","document_version"):Promise.resolve({data:[],error:null}),
-    isDocumentFinding?supabase.from("document_versions").select("id,version_number,title_vi,valid_from,valid_until,status,documents(document_code)")
-      .order("updated_at",{ascending:false}).limit(200):Promise.resolve({data:[],error:null}),
-    finding.finding_type_value_id?supabase.from("vocabulary_values").select("label_vi")
-      .eq("id",finding.finding_type_value_id).maybeSingle():Promise.resolve({data:null,error:null})
-  ]);
   type DocumentMeta={id:string;title_vi:string;version_number:number;status:string;valid_from:string|null;valid_until:string|null;documents:{document_code:string}|null};
   const documentVersions=(versionsResponse.data||[]) as unknown as DocumentMeta[];
   const documentMap=new Map(documentVersions.map(d=>[d.id,d]));
@@ -59,7 +63,7 @@ export default async function FindingDetailPage({ params }: { params: Promise<{ 
   const activeActions=correctiveActions.filter(a=>a.status!=="cancelled");
   const overallProgress=activeActions.length?Math.round(activeActions.reduce((t,a)=>t+a.progress_percent,0)/activeActions.length):0;
   const actionStatusLabels:Record<string,string>={todo:"Chưa bắt đầu",in_progress:"Đang làm",blocked:"Vướng mắc",done:"Hoàn thành",cancelled:"Đã hủy"};
-  const findType=issueTypeResponse.data?.label_vi||"Chưa phân loại";
+  const findType=(typeResult.data||[]).find(item=>item.id===finding.finding_type_value_id)?.label_vi||"Chưa phân loại";
   const formatDate=(date:string|null)=>date?new Date(date).toLocaleDateString("vi-VN"):"Chưa có";
 
   const profileMap = new Map((profiles || []).map((item) => [item.id, item.display_name]));

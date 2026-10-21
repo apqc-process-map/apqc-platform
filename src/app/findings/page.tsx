@@ -1,3 +1,4 @@
+import { noteSlowPage } from "@/lib/page-perf";
 import Form from "next/form";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
@@ -27,6 +28,8 @@ export default async function FindingsPage({searchParams}:{
 }) {
   const {status="all",severity="all",assigned="all",type="all"}=await searchParams;
   const {supabase,profile}=await requireActiveAccount();
+  // Safe, post-response timing with no user or document identifiers.
+  noteSlowPage("/findings", performance.now());
   const canWrite=profile.role==="admin"||profile.role==="editor";
   let query=supabase.from("findings").select(
     "id,finding_code,title,description,impact_summary,finding_domain,action_decision,action_decision_reason,finding_type_value_id,severity,priority,status,due_at,assignee_id,created_at"

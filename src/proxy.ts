@@ -14,6 +14,9 @@ export async function proxy(request: NextRequest) {
         values.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
         values.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+        // @supabase/ssr 0.7 does not forward token-refresh cache headers.
+        // A refreshed Set-Cookie must never enter shared CDN/ISR caches.
+        response.headers.set("Cache-Control", "private, no-store");
       },
     },
   });
@@ -22,17 +25,23 @@ export async function proxy(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims;
   const needsAuth = protectedRoutes.some((route) => request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + "/"));
+  function secureRedirect(destination: URL) {
+    const redirected = NextResponse.redirect(destination);
+    response.cookies.getAll().forEach(cookie => redirected.cookies.set(cookie));
+    redirected.headers.set("Cache-Control", "private, no-store");
+    return redirected;
+  }
   if (needsAuth && !claims) {
     const login = request.nextUrl.clone();
     login.pathname = "/login";
     login.searchParams.set("error", "required");
-    return NextResponse.redirect(login);
+    return secureRedirect(login);
   }
   if (request.nextUrl.pathname === "/login" && claims) {
     const home = request.nextUrl.clone();
     home.pathname = "/";
     home.search = "";
-    return NextResponse.redirect(home);
+    return secureRedirect(home);
   }
   return response;
 }
