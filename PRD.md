@@ -84,14 +84,15 @@ Authorization must be enforced by Supabase RLS. UI hiding is not sufficient.
 
 Primary workspace navigation is numbered and appears in this order:
 
-1. **01. Home** — role-specific dashboard.
-2. **02. Document** — private document library, versions, upload, and metadata.
-3. **03. Process Map** — enterprise landscape, layered hierarchy, scope list, and relationship entry points.
-4. **04. Relationship** — cross-process/context network separate from the hierarchy.
-5. **05. Finding** — issue workflow, decisions, SLA, and collaboration.
-6. **06. Catalog** — searchable and sortable enterprise processes and APQC references.
-7. **07. Governance** — completeness, reviews, validity, acknowledgment, and APQC coverage.
-8. **08. Action Log** — personal in-app action history generated from notification events.
+1. **01. Home** (`/`) — role-specific dashboard.
+2. **02. Document** (`/documents`) — private document library, versions, upload, metadata, and reading assignments.
+3. **03. Process Map** (`/process-map`) — enterprise landscape, layered hierarchy, and APQC reference view.
+4. **04. Relationship** (`/relationships`) — governed cross-object relationship network.
+5. **05. Vai trò của tôi** (`/role-knowledge`) — required/reference knowledge linked to business roles.
+6. **06. Finding & Action** (`/findings`) — cross-document duplication/overlap/conflict issues and corrective actions.
+7. **07. Catalog** (`/catalog`) — enterprise processes and APQC reference search.
+8. **08. Governance** (`/governance`) — completeness, reviews, validity, acknowledgment, and APQC coverage.
+9. **09. Action Log** (`/notifications`) — in-app action history and notifications.
 
 The Action Log keeps the existing `/notifications` route, notification records, read/unread state, deep links, and RLS. Review and Admin capabilities remain permission-aware actions within the relevant workspaces rather than separate top-level tabs in the current MVP.
 
@@ -428,13 +429,15 @@ Catalog supports filter and sort over governed metadata. Saved views, bookmarks,
 
 ### Finding types
 
-- Exact duplicate.
-- Semantic duplicate.
-- Scope overlap.
-- Potential conflict.
-- Version conflict.
-- Supersession candidate.
-- Other.
+- Exact duplicate (`exact_duplicate`).
+- Semantic duplicate (`semantic_duplicate`).
+- Scope overlap (`scope_overlap`).
+- Content/condition conflict (`potential_conflict`).
+- Cross-document version conflict (`version_conflict`).
+- Effective-date conflict (`effective_date_conflict`).
+- Document-relationship conflict (`relationship_conflict`).
+- Supersession candidate (`supersession_candidate`).
+- Other **cross-document** issue (`other`; still requires 2 distinct documents).
 
 AI detection is deferred. Seed or manually enter findings for the MVP demo.
 
@@ -456,7 +459,7 @@ AI detection is deferred. Seed or manually enter findings for the MVP demo.
 - Editor can create, assign, work, and move to `Resolved`.
 - Admin validates and moves to `Closed`.
 - Admin alone reopens a closed finding.
-- Viewer participants can comment and react.
+- Viewer comment/reaction capability applies only where the finding is visible under RLS. The cross-document tab 06 and its action/evidence records currently require Editor/Admin; legacy generic findings retain their prior Viewer visibility.
 
 ### Collaboration
 
@@ -487,9 +490,19 @@ The 06 workspace is exclusively the **cross-document conflict and overlap regist
 - Record precise evidence/clauses for each linked document version, impact on operations, severity, owner, due date and lifecycle stage. Never infer a confirmed conflict solely because two documents share a title or process.
 - Decide explicitly whether correction is required, with a reason when no action is necessary. Action-required findings can contain multiple separately assigned corrective actions.
 - Each corrective action records title, outcome, assignee, deadline, status (to do / in progress / blocked / done / cancelled), progress percentage, last update, and completion evidence. Blocked actions need an explanation; completed actions need a result/evidence.
-- A document finding can be resolved only after the action decision has been recorded. If action is required, at least one non-cancelled action must exist and all non-cancelled actions must be completed. Admin validates the final closure using the existing finding workflow.
+- A document finding can be resolved only after the action decision has been recorded **and** at least two different `documents.id` values are linked through `finding_links(object_type=document_version, link_role=subject)`. If action is required, at least one non-cancelled action must exist and all active actions must be completed; the existing Admin role gate still controls final closure.
 - Duplicate/conflict analysis is **manual** in this milestone; extraction, file full-text indexing and AI detection remain deferred and must not be represented as live features.
 - For now document findings and their links/events/actions are restricted to Editor/Admin; Viewer can still see existing generic findings. A finer-grained document-owner/participant release for Viewer requires separate security design.
+
+### Implemented tab 06 behavior and demonstration dataset (2026-10-21)
+
+- Default and filtered tab 06 lists show **only** `finding_domain=document` records linking at least two **different** stable document identities. Old generic or single-document findings remain stored for historical purposes, but do not appear on tab 06; changing query parameters must not reveal them.
+- Form submission validates 2–20 referenced versions, **with at least two different underlying document IDs**. Selecting v1 and v2 of the same document is insufficient for every type, including `other`. The database prevents a document finding from moving to `resolved` / `closed` without this evidence; it does not yet provide an atomic guarantee during the two-step initial creation.
+- Each evidence row references a precise document **version**; the stable document code, title, version number, validity dates and excerpt are displayed to authorized readers. The related enterprise-process codes are context rather than proof of conflict.
+- The action decision is `pending`, `required`, or `not_required` (the last requires a rationale). `finding_actions` tracks assignee, deadline, `todo | in_progress | blocked | done | cancelled`, 0–100% progress, last update, and evidence of completion. Action creation and subsequent progress changes append `finding_events` history.
+- Data currently seeded for illustration: **8** clearly labeled `[DEMO 06/F01..F08]` findings, **16** `DEMO-FND-DOC-xx` metadata-only **draft** documents, **16** version-level evidence excerpts and **10** example corrective actions, linked to the existing ten `PROC-000011..PROC-000020` enterprise processes. The eight demos each compare **two separate documents**; they span open, triage, in-progress, pending-decision, resolved and closed states, including a no-action decision.
+- The demo clauses, impacts, statuses and dates are **hypothetical**, not conclusions from reviewing actual files; **no binary source documents were analyzed or uploaded** for this seed. Seeding is idempotent; cleanup is opt-in via `scripts/delete-demo-document-findings.sql`, never automatic.
+- Verification: Supabase queries confirmed all eight demos have two distinct document identities. Transactional (rolled-back) testing denied closure using only two versions of one document and allowed it after adding a separate document. Vercel production build for commit `eca17a0` reached READY. Authenticated end-to-end browser testing of the entire issue/action workflow remains pending.
 
 ## 19. Dashboards
 
