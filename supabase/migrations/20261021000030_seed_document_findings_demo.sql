@@ -2,6 +2,7 @@
 -- Gắn với quy trình thật trong APQC Platform; tạo tài liệu bản nháp metadata-only.
 -- Idempotent by DEMO document_code and tagged finding title. No real document modified.
 DO $seed$
+#variable_conflict use_variable
 DECLARE
   admins uuid[];
   owner_id uuid;
@@ -113,7 +114,7 @@ BEGIN
       end loop;
       -- Process context: these are real process map records; conflicts remain purely hypothetical.
       insert into public.finding_links(finding_id,object_type,object_id,link_role,evidence_excerpt)
-      select distinct finding_id,'process_version',pv.id,'evidence',
+      select distinct fl.finding_id,'process_version',pv.id,'evidence',
         '[DEMO] Bối cảnh quy trình: '||p.process_code||' – '||pv.name_vi||'; không xác nhận xung đột thực tế.'
       from public.finding_links fl
         join public.document_process_links l on l.document_version_id=fl.object_id
