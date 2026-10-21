@@ -47,7 +47,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Unauthenticated web checks return the Vietnamese login page and protected routes redirect to `/login?error=required`.
 - Local ESLint completed with zero errors (one pre-existing Document `<img>` performance warning), and the Next.js production build/type-check passed all 15 generated routes.
 - Authenticated browser functional QA passed on Vercel Preview for role selection, RLS-restricted knowledge placeholders, document deep links, document-centered relationship focus, relationship center switching, and neighbor expansion. Relationship layout had no page or board overflow at 1024 px and 1280 px, and no console errors were observed.
-- Screenshot capture still times out in the available browser runner; Relationship visual QA therefore used rendered DOM geometry and interaction checks at explicit 1024 px and 1280 px viewports. The full Edge golden flow and a real private file upload/preview remain unexecuted.
+- Authenticated screenshots, rendered DOM geometry, and interaction checks passed at explicit 1024 px and 1280 px viewports. The full Edge golden flow and a real private file upload/preview remain unexecuted.
 
 ## Pending and blocked
 
@@ -157,3 +157,12 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Direct inbound/outbound connectors display the controlled relationship label on the Source → Target path; neighboring relationships remain in a separate optional expansion so direction is not ambiguous.
 - The network reflows from three lanes to a two-column laptop layout without horizontal overflow. Authenticated Vercel Preview checks passed at 1024 px and 1280 px, including center switching, document focus, expansion/collapse, long Vietnamese labels, and zero console errors.
 - No database migration was required; the page reads existing code columns through the authenticated Supabase client and existing RLS.
+
+
+## Relationship connector endpoint polish — 2026-10-21
+
+- Direct connectors use rounded 2 px strokes with a hollow source point and an open target chevron, making Source → Target direction visible without relying only on the relationship label.
+- Inbound connectors terminate at the center card; outbound connectors originate at the center card. Rail junctions remain visually secondary, and hover/focus strengthens the active path.
+- At 1024 px the network keeps its compact two-column reflow and replaces shared rails with inline source/label/target strips to avoid overlap.
+- Verified on the authenticated Vercel Preview at 1280 px and 1024 px: node/card alignment, endpoint styles, no horizontal overflow, center switching, node drill-down, and zero browser-console errors. Full ESLint passed with one pre-existing `<img>` warning, and the production build/type-check passed all 15 routes.
+- No database, Supabase policy, environment-variable, or data migration change was required.
