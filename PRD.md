@@ -333,15 +333,19 @@ Admin manages controlled vocabulary values. The MVP does not include custom-fiel
 
 ### Document taxonomy
 
-- Governance: Policy, Regulation, Standard, Decision, Delegation Matrix.
-- Execution: Procedure, Work Instruction, Form/Template, Checklist.
-- Communication: Announcement, Guidance, Training Material.
-- Evidence: Meeting Minutes, Audit/Assessment Report, Incident Record, RCA Report.
-- Planning/Project: Project Charter, Business Case, Plan.
-- External/Legal: Law/Legal Basis, Contract, External Reference.
-- Other.
+The controlled vocabulary retains **23 stable type codes and IDs** assigned to seven groups. The following are the approved Vietnamese display names (2026-10-21):
 
-Each document has one primary type and optional tags.
+- **Quản trị:** Chính sách; Quy định; Tiêu chuẩn; Quyết định; Ma trận phân quyền.
+- **Vận hành:** Quy trình; Hướng dẫn công việc; Biểu mẫu; Bảng kiểm.
+- **Truyền thông & đào tạo:** Thông báo; Hướng dẫn sử dụng; Tài liệu đào tạo.
+- **Hồ sơ & báo cáo:** Biên bản họp; Báo cáo đánh giá; Biên bản sự cố; Báo cáo phân tích nguyên nhân gốc rễ.
+- **Kế hoạch & dự án:** Văn bản khởi tạo dự án; Đề án kinh doanh; Kế hoạch.
+- **Tài liệu bên ngoài:** Văn bản pháp luật; Hợp đồng; Tài liệu tham khảo ngoài doanh nghiệp.
+- **Khác:** Tài liệu khác.
+
+The 2026-10-21 label normalization is **display-only**: it does not rewrite type codes, type IDs, group codes, version links, or storage paths. In particular, the redundant 'Biểu mẫu / mẫu biểu' has become 'Biểu mẫu'; 'Danh sách kiểm tra' is 'Bảng kiểm'.
+
+Each document has at most one primary type and optional tags. Group is derived from the selected type and displayed separately beneath a distinct heading/helper; an existing draft without a type retains its stored historical group. Do not coerce untyped historical documents into a guessed type.
 
 ### Library management
 
@@ -754,3 +758,11 @@ Relationship version history, soft deletion, custom metadata-field creation, bul
 - **Data/security:** Migration 20261021000034_document_knowledge_audience.sql adds the Not Applicable relationship type and an Admin-only, security-invoker, atomic classification function. Reclassified older mappings are set to rejected, not deleted. This does not amount to a full immutable relationship audit history.
 - **Deployment evidence:** GitHub PR #50 (https://github.com/apqc-process-map/apqc-platform/pull/50) merged to main. Vercel Production for merge commit 9868f9726f604aa2d7000a88e59f8b760ead0ece reached READY on 2026-10-21. Rolled-back Admin insertion/reclassification and Viewer-denial database tests passed. Existing 20 document versions and six confirmed must/should mappings were retained.
 - **Pending verification:** Authenticated browser E2E for create/edit/reopen, multi-selection, changes/removal to unclassified, Tab 05 and Document card synchronization, plus Editor read-only behavior. Next.js/TypeScript build success does not replace runtime E2E.
+
+## 38. Tab 02 content consistency and usability — 2026-10-21
+
+- Standardize the Vietnamese copy across metadata intake, direct file upload, reading queue, filters, document cards, metadata comparison, and lifecycle selections. Persist enum codes unchanged, show localized names through a single presentation mapping.
+- The derived-group control is explicitly non-editable, with a separate caption, value field, and contextual helper; a blank type shows 'Chưa phân loại' for new drafts and preserves old group values on existing untyped records.
+- Document filters include readable names for all seven groups and all lifecycle statuses; group queries are case-insensitive to include legacy `Governance`/`Execution` values. Cards display language, group, access, risk, and dates with Vietnamese labels and DD/MM/YYYY dates.
+- Migration `20261021000035_normalize_document_type_labels.sql` updates nine Vietnamese vocabulary labels in place (stable IDs and codes, no version rewrite). Scope and knowledge-audience rules from section 37 are unchanged.
+- Validate the Next.js Preview TypeScript build and Production deployment; full authenticated visual/browser create-edit-filter-save smoke QA is a separate check.
