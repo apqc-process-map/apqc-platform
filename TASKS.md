@@ -366,3 +366,17 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE QA-FIND-02 Supabase rolled-back test: closure rejects v1/v2 of the same document, accepts evidence from two different documents; all eight seeded examples satisfy the rule.
 - [x] DONE QA-FIND-03 Vercel preview and production build/type-check passed for PR #46 (commit `eca17a0`).
 - [~] PARTIAL QA-FIND-04 Full authenticated browser create/edit/action-progress/close workflow and role-specific Editor QA remain outstanding; no real-file conflict detection has been tested.
+
+
+## 2026-10-21 — Loading and navigation performance
+
+- [x] PERF-001 — Inspect production Vercel errors, Next render mode, account lookup, Supabase gateway latency, Vercel/Supabase regions and repeated page fetches.
+- [x] PERF-002 — Use request-time boundary for authenticated RSC; replace network `getUser()` reads with validated `getClaims()` and preserve profile authorization.
+- [x] PERF-003 — Convert search/filter form GET navigations and internal preview/edit links to Next router transitions.
+- [x] PERF-004 — Replace nine-route eager sidebar prefetch with hover/focus prefetch; improve route loading fallback.
+- [x] PERF-005 — Parallelize Documents/Relationships independent data reads and reuse Finding document metadata.
+- [x] PERF-006 — Configure Sydney Vercel Functions region to match Supabase; preview region verified.
+- [ ] PERF-QA-001 — Validate login/logout/refresh, expired JWT refresh, Viewer/Admin/Editor route protection and RLS in authenticated browsers.
+- [ ] PERF-QA-002 — Compare before/after actual browser page transition P75, function TTFB, LCP, INP; check Vietnam client latency and consider alternative region if worse.
+- [ ] PERF-QA-003 — Observe the first 24h runtime PPR errors and navigation logs after Production; target zero `blocking-prerender-random` and `HANGING_PROMISE_REJECTION`.
+- [ ] PERF-QA-004 — Verify full user workflows across Documents/Findings/Relationships filter/create/edit/preview/refresh after soft-navigation changes.
