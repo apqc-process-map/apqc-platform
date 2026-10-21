@@ -7,7 +7,7 @@ const navigation = [
   ["/process-map", "◇", "03. Process Map"],
   ["/relationships", "⇄", "04. Relationship"],
   ["/role-knowledge", "◎", "05. Vai trò của tôi"],
-  ["/findings", "!", "06. Finding"],
+  ["/findings", "!", "06. Finding & Action"],
   ["/catalog", "▦", "07. Catalog"],
   ["/governance", "◌", "08. Governance"],
   ["/notifications", "♧", "09. Action Log"],
