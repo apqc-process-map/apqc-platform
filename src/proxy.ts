@@ -19,7 +19,8 @@ export async function proxy(request: NextRequest) {
   });
   // getClaims validates the signed JWT locally with the cached JWKS (ES256),
   // avoiding an Auth HTTP round-trip for every navigation and prefetch.
-  const { data: { claims } } = await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
   const needsAuth = protectedRoutes.some((route) => request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + "/"));
   if (needsAuth && !claims) {
     const login = request.nextUrl.clone();
