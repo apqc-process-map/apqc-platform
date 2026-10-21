@@ -12,14 +12,17 @@ type DocumentRow = { id: string; document_code: string; document_versions: Versi
 export default async function RoleKnowledgePage({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
   const { role = "" } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
-  const [roleResult, typeResult, documentResult] = await Promise.all([
+  const [roleResult, typeResult, documentResult, relationshipResult] = await Promise.all([
     supabase.from("business_roles").select("id,code,name,description").eq("is_active", true).order("name"),
     supabase.from("relationship_types").select("id,code").in("code", ["role_must_know_document", "role_should_know_document"]),
     supabase.from("documents").select("id,document_code,document_versions(id,title_vi,document_abstract,status,version_number)").is("archived_at", null),
+    // Role-document links are limited to a small taxonomy; query alongside roles.
+    supabase.from("object_relationships").select("id,source_id,target_id,relationship_type_id,description,status")
+      .eq("source_type","business_role").eq("target_type","document").eq("status","verified").limit(300),
   ]);
   const roles = (roleResult.data || []) as RoleRow[];
   const selectedRole = roles.find((item) => item.id === role) || roles[0];
-  const result = selectedRole ? await supabase.from("object_relationships").select("id,target_id,relationship_type_id,description,status").eq("source_type", "business_role").eq("source_id", selectedRole.id).eq("target_type", "document").eq("status", "verified") : { data: [], error: null };
+  const result = { data: (relationshipResult.data || []).filter(item => item.source_id === selectedRole?.id), error: relationshipResult.error };
   const types = new Map(((typeResult.data || []) as TypeRow[]).map((item) => [item.id, item.code]));
   const documents = new Map(((documentResult.data || []) as unknown as DocumentRow[]).map((document) => {
     const latest = [...(document.document_versions || [])].sort((a, b) => b.version_number - a.version_number)[0];
