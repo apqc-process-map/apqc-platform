@@ -121,6 +121,7 @@ export default async function RelationshipsPage({
     };
   });
 
+  const networkItemById = new Map(networkItems.map((item) => [item.id, item]));
   const groups = [...new Set(types.map((type) => type.group_code))];
   const documentFocusOptions = new Map<string, string>();
   for (const item of networkItems) {
@@ -174,14 +175,14 @@ export default async function RelationshipsPage({
     </div>
     {saved ? <div className="success-banner" role="status">{saved === "created" ? "Đã tạo quan hệ." : "Đã cập nhật metadata quan hệ."}</div> : null}
     {edit && !canEditSelected ? <div className="state-message error-state"><strong>Không thể chỉnh sửa</strong><span>Quan hệ không tồn tại hoặc tài khoản không có quyền sửa bản ghi này.</span></div> : null}
-    {canManage ? <RelationshipMetadataForm objects={objects} types={relationshipTypes} existing={editable} role={profile.role} startOpen={manage === "new" || Boolean(editable)} /> : null}
+    {canManage ? <RelationshipMetadataForm key={editable?.id || manage || "closed"} objects={objects} types={relationshipTypes} existing={editable} role={profile.role} startOpen={manage === "new" || Boolean(editable)} /> : null}
 
     <div className="relationship-layout"><section className="data-panel relationship-network-panel"><div className="data-panel-heading relationship-panel-heading"><div><span className="section-kicker">RELATIONSHIP NETWORK</span><h2>Mạng liên kết</h2></div><span className="relationship-heading-note">Mã đối tượng · tên · chiều quan hệ</span></div>{loadError ? <div className="state-message error-state"><strong>Không thể tải quan hệ</strong><span>{loadError.message}</span></div> : <RelationshipNetwork key={focus || "all"} items={networkItems} initialCenterKey={focus} />}</section>
       <details className="legend-panel relationship-legend"><summary className="legend-summary"><span className="legend-summary-copy"><span className="section-kicker">CHÚ GIẢI</span><strong>Cách đọc quan hệ</strong></span><span className="legend-summary-hint">Mở khi cần</span></summary><div className="legend-content"><div className="legend-direction"><strong>Quan hệ một chiều được đọc từ Nguồn → Đích.</strong><span>Nhãn đặt trực tiếp trên đường nối cho biết ý nghĩa của mũi tên. “Xem thêm liên kết” hiển thị thêm các liên kết của đối tượng kế cận.</span></div><p className="legend-help">Mỗi loại dùng cùng một cách gọi trong toàn hệ thống. Khi đổi đối tượng trung tâm, hướng mũi tên vẫn giữ theo dữ liệu Nguồn → Đích.</p><div className="legend-type-list">{types.map((type) => <div className="legend-row" key={type.id}><span className={`legend-dot tone-${type.group_code}`} /><div><strong>{type.label_vi}</strong><small>{type.is_directed ? `Nguồn → Đích · Chiều ngược: ${type.inverse_label_vi}` : "Áp dụng như nhau ở cả hai chiều"}</small></div></div>)}</div></div></details>
     </div>
 
     {networkItems.length ? <section className="data-panel relationship-table-panel"><div className="data-panel-heading relationship-panel-heading"><h2>Danh sách quan hệ</h2><span className="count-chip">{networkItems.length}</span></div><div className="relationship-list">{relationships.map((relationship) => {
-      const item = networkItems.find((candidate) => candidate.id === relationship.id);
+      const item = networkItemById.get(relationship.id);
       if (!item) return null;
       const mayEdit = profile.role === "admin" || (profile.role === "editor" && relationship.created_by === profile.id && ["proposed", "rejected"].includes(relationship.status));
       const validity = [relationship.valid_from ? "Từ " + displayDate(relationship.valid_from) : "", relationship.valid_until ? "đến " + displayDate(relationship.valid_until) : ""].filter(Boolean).join(" ");
