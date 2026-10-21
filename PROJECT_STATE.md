@@ -22,7 +22,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Authenticated route protection, login/session/logout, role-aware navigation, and Admin/Viewer RLS boundaries.
 - APQC catalog search/detail, hierarchy, descriptions, metrics, and attribution.
 - Data-driven Process Map with breadcrumbs, URL-persisted selection, scoped descendants, search, card/table views, APQC reference handoff, and persistent detail.
-- Centered relationship network with governed object codes, controlled labels placed on Source → Target connectors, direct inbound/outbound lanes, optional neighbor expansion, document-center filtering, table, and collapsed legend.
+- Centered relationship network with governed object codes, controlled labels placed on Source → Target connectors, direct inbound/outbound lanes, optional neighbor expansion, document-center filtering, table, and collapsed legend. Admin/Editor now have a governed create/edit metadata form; Viewer remains read-only.
 - Dedicated “Vai trò của tôi” view groups assigned documents into “Bắt buộc phải biết” and “Nên biết / tham chiếu”; restricted document metadata stays hidden behind RLS while the knowledge requirement remains visible.
 - RLS-gated direct authenticated-browser upload to private Storage with a 25 MB client-side MIME/extension guard, SHA-256 checksum, file metadata, and cleanup if metadata recording fails.
 - Signed private file route, PDF/image preview, Office download, role-gated lifecycle action, field-level version comparison, and disposable document fixtures.
@@ -38,6 +38,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Storage is private. Active users may read; Editor/Admin may upload; uploader or Admin may delete for rollback/cleanup.
 - Migration `20261019000013_notification_security_hardening.sql` removed public/authenticated execution from privileged notification functions and fixed the mutable `search_path`.
 - Migration `20261019000013_harden_demo_tag_policies.sql` separates tag write policies from read policies and adds the `object_tags.assigned_by` index; the tag-specific performance warning is cleared.
+- Relationship migrations `20261021000023`–`20261021000026` enforce active endpoints, controlled source/target types, unique non-self links, valid dates/lengths, evidence before verification, audit stamping, and consolidated Editor/Admin write RLS.
 - Supabase Security Advisor now reports only the account-level warning that leaked-password protection is disabled. Coordinate enabling it with replacement of the shared demo password.
 
 ## Verification
@@ -53,7 +54,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 
 - Notification scheduler migration `20261019000012_notification_scheduler.sql` is applied. `pg_cron` job `process-map-due-notifications` is active daily at 01:00 UTC (08:00 Asia/Ho_Chi_Minh).
 - Editor RLS behavior cannot be executed without changing the user-approved account mix or temporarily changing a production profile role.
-- Document lifecycle remains partial until a complete metadata editor exposes validity, review dates, and scheduled publication.
+- Document intake/editing exposes validity and review dates; a dedicated scheduled-publication timestamp control remains a lifecycle gap.
 - Dashboard drill-down, accessible/dismissible process previews, global cross-module search, and authenticated multi-viewport/browser QA remain partial.
 - Real process seeding and document importer design require representative enterprise/document samples.
 - AI document analysis requires an approved data-handling policy and samples.
@@ -166,3 +167,11 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - At 1024 px the network keeps its compact two-column reflow and replaces shared rails with inline source/label/target strips to avoid overlap.
 - Verified on the authenticated Vercel Preview at 1280 px and 1024 px: node/card alignment, endpoint styles, no horizontal overflow, center switching, node drill-down, and zero browser-console errors. Full ESLint passed with one pre-existing `<img>` warning, and the production build/type-check passed all 15 routes.
 - No database, Supabase policy, environment-variable, or data migration change was required.
+
+
+## Relationship metadata intake milestone — 2026-10-21
+
+- The metadata audit found no missing MVP business columns for Process, Document, or Relationship. The actionable gap was Relationship end-user input, which now exposes Source, controlled relationship type, Target, label, description, evidence, validity, and workflow status while audit fields remain system-managed.
+- Viewer is read-only. Editor may create proposed records and revise only their own proposed/rejected records; Admin may manage and verify any relationship. Verified records require both description and evidence.
+- Supabase migrations 20261021000023 through 20261021000026 are applied. Admin insert/update and Viewer-denial probes passed inside rollback transactions; no test relationship persisted.
+- Vercel Preview QA passed for Admin create/edit rendering, metadata prefill, controlled-type filtering, Viewer control hiding, 1280/1024 px layout without horizontal overflow, and zero console errors. Editor browser QA remains unavailable because the approved account set contains no Editor.
