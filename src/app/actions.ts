@@ -576,3 +576,149 @@ export async function updateProcessMetadata(formData: FormData) {
   revalidatePath("/process-map");
   redirect(`/process-map?selected=${processId}&version=${draft.id}&updated=1`);
 }
+
+
+const relationshipObjectTypes = ["process", "document", "business_object", "system", "risk", "kpi", "business_role", "finding"] as const;
+const relationshipStatuses = ["proposed", "verified", "rejected"] as const;
+type RelationshipObjectType = typeof relationshipObjectTypes[number];
+
+function relationshipText(formData: FormData, field: string, label: string, max: number, required = false) {
+  const value = String(formData.get(field) || "").trim();
+  if (required && !value) throw new Error(label + " là bắt buộc.");
+  if (value.length > max) throw new Error(label + " vượt quá " + max.toLocaleString("vi-VN") + " ký tự.");
+  return value || null;
+}
+
+function relationshipDate(formData: FormData, field: string, label: string) {
+  const value = relationshipText(formData, field, label, 10);
+  if (value && (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(value)))) {
+    throw new Error(label + " không hợp lệ.");
+  }
+  return value;
+}
+
+function parseRelationshipObjectKey(value: FormDataEntryValue | null, label: string) {
+  const [type, id, extra] = String(value || "").split(":");
+  if (extra || !relationshipObjectTypes.includes(type as RelationshipObjectType) || !uuidPattern.test(id || "")) {
+    throw new Error(label + " không hợp lệ.");
+  }
+  return { type: type as RelationshipObjectType, id };
+}
+
+async function relationshipObjectExists(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  type: RelationshipObjectType,
+  id: string,
+) {
+  const tableByType: Record<RelationshipObjectType, string> = {
+    process: "processes",
+    document: "documents",
+    business_object: "business_objects",
+    system: "systems",
+    risk: "risks",
+    kpi: "kpis",
+    business_role: "business_roles",
+    finding: "findings",
+  };
+  let query = supabase.from(tableByType[type]).select("id").eq("id", id);
+  if (type === "process" || type === "document") query = query.is("archived_at", null);
+  else if (type !== "finding") query = query.eq("is_active", true);
+  const { data, error } = await query.maybeSingle();
+  if (error) throw new Error(error.message);
+  return Boolean(data);
+}
+
+export async function saveRelationshipMetadata(formData: FormData) {
+  const relationshipId = String(formData.get("relationship_id") || "");
+  if (relationshipId && !uuidPattern.test(relationshipId)) throw new Error("Quan hệ không hợp lệ.");
+
+  const source = parseRelationshipObjectKey(formData.get("source_key"), "Đối tượng nguồn");
+  const target = parseRelationshipObjectKey(formData.get("target_key"), "Đối tượng đích");
+  if (source.type === target.type && source.id === target.id) throw new Error("Nguồn và đích phải là hai đối tượng khác nhau.");
+
+  const relationshipTypeId = String(formData.get("relationship_type_id") || "");
+  if (!uuidPattern.test(relationshipTypeId)) throw new Error("Loại quan hệ không hợp lệ.");
+  const label = relationshipText(formData, "label", "Nhãn hiển thị", 255);
+  const description = relationshipText(formData, "description", "Mô tả nghiệp vụ", 3000);
+  const evidenceText = relationshipText(formData, "evidence_text", "Bằng chứng", 3000);
+  const validFrom = relationshipDate(formData, "valid_from", "Ngày bắt đầu hiệu lực");
+  const validUntil = relationshipDate(formData, "valid_until", "Ngày kết thúc hiệu lực");
+  if (validFrom && validUntil && validUntil < validFrom) throw new Error("Ngày kết thúc phải sau ngày bắt đầu hiệu lực.");
+
+  const { supabase, user, profile } = await authenticatedContext();
+  if (!["admin", "editor"].includes(profile.role)) throw new Error("Bạn không có quyền quản lý quan hệ.");
+
+  const { data: relationshipType, error: typeError } = await supabase
+    .from("relationship_types")
+    .select("id,allowed_source_types,allowed_target_types,is_active")
+    .eq("id", relationshipTypeId)
+    .maybeSingle();
+  if (typeError || !relationshipType?.is_active) throw new Error(typeError?.message || "Loại quan hệ không tồn tại hoặc đã ngừng sử dụng.");
+  if (relationshipType.allowed_source_types?.length && !relationshipType.allowed_source_types.includes(source.type)) {
+    throw new Error("Loại đối tượng nguồn không phù hợp với loại quan hệ đã chọn.");
+  }
+  if (relationshipType.allowed_target_types?.length && !relationshipType.allowed_target_types.includes(target.type)) {
+    throw new Error("Loại đối tượng đích không phù hợp với loại quan hệ đã chọn.");
+  }
+
+  const [sourceExists, targetExists] = await Promise.all([
+    relationshipObjectExists(supabase, source.type, source.id),
+    relationshipObjectExists(supabase, target.type, target.id),
+  ]);
+  if (!sourceExists || !targetExists) throw new Error("Nguồn hoặc đích không tồn tại, đã lưu trữ hoặc ngừng hoạt động.");
+
+  const requestedStatus = String(formData.get("status") || "proposed");
+  if (!relationshipStatuses.includes(requestedStatus as typeof relationshipStatuses[number])) throw new Error("Trạng thái không hợp lệ.");
+  const status = profile.role === "admin" ? requestedStatus : "proposed";
+
+  let duplicateQuery = supabase
+    .from("object_relationships")
+    .select("id")
+    .eq("source_type", source.type)
+    .eq("source_id", source.id)
+    .eq("target_type", target.type)
+    .eq("target_id", target.id)
+    .eq("relationship_type_id", relationshipTypeId);
+  if (relationshipId) duplicateQuery = duplicateQuery.neq("id", relationshipId);
+  const { data: duplicate, error: duplicateError } = await duplicateQuery.limit(1).maybeSingle();
+  if (duplicateError) throw new Error(duplicateError.message);
+  if (duplicate) throw new Error("Quan hệ cùng Nguồn, Loại và Đích đã tồn tại.");
+
+  const payload = {
+    source_type: source.type,
+    source_id: source.id,
+    target_type: target.type,
+    target_id: target.id,
+    relationship_type_id: relationshipTypeId,
+    label,
+    description,
+    evidence_text: evidenceText,
+    valid_from: validFrom,
+    valid_until: validUntil,
+    status,
+    updated_by: user.id,
+    verified_by: status === "verified" ? user.id : null,
+  };
+
+  let savedId = relationshipId;
+  if (relationshipId) {
+    const { data: current, error: currentError } = await supabase
+      .from("object_relationships")
+      .select("id,status,created_by")
+      .eq("id", relationshipId)
+      .maybeSingle();
+    if (currentError || !current) throw new Error(currentError?.message || "Không tìm thấy quan hệ cần chỉnh sửa.");
+    if (profile.role === "editor" && (current.created_by !== user.id || !["proposed", "rejected"].includes(current.status))) {
+      throw new Error("Editor chỉ được sửa đề xuất do mình tạo khi đang chờ duyệt hoặc bị từ chối.");
+    }
+    const { data, error } = await supabase.from("object_relationships").update(payload).eq("id", relationshipId).select("id").single();
+    if (error || !data) throw new Error(error?.code === "23505" ? "Quan hệ này đã tồn tại." : error?.message || "Không thể lưu quan hệ.");
+  } else {
+    const { data, error } = await supabase.from("object_relationships").insert({ ...payload, created_by: user.id }).select("id").single();
+    if (error || !data) throw new Error(error?.code === "23505" ? "Quan hệ này đã tồn tại." : error?.message || "Không thể tạo quan hệ.");
+    savedId = data.id;
+  }
+
+  revalidatePath("/relationships");
+  redirect("/relationships?saved=" + (relationshipId ? "updated" : "created") + "&edit=" + savedId + "#relationship-metadata");
+}
