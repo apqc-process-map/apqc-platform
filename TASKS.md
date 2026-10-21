@@ -77,6 +77,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE DOC-001 Create document, version, file, and process-link migrations.
 - [x] DONE DOC-002 Seed controlled document taxonomy.
 - [x] DONE DOC-014 Configure PRD-aligned document intake metadata plus library filters and sorting.
+- [x] DONE DOC-015 Display Nhóm tài liệu read-only, derived from Loại tài liệu; preserve legacy unclassified draft groups.
+- [x] DONE DOC-016 Add exclusive multi-selection of active business roles in Phải biết, Nên biết / tham chiếu, Không áp dụng; unselected = Chưa xác định.
+- [x] DONE DOC-017 Persist classifications with the governed Admin-only atomic `set_document_knowledge_audience` function without deleting prior relation rows.
+- [x] DONE DOC-018 Display verified business-role knowledge groups on Document cards and Tab 05 Role Knowledge.
 - [x] DONE DOC-003 Configure private Supabase Storage bucket and policies.
 - [x] DONE DOC-004 Validate upload MIME type, extension, size, and checksum before direct private Storage upload.
 - [x] DONE DOC-005 Add PDF/image preview and Office download.
@@ -390,3 +394,16 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [ ] PERF-QA-005 — Exercise actual authenticated token-refresh, redirect, and protected-route flows; verify cookie updates and Cache-Control response headers.
 - [ ] PERF-QA-006 — Use new `apqc_slow_page` / `apqc_slow_auth` logs after real traffic to identify remaining slow routes; record P75 latency and compare pre/post request durations by a representative user session.
 - [ ] PERF-QA-007 — Browser smoke test Finding detail, role selection, 100-event history cap and existing action edit permissions.
+
+## 2026-10-21 — Tab 02 Document role knowledge release (PR #50)
+
+- [x] DOC-KNOW-001 — Confirm 23 controlled types in 7 groups, 3 active business roles, and 6 original confirmed Must/Should relationships before the change.
+- [x] DOC-KNOW-002 — Derive canonical group automatically; remove editable group control; retain saved legacy group for untyped documents.
+- [x] DOC-KNOW-003 — Three multi-select role lists with exclusive group membership, plus Chưa xác định as an unselected state.
+- [x] DOC-KNOW-004 — Apply migration `20261021000034_document_knowledge_audience.sql` and verify Admin-only save and new Not Applicable relationship type.
+- [x] DOC-KNOW-005 — Preview build/TypeScript READY; rollback-only Admin assignment and reclassification tests pass, Viewer mutation is denied; Production commit `9868f9726f604aa2d7000a88e59f8b760ead0ece` READY.
+- [x] DOC-KNOW-006 — Confirm 20 document versions and six original verified knowledge links remain; SQL tests leave no persistent test data.
+- [ ] DOC-KNOW-QA-001 — Authenticated Admin browser creation, editing, reopening, multi-selection and changing/removing classifications.
+- [ ] DOC-KNOW-QA-002 — Check Tab 05 and Document cards after actual role edits, including restricted document placeholders.
+- [ ] DOC-KNOW-QA-003 — Confirm Viewer cannot mutate; Editor sees the role groups read-only; knowledge classifications do not create user reading/notification assignments.
+- [ ] DOC-KNOW-QA-004 — Real signed-in Production browser smoke test; successful deployment/build alone does not prove E2E correctness.

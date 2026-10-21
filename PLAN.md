@@ -113,6 +113,9 @@ Exit: Viewer can trace inputs/outputs and related context; Editor can propose an
 - Add review threads, mentions, rejection reason, and four-eyes approval.
 - Add scheduled/effective/superseded lifecycle behavior.
 - Add metadata version comparison.
+- Offer one controlled document type with an automatically derived group; preserve group values on untyped legacy drafts.
+- Let Admin multi-select business roles by required/reference/not-applicable knowledge groups, leaving unselected roles unclassified. Surface them in Tab 05.
+- Keep knowledge classification separate from document access and individual reading/acknowledgment workflows.
 - Add reading assignments and acknowledgment.
 
 Exit: the document/process authoring, approval, effective publication, and acknowledgment path works end-to-end.
@@ -230,3 +233,13 @@ Do not mark these blockers complete using fabricated data, invented browser evid
 - Cut dependent Supabase query waves; avoid cross-user cached private data. Co-locate server functions with Supabase in Sydney and validate against Vietnam clients.
 - Show accessible route-level skeleton while server content streams.
 - Verification gates: Preview build/TypeScript; Admin/Viewer/Editor auth and CRUD E2E; route P75 TTFB <800 ms, navigation content visible <1s, LCP <2.5s, INP <200ms (targets, **not measured achievements**); zero prerender/fetch cancellation runtime errors after release.
+
+### Phase 11 — Document knowledge audience and taxonomy cleanup (2026-10-21)
+
+- [DONE] Make Nhóm tài liệu read-only and automatically derive it from the selected Loại tài liệu (23 controlled types, 7 groups); keep legacy untyped group data.
+- [DONE] Offer three exclusive multi-select groups of existing active business roles: Phải biết, Nên biết / tham chiếu, Không áp dụng. Unselected roles remain Chưa xác định.
+- [DONE] Reuse two existing controlled knowledge links; add role_not_applicable_document via migration 20261021000034_document_knowledge_audience.sql.
+- [DONE] Add Admin-only atomic classification with Security Invoker; old reclassified links become rejected, not deleted. Leave Storage/RLS access controls and individual reading assignments unchanged.
+- [DONE] Display knowledge metadata in Document cards and Tab 05; PR #50 merged; Vercel Production commit 9868f9726f604aa2d7000a88e59f8b760ead0ece READY.
+- [VERIFIED] Rollback-only SQL Admin insert/reclassification and Viewer-denial tests passed; 20 versions and six original knowledge mappings preserved. Next.js/TypeScript Preview build passed.
+- [PENDING] Authenticated browser acceptance for create/edit/reopen, exclusivity, returning to unclassified, Tab 05 and document-card synchronization, and Editor read-only behavior. Build and SQL tests do not replace end-to-end testing.
