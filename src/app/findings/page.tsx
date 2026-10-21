@@ -38,7 +38,7 @@ export default async function FindingsPage({searchParams}:{
   if(assigned==="unassigned")query=query.is("assignee_id",null);
   const [findingsResult,allDocuments,typesResult,peopleResult] = await Promise.all([
     query,
-    canWrite ? supabase.from("document_versions").select("id,title_vi,version_number,documents(document_code)")
+    canWrite ? supabase.from("document_versions").select("id,document_id,title_vi,version_number,documents(document_code)")
       .order("updated_at",{ascending:false}).limit(200) : Promise.resolve({data:[],error:null}),
     supabase.from("vocabulary_values").select("id,code,label_vi,vocabularies!inner(code)")
       .eq("vocabularies.code","finding_type").eq("is_active",true).order("display_order"),
@@ -55,10 +55,15 @@ export default async function FindingsPage({searchParams}:{
   ]);
   const links=(linksResult.data||[]) as FindingLink[];
   const actions=(actionsResult.data||[]) as ActionRow[];
-  const relevantDocs=[...new Set(links.map(l=>l.object_id))];
-  const linkedDocuments=relevantDocs.length?await supabase.from("document_versions")
-    .select("id,document_id,title_vi,version_number,documents(document_code)").in("id",relevantDocs):{data:[]};
-  const docMap=new Map(((linkedDocuments.data||[]) as unknown as DocumentRow[]).map(doc=>[doc.id,doc]));
+  const docMap=new Map(((allDocuments.data||[]) as unknown as DocumentRow[]).map(doc=>[doc.id,doc]));
+  // The intake already loads recent versions; reuse them and fetch only missing
+  // older linked versions, avoiding a third sequential DB request for normal cases.
+  const missingDocs=[...new Set(links.map(l=>l.object_id))].filter(id=>!docMap.has(id));
+  if(missingDocs.length){
+    const moreDocs=await supabase.from("document_versions")
+      .select("id,document_id,title_vi,version_number,documents(document_code)").in("id",missingDocs);
+    for(const doc of (moreDocs.data||[]) as unknown as DocumentRow[])docMap.set(doc.id,doc);
+  }
   const types=(typesResult.data||[]) as {id:string;code:string;label_vi:string}[];
   const typeMap=new Map(types.map(t=>[t.id,t]));
   const people=(peopleResult.data||[]) as {id:string;display_name:string;role:string}[];
