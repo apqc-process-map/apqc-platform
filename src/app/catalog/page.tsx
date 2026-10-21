@@ -1,3 +1,4 @@
+import { noteSlowPage } from "@/lib/page-perf";
 import Form from "next/form";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
@@ -11,6 +12,8 @@ const processLevels = ["value_chain", "e2e", "process", "subprocess", "activity"
 export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ q?: string; type?: string; status?: string; level?: string; sort?: string }> }) {
   const { q = "", type = "all", status = "all", level = "all", sort = "updated_desc" } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
+  // Safe, post-response timing with no user or document identifiers.
+  noteSlowPage("/catalog", performance.now());
   const term = q.trim();
 
   let processQuery = supabase.from("process_versions")
