@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const protectedRoutes = ["/catalog", "/documents", "/relationships", "/findings", "/governance", "/notifications"];
+const protectedRoutes = ["/catalog", "/documents", "/relationships", "/findings", "/governance", "/notifications", "/process-map", "/role-knowledge"];
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -17,15 +17,17 @@ export async function proxy(request: NextRequest) {
       },
     },
   });
-  const { data: { user } } = await supabase.auth.getUser();
+  // getClaims validates the signed JWT locally with the cached JWKS (ES256),
+  // avoiding an Auth HTTP round-trip for every navigation and prefetch.
+  const { data: { claims } } = await supabase.auth.getClaims();
   const needsAuth = protectedRoutes.some((route) => request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + "/"));
-  if (needsAuth && !user) {
+  if (needsAuth && !claims) {
     const login = request.nextUrl.clone();
     login.pathname = "/login";
     login.searchParams.set("error", "required");
     return NextResponse.redirect(login);
   }
-  if (request.nextUrl.pathname === "/login" && user) {
+  if (request.nextUrl.pathname === "/login" && claims) {
     const home = request.nextUrl.clone();
     home.pathname = "/";
     home.search = "";
