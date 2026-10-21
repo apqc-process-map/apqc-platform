@@ -102,6 +102,12 @@
 .document-meta-grid textarea { resize:vertical; line-height:1.5; }
 .document-meta-grid input:focus-visible, .document-meta-grid select:focus-visible, .document-meta-grid textarea:focus-visible { outline:2px solid #a67b2d; outline-offset:2px; }
 .document-meta-grid .document-meta-wide { grid-column:1 / -1; }
+/* Keep the derived group field visually distinct from its caption on all breakpoints. */
+.document-derived-group { display:flex; flex-direction:column; align-items:stretch; min-width:0; gap:7px; font-size:13px; }
+.document-derived-label { display:block; color:#1f3443; font-size:13px; font-weight:650; line-height:1.4; }
+.document-derived-automatic { font-size:11px; font-weight:500; color:#70818b; }
+.document-derived-value { display:flex; align-items:center; min-height:42px; width:100%; padding:9px 12px; border:1px solid #d4e3e2; border-radius:9px; background:#f1f7f6; color:#174f4b; font-weight:650; line-height:1.45; white-space:normal; overflow-wrap:anywhere; }
+.document-derived-group small { display:block; color:#677482; font-size:12px; line-height:1.45; }
 .document-scope-group { min-width:0; padding:10px 0; }
 .document-scope-group > strong { display:block; font-size:13px; margin-bottom:9px; }
 .document-meta-choice-group { display:flex; flex-wrap:wrap; gap:8px; }
