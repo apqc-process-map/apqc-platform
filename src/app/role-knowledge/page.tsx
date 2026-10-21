@@ -1,3 +1,4 @@
+import { noteSlowPage } from "@/lib/page-perf";
 import Form from "next/form";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
@@ -12,6 +13,8 @@ type DocumentRow = { id: string; document_code: string; document_versions: Versi
 export default async function RoleKnowledgePage({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
   const { role = "" } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
+  // Safe, post-response timing with no user or document identifiers.
+  noteSlowPage("/role-knowledge", performance.now());
   const [roleResult, typeResult, documentResult, relationshipResult] = await Promise.all([
     supabase.from("business_roles").select("id,code,name,description").eq("is_active", true).order("name"),
     supabase.from("relationship_types").select("id,code").in("code", ["role_must_know_document", "role_should_know_document"]),
