@@ -398,7 +398,7 @@ Enforce last-author and approver separation.
 
 - `id uuid`
 - `finding_id uuid`
-- `object_type enum(process, process_version, document, document_version, relationship)`
+- `object_type text` (CHECK-constrained to `process | process_version | document | document_version | relationship | apqc_element`)
 - `object_id uuid`
 - `link_role enum(subject, evidence, resolution)`
 - `evidence_excerpt text nullable`
@@ -440,8 +440,10 @@ Default due dates derive from severity: Critical 2 days, High 7, Medium 14, Low 
 - `status text` — `todo | in_progress | blocked | done | cancelled`
 - `progress_percent integer` — 0–100, 100 on completion
 - `last_update text nullable`, `completion_evidence text nullable`
-- `created_by uuid`, created/updated/completed timestamps
-- RLS: visible finding required for reads, Admin/Editor with finding-owner or action-owner authorization for writes
+- `created_by uuid`; `created_at`, `updated_at`, `completed_at` timestamps
+- `done` requires `progress_percent=100` and nonempty `completion_evidence`; `blocked` requires a nonempty `last_update`; progress is restricted to 0–100.
+- Insert/update action triggers append `action_created` / `action_updated` rows to `finding_events` for audit-style timeline visibility.
+- RLS: read requires visibility of parent finding; Editor/Admin write operations are checked against owner/assignee relationships. Cross-document findings, related actions and evidence are currently not exposed to Viewer.
 
 Additional `findings` columns:
 
@@ -450,9 +452,16 @@ Additional `findings` columns:
 - `action_decision_reason text nullable` — required for `not_required`.
 - `impact_summary text nullable` — explicit operational implication.
 - `finding_links` associates multiple concrete `document_version` rows with per-version evidence.
-- Tab 06 shows only document findings where at least **two different `document_versions.document_id` values** are linked as `subject`. Linking two versions under one `documents.id` is not sufficient. The create action validates this, and a database trigger prevents resolution/closure without it. Generic findings remain stored but are not displayed on tab 06.
+- Tab 06 shows only `finding_domain=document` rows whose `finding_links` contain at least **two distinct `document_versions.document_id`** values as `object_type=document_version, link_role=subject`. Two versions of the same `documents.id` do not count. This is checked in the Server Action for **all** finding types and at the database **resolution/closure** gate. Generic and single-document findings are preserved outside the tab.
+- The two-step Server Action creates the finding row before inserting evidence links. Therefore the database resolution/closure trigger guards final states; initial creation relies on server validation and may leave a new unlinked record if linking fails. Do not describe this as a database-enforced all-states invariant.
 
-The document-finding closure gate is enforced by a database trigger, separately from the existing generic finding workflow. No automated document-content comparison is part of this model.
+The document-finding action-decision/completion and two-distinct-documents closure guards are enforced by database triggers, separate from legacy generic finding workflow. Migrations `20261021000027`–`20261021000029` implement the tracker/history/RLS; `20261021000033` enforces distinct document identities at closure. No automated document-content comparison is part of this model.
+
+### Document finding DEMO seed and lineage
+
+- `20261021000030_seed_document_findings_demo.sql` is idempotent using `DEMO-FND-DOC-01..16` codes and `[DEMO 06/F01..F08]` finding titles; migrations `31` and `32` complete/clean up contextual enterprise-process evidence.
+- Eight manual finding examples refer to 16 distinct draft-only document identities with 16 linked `subject` version evidence records, 10 example actions, and existing process catalog `PROC-000011..PROC-000020`. These evidence snippets and conflicts are fictional and not file-analysis output.
+- Opt-in cleanup: `scripts/delete-demo-document-findings.sql`. Do not delete real document versions or relabel DEMO data as verified findings.
 
 ## 11. Notifications
 
