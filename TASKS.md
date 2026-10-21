@@ -335,3 +335,14 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] REL-UX-005 — Replace rigid filled arrowheads with rounded connectors, hollow source points, open target chevrons, and softened rail junctions.
 - [x] REL-UX-006 — Preserve the source-to-target endpoint grammar for inbound, outbound, hover/focus, and laptop reflow states.
 - [x] QA-REL-003 — Vercel Preview verified endpoint direction, connector/card alignment, 2 px rounded strokes, hollow source points, open target chevrons, 1024 px compact reflow without horizontal overflow, center switching/drill-down, and zero console errors.
+
+
+## Relationship metadata intake — 2026-10-21
+
+- [x] REL-META-001 — Audit Process, Document, Finding workflow, and Relationship input surfaces against PRD/data model; Process and Document forms already cover their governed MVP fields, while Relationship lacked an end-user create/edit path.
+- [x] REL-META-002 — Add compact Relationship create/edit metadata form for Source, controlled type, Target, optional label, business description, evidence, validity dates, status, and automatic audit identity/timestamps.
+- [x] REL-META-003 — Add Server Action validation for UUID/type allowlists, active endpoint existence, self-links, duplicate tuples, dates, lengths, role workflow, and required evidence before verification.
+- [x] REL-META-004 — Apply Supabase migrations 20261021000023 through 20261021000026 for trigger validation, unique/integrity constraints, audit indexes, and consolidated Editor/Admin RLS.
+- [x] SEC-REL-001 — Rollback-only database probes passed: Admin create/update is allowed with audit stamping; Viewer create/update is denied; no probe data persisted.
+- [x] QA-REL-004 — Vercel Preview passed Admin create/edit rendering, existing metadata prefill, Source/Target controlled-type filtering, Viewer read-only controls, 1280/1024 px overflow checks, and zero console errors.
+- [~] QA-REL-005 — Editor-specific browser flow remains unexecuted because the approved six-user account set contains no Editor profile; Editor RLS is implemented and policy-inspected.
