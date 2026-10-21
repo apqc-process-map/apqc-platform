@@ -186,3 +186,13 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Database migrations 20261021000027/28/29 are applied; Preview deployment and TypeScript build READY. Read-boundaries were tested: Viewer sees legacy general findings but no restricted document findings.
 - Transactional Supabase smoke test succeeded: two linked versions, one action 0%→60%→100%, a resolved finding, and three action events; all test data rolled back.
 - Automated AI detection and file-content comparison are not implemented. Real authenticated browser E2E testing remains pending.
+
+## 2026-10-21 — Seeded document Finding & Action DEMO
+
+- Live Supabase seeded with 8 clearly labeled `[DEMO 06/Fxx]` document findings, 16 `DEMO-FND-DOC-xx` metadata-only draft documents, 10 corrective actions and 16 per-document clause snippets. All 10 existing enterprise process IDs `PROC-000011..PROC-000020` are covered by the synthetic draft documents.
+- No actual document content was reviewed or uploaded: all contradictory clauses, dates and business impacts are explicitly illustrative and should never be treated as verified findings.
+- Scenario diversity: exact/semantic duplication, scope overlap, payment conflict, effective-date conflict, KPI-version issue, approval-relationship uncertainty and supersession decision.
+- Covers new / triage / in progress / pending decision / resolved / closed findings; action pending / in progress / blocked / done, varied progress %, owner and due date.
+- Script `supabase/migrations/20261021000030_seed_document_findings_demo.sql` is idempotent for tagged records. Follow-up migrations `31` and `32` complete and clean up process evidence. Opt-in guarded cleanup available at `scripts/delete-demo-document-findings.sql`.
+- Verified in Supabase: 16 draft documents, 8 document findings, 10 actions, 16 document evidence references, 16 process evidence references, 3 finished actions, one blocked, one overdue; none of the preexisting non-document findings modified. DEMO-triggered notifications were cleared.
+- Viewer RLS returns zero document findings and actions; authenticated Admin role simulation reads all eight and ten actions. No Vercel application code changes needed; the live tab consumes Supabase data.
