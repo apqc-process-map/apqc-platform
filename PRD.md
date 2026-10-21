@@ -677,6 +677,13 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 
 The existing object_relationships model already contains the metadata needed for governed end-user input. No custom field or new business column is required for the MVP. The missing capability was the input/edit workflow and its write authorization.
 
+Cross-form audit result:
+
+- Process metadata input already covers identity, bilingual naming, purpose/description, the five Executive Summary sections, input/output, trigger/outcome, access, validity/review dates, and change summary.
+- Document metadata input already covers file, bilingual title, controlled type/group, abstract, keywords, language, issuing department, owner/approver, linked process, applicability, tags, legal/retention notes, risk, access, validity/review dates, and change summary.
+- Relationship storage already had the required fields, but end users had no governed create/edit form. This section closes that gap.
+- Finding workflow metadata is managed on the Finding detail screen. New-finding intake remains the separate manual-entry requirement in section 18 and is not replaced by the Relationship form.
+
 The Relationship form must expose:
 
 - Source object: one active process, document, business object, system, risk, KPI, business role, or finding.
