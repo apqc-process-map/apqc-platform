@@ -221,3 +221,12 @@ The remaining work is limited to:
 4. AI analysis and deferred backlog, blocked by data policy or explicit non-MVP scope.
 
 Do not mark these blockers complete using fabricated data, invented browser evidence, or an unauthorized role/account change.
+
+
+### Phase 10 — Render reliability & performance hardening (2026-10-21)
+
+- Fix Next 16 Cache Components PPR/auth dynamic boundaries and replace per-request remote `getUser()` with signed JWT `getClaims()` (without bypassing role and RLS checks).
+- Move all GET filters and internal navigation to soft transitions. Use intent-driven sidebar prefetch and preserve file-download semantics.
+- Cut dependent Supabase query waves; avoid cross-user cached private data. Co-locate server functions with Supabase in Sydney and validate against Vietnam clients.
+- Show accessible route-level skeleton while server content streams.
+- Verification gates: Preview build/TypeScript; Admin/Viewer/Editor auth and CRUD E2E; route P75 TTFB <800 ms, navigation content visible <1s, LCP <2.5s, INP <200ms (targets, **not measured achievements**); zero prerender/fetch cancellation runtime errors after release.
