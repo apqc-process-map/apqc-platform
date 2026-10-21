@@ -703,6 +703,7 @@ The Relationship form must expose:
 - The controlled type must be active and must allow the selected source/target object types.
 - The canonical Source + Type + Target tuple must be unique.
 - Valid-until cannot be earlier than valid-from.
+- A verified relationship must contain both a business description and evidence/source of confirmation; proposed records may be completed progressively.
 - Text lengths are validated in the UI contract and server action.
 - Server validation is repeated by a PostgreSQL trigger for direct database writes.
 - RLS is the authorization boundary: authenticated read remains unchanged; Editor/Admin write rules follow section 36.2.
