@@ -1,3 +1,4 @@
+import { noteSlowPage } from "@/lib/page-perf";
 import Link from "next/link";
 import Form from "next/form";
 import WorkspaceShell from "@/components/workspace-shell";
@@ -23,6 +24,8 @@ const sortOptions = [
 export default async function DocumentsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; type?: string; group?: string; language?: string; access?: string; risk?: string; owner?: string; sort?: string; read_q?: string; read_status?: string; compare?: string; preview?: string; edit?: string; created?: string; updated?: string }> }) {
   const { q = "", status = "all", type = "all", group = "all", language = "all", access = "all", risk = "all", owner = "all", sort = "updated_desc", read_q = "", read_status = "pending", compare, preview, edit, created, updated } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
+  // Safe, post-response timing with no user or document identifiers.
+  noteSlowPage("/documents", performance.now());
   let query = supabase.from("document_versions").select("id, document_id, version_number, status, title_vi, title_en, document_group, language, document_abstract, change_summary, valid_from, valid_until, review_due_at, access_level, risk_rating, issuing_department, keywords, legal_reference, retention_note, updated_at, owner_id, created_by, document_type_value_id, vocabulary_values(label_vi), documents(document_code), document_files(id, original_file_name, mime_type, size_bytes)").limit(100);
   if (q.trim()) query = query.or(`title_vi.ilike.%${q.trim()}%,title_en.ilike.%${q.trim()}%,document_abstract.ilike.%${q.trim()}%,keywords.ilike.%${q.trim()}%,issuing_department.ilike.%${q.trim()}%`);
   if (status !== "all") query = query.eq("status", status);
