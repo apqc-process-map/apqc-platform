@@ -12,8 +12,8 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 ## Verified data
 
 - APQC import: 2,017 elements, 3,284 metrics, 13 categories, levels 1–5, no missing parents, duplicate PCF IDs, or orphan metrics.
-- Demo sandbox: 10 disposable enterprise processes with complete Executive Summary metadata, 10 applicability-covered versions, 6 controlled tags/15 process tag assignments, 38 verified relationships (including 6 role-to-document knowledge mappings), 5 typed findings, 3 documents with metadata/tags, and existing workflow fixtures.
-- Documents: 3 disposable documents with 4 versions covering draft, in-review, and effective states; every version has a process link and 2 document reading assignments exist.
+- Base demo sandbox: 10 disposable enterprise processes with Executive Summary metadata, 10 applicability-covered versions, 6 controlled tags/15 process tag assignments, and 38 verified relationships (including 6 role-to-document knowledge mappings). The preexisting finding/document fixture counts below predate the tab 06 seed.
+- Existing original documents: 3 disposable documents / 4 versions covering draft, in-review and effective states. In addition, the 2026-10-21 finding demo contributes **16 separate metadata-only draft documents/versions**, yielding **19 document identities and 20 versions** at the seed snapshot; 2 original reading assignments remain.
 - Six active Auth accounts use the approved mix of three Admin and three Viewer. Credentials are not stored in Git. There is no Editor account.
 - Licensed APQC source files and private documents remain outside Git.
 
@@ -26,7 +26,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Dedicated “Vai trò của tôi” view groups assigned documents into “Bắt buộc phải biết” and “Nên biết / tham chiếu”; restricted document metadata stays hidden behind RLS while the knowledge requirement remains visible.
 - RLS-gated direct authenticated-browser upload to private Storage with a 25 MB client-side MIME/extension guard, SHA-256 checksum, file metadata, and cleanup if metadata recording fails.
 - Signed private file route, PDF/image preview, Office download, role-gated lifecycle action, field-level version comparison, and disposable document fixtures.
-- Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, and evidence links.
+- Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, and evidence links. Tab 06 now restricts its listing and creation to **2+ distinct-document** overlap/conflict findings, with evidence excerpts, action decisions, an individual corrective-action tracker and progress history.
 - Action Log (backed by notification events) with per-item/bulk read actions, live finding/assignment/review/reading triggers, and a daily due-date scheduler.
 - Governance and finding summary views.
 
@@ -39,6 +39,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Migration `20261019000013_notification_security_hardening.sql` removed public/authenticated execution from privileged notification functions and fixed the mutable `search_path`.
 - Migration `20261019000013_harden_demo_tag_policies.sql` separates tag write policies from read policies and adds the `object_tags.assigned_by` index; the tag-specific performance warning is cleared.
 - Relationship migrations `20261021000023`–`20261021000026` enforce active endpoints, controlled source/target types, unique non-self links, valid dates/lengths, evidence before verification, audit stamping, and consolidated Editor/Admin write RLS.
+- Document-finding migrations `20261021000027`–`20261021000029` implement action decisions, tracker, action-event history and restricted RLS; `20261021000033` blocks `resolved/closed` states without evidence from two distinct `documents.id` identities.
 - Supabase Security Advisor now reports only the account-level warning that leaked-password protection is disabled. Coordinate enabling it with replacement of the shared demo password.
 
 ## Verification
@@ -177,19 +178,17 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Vercel Preview QA passed for Admin create/edit rendering, metadata prefill, controlled-type filtering, Viewer control hiding, 1280/1024 px layout without horizontal overflow, and zero console errors. Editor browser QA remains unavailable because the approved account set contains no Editor.
 
 
-## 2026-10-21 — Document-centric Finding & Action
+## 2026-10-21 — Cross-document Finding & Action (current scope)
 
-- Tab 06 now prioritizes document-overlap/conflict findings and retains legacy general findings in a secondary all-findings view.
-- Added manually classified categories for exact/semantic duplication, scope overlap, inconsistent clauses, conflicting effective dates or versions, contradictory inter-document relationships, supersession candidate, and other document issue.
-- Each issue links concrete document versions with per-version cited excerpts and an operational-impact statement. Comparisons require two or more version references; other single-document findings can use one.
-- Document finding actions now have an explicit decision (required, not required with reason, pending), multiple corrective actions with assignees, deadlines, progress, blockers, closure evidence, and a chronological activity history. Closure is blocked by DB unless the decision and applicable actions are completed.
-- Database migrations 20261021000027/28/29 are applied; Preview deployment and TypeScript build READY. Read-boundaries were tested: Viewer sees legacy general findings but no restricted document findings.
-- Transactional Supabase smoke test succeeded: two linked versions, one action 0%→60%→100%, a resolved finding, and three action events; all test data rolled back.
-- Automated AI detection and file-content comparison are not implemented. Real authenticated browser E2E testing remains pending.
+- **Tab 06 is exclusively a multi-document comparison register** for duplicate/semantic overlap, applicability overlap, contradictory conditions, version/effective-date differences, relationship conflicts and supersession candidates. Every displayed issue must link at least two different `documents.id` values using concrete `document_version` subject references. An alternate two-version pairing within one document does **not** qualify; no single-document exception is allowed, even for Other.
+- The prior all-findings/single-document option is **not** present on tab 06; historical `finding_domain=general` rows remain in the database for continuity. Server-side creation validates 2–20 version selections with at least two independent document identities. An additional Supabase trigger forbids resolving/closing findings lacking cross-document evidence.
+- Per-version evidence includes an illustrative clause excerpt; case details include operational impact, severity, issue owner/deadline and explicit action decision (`pending`, `required`, `not_required` with a reason). Each required action tracks assignee, deadline, state, percent complete, blockers and outcome evidence; creation/progress updates append finding timeline events.
+- QA verified in a rolled-back database transaction: closing an issue with only two versions of one document was rejected; adding a second document allowed closure. Preview and production builds for PR #46 (production `eca17a0`) passed. Authenticated full-browser issue/action E2E and Editor-role matrix remain pending.
+- Document conflict inference/AI, full-text analysis and OCR are **not** implemented.
 
 ## 2026-10-21 — Seeded document Finding & Action DEMO
 
-- Live Supabase seeded with 8 clearly labeled `[DEMO 06/Fxx]` document findings, 16 `DEMO-FND-DOC-xx` metadata-only draft documents, 10 corrective actions and 16 per-document clause snippets. All 10 existing enterprise process IDs `PROC-000011..PROC-000020` are covered by the synthetic draft documents.
+- Live Supabase seeded with **8** `[DEMO 06/F01..F08]` cross-document findings, each linking **2 distinct** `DEMO-FND-DOC-01..16` draft metadata-only document identities (16 total), 10 corrective actions and 16 fictional per-version excerpts. These demos relate to all 10 existing `PROC-000011..PROC-000020` enterprise processes.
 - No actual document content was reviewed or uploaded: all contradictory clauses, dates and business impacts are explicitly illustrative and should never be treated as verified findings.
 - Scenario diversity: exact/semantic duplication, scope overlap, payment conflict, effective-date conflict, KPI-version issue, approval-relationship uncertainty and supersession decision.
 - Covers new / triage / in progress / pending decision / resolved / closed findings; action pending / in progress / blocked / done, varied progress %, owner and due date.
