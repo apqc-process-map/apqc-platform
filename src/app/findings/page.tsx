@@ -1,3 +1,4 @@
+import Form from "next/form";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { createDocumentFinding } from "@/app/finding-actions";
@@ -113,13 +114,13 @@ export default async function FindingsPage({searchParams}:{
     <div className="finding-view-row">
       <div><strong>Danh sách vấn đề giữa các tài liệu</strong><p>Chỉ hiển thị finding liên quan ít nhất 2 tài liệu khác nhau; dữ liệu finding chung cũ được giữ lại ngoài danh sách này.</p></div>
     </div>
-    <form className="catalog-toolbar finding-filter-toolbar">
+    <Form action="/findings" scroll={false} className="catalog-toolbar finding-filter-toolbar">
       <select name="status" defaultValue={status} aria-label="Trạng thái finding"><option value="all">Tất cả trạng thái</option><option value="open">Đang mở</option>{Object.entries(issueStatuses).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select>
       <select name="type" defaultValue={type} aria-label="Loại finding"><option value="all">Mọi loại vấn đề</option>{allowedTypes.map(t=><option key={t.code} value={t.code}>{t.label_vi}</option>)}</select>
       <select name="severity" defaultValue={severity} aria-label="Mức độ"><option value="all">Mọi mức độ</option>{Object.entries(severityLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select>
       <select name="assigned" defaultValue={assigned} aria-label="Người phụ trách"><option value="all">Mọi người phụ trách</option><option value="me">Được giao cho tôi</option><option value="unassigned">Chưa giao</option></select>
       <button type="submit">Lọc</button>
-    </form>
+    </Form>
     <section className="data-panel">
       <div className="data-panel-heading"><div><p className="section-kicker">ISSUE REGISTER</p><h2>{filtered.length} finding</h2></div><span className="count-chip">Issue → Action → Kết quả</span></div>
       {findingsResult.error?<div className="state-message error-state"><strong>Không thể tải findings</strong><span>{findingsResult.error.message}</span></div>:
