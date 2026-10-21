@@ -33,7 +33,7 @@ The product is process-first. APQC provides a stable reference taxonomy and metr
 
 ## 4. Users and permissions
 
-The MVP has six demo accounts: two per system role.
+The current MVP has six active demo accounts: **three Admin and three Viewer**. No Editor account is currently provisioned; Editor-role end-to-end acceptance remains outstanding.
 
 ### Viewer
 
@@ -274,7 +274,7 @@ Header always shows process code, name, status, version, owner, and next review 
 
 - Stable ID and document code.
 - Vietnamese title and optional English title.
-- Controlled document group/type.
+- Controlled document type with a derived document group (one type maps to its canonical group).
 - Version and lifecycle status.
 - Linked process and process version.
 - Owner, author, approver, language, access level, and readers.
@@ -286,9 +286,10 @@ Header always shows process code, name, status, version, owner, and next review 
 ### Initial document metadata configuration
 
 - A new draft needs either a supported file or a manually entered Vietnamese title. The system creates the document code, initial draft version, creator, and file fields automatically; it never publishes the draft automatically.
-- **Thông tin cơ bản** configures Vietnamese/English title, controlled document type/group, language, abstract, and keywords. The initial controlled taxonomy contains 23 document types in seven groups. When a type is selected, its canonical group takes precedence over a manually chosen group.
+- **Thông tin cơ bản** configures Vietnamese/English title, controlled Loại tài liệu, language, abstract, and keywords. The taxonomy contains 23 types in seven groups. Nhóm tài liệu is derived automatically/read-only from the selected type: users do not independently select a group. An existing untyped draft retains its saved legacy group on edit; new drafts without a type use the group other.
 - **Phân loại & phạm vi áp dụng** configures an optional primary process link, applicability note, controlled legal entity/department/location/channel/product-service/employee-audience values, and governance tags.
 - **Trách nhiệm & quyền truy cập** configures document owner, issuing department, access level, and a designated approver. The designated approver is planning metadata only; approval still follows the governed review workflow and four-eyes rule.
+- **Đối tượng cần biết** lets Admin select multiple existing active business roles in the mutually exclusive **Phải biết**, **Nên biết / tham chiếu**, and **Không áp dụng** groups. Roles left unselected are **Chưa xác định**, which must not be treated as Không áp dụng. Editor can view the metadata but cannot change this classification.
 - **Hiệu lực, kiểm soát & lưu trữ** configures validity/review dates, risk rating, legal reference, retention note, and change summary. These fields are optional during initial draft creation and are completed before the relevant lifecycle gate.
 
 ### Nice-to-have metadata
@@ -347,7 +348,7 @@ Each document has one primary type and optional tags.
 - Search covers Vietnamese/English title, abstract, keywords, and issuing department.
 - Filter by lifecycle status, controlled document type, document group, language, access level, risk rating, and owner.
 - Sort by latest/oldest update, title, nearest review due date, and latest validity start date.
-- Library cards show the governed metadata needed for quick triage: code/version, type/group, language, access level, risk, owner, issuing department, validity, review due date, keywords, files, and lifecycle status.
+- Library cards show the governed metadata needed for quick triage: code/version, type/group, language, access level, risk, owner, issuing department, validity, review due date, keywords, files, lifecycle status, and classified knowledge roles when present.
 - Filters are URL-backed so the result set can be refreshed or shared without introducing saved views in the MVP.
 
 ### Lifecycle
@@ -388,21 +389,20 @@ Alternative terminal/intermediate states: `Rejected`, `Cancelled`.
 - Highlight APQC mapping, ownership, applicability, reader, relationship snapshot, and attachment changes.
 - Do not diff the internal contents of PDF/DOCX/XLSX/PPTX in the MVP.
 
-## 15. Knowledge audience and acknowledgment
+## 15. Knowledge audience, authorization, and acknowledgment
 
-MVP audience is based on the three system roles, not organizational-group access.
+**Knowledge requirement** applies to business functions/positions stored in business_roles, **not** to login/system roles (viewer/editor/admin). It targets the stable document identity (documents.id), not a document version.
 
-- `Must know`: notification plus required acknowledgment.
-- `Should know`: notification without acknowledgment requirement.
-- `Restricted`: unavailable to the role.
+- **Phải biết / Must know** — required for the business role to carry out its responsibilities.
+- **Nên biết / Should know** — useful information for collaboration, reference or exceptional tasks.
+- **Không áp dụng / Not applicable** — explicitly evaluated as outside the scope of the business role.
+- **Chưa xác định / Unclassified** — no verified mapping. This must not be equated with Không áp dụng.
 
-Acknowledgment:
+Admin manages three multi-select lists of active business roles in Tab 02. Each role belongs to at most one knowledge group per document. Reclassification rejects an obsolete verified governed relationship and verifies the new mapping; previously stored rows are not physically deleted. The atomic function set_document_knowledge_audience(uuid, jsonb) checks Admin authorization, existing active roles, and that the document has an editable draft/rejected version. Existing must/should relationship types are reused, and role_not_applicable_document is added.
 
-- User opens the exact effective version and selects “Tôi đã đọc và hiểu”.
-- Store user, version, and timestamp.
-- New versions require new acknowledgment.
-- Dashboard shows completion and overdue acknowledgment.
-- No quiz or electronic signature in the MVP.
+**Keep knowledge scope separate from authorization:** this classification does not grant or deny document/file access; Supabase RLS, private Storage, and per-document access levels still decide visibility. Changing it does not automatically notify an individual, create a reading assignment, or force acknowledgment.
+
+**Individual reading workflow:** reading_assignments assigns a specific document version to a specific profile with a required flag; reading_acknowledgments captures a recipient's confirmation timestamp. A new version requires its own reading assignment/confirmation as relevant. No automatic business-role-to-individual cascade is currently implemented. No quiz or electronic signature is in the MVP.
 
 ## 16. Search and catalog
 
@@ -675,7 +675,7 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 
 - Relationship provides a “Tài liệu trung tâm” selector so users can inspect all direct inbound/outbound links for a chosen document and drill down by clicking related nodes.
 - A dedicated “Vai trò của tôi” navigation tab provides a Role Knowledge Profile for a selected business role.
-- Role knowledge is modeled through controlled object relationships from business role to document, using “Bắt buộc phải biết” and “Nên biết / tham chiếu”.
+- Role knowledge is modeled through controlled object relationships from business role to document, using “Bắt buộc phải biết”, “Nên biết / tham chiếu”, and (since 2026-10-21) “Không áp dụng”. Unselected roles remain “Chưa xác định”.
 - Knowledge scope is not authorization. Document access remains enforced by Supabase RLS and private Storage policies.
 - Role knowledge counts include every visible relationship assignment. When RLS hides the target document metadata, the UI keeps a neutral “Bị giới hạn” placeholder instead of dropping the requirement or exposing protected details.
 - Demo mappings are tagged in descriptions and can be removed without affecting real documents or roles.
@@ -746,3 +746,11 @@ The Relationship form must expose:
 ### 36.4 Deferred relationship metadata scope
 
 Relationship version history, soft deletion, custom metadata-field creation, bulk import, and approval comments remain deferred. These items must not be inferred from the MVP form.
+
+## 37. Document classification and knowledge audience — 2026-10-21
+
+- **Tab 02 Document:** One editable controlled document type; its group is derived and displayed read-only. Existing untyped draft group values are preserved. Admin can multi-select existing business roles into three mutually exclusive groups; no selection means unclassified.
+- **Tab 05 Vai trò của tôi:** Displays three confirmed role-to-document knowledge groups with pre-existing restricted-document placeholders under RLS. This is not a document-access or individual-reading policy.
+- **Data/security:** Migration 20261021000034_document_knowledge_audience.sql adds the Not Applicable relationship type and an Admin-only, security-invoker, atomic classification function. Reclassified older mappings are set to rejected, not deleted. This does not amount to a full immutable relationship audit history.
+- **Deployment evidence:** GitHub PR #50 (https://github.com/apqc-process-map/apqc-platform/pull/50) merged to main. Vercel Production for merge commit 9868f9726f604aa2d7000a88e59f8b760ead0ece reached READY on 2026-10-21. Rolled-back Admin insertion/reclassification and Viewer-denial database tests passed. Existing 20 document versions and six confirmed must/should mappings were retained.
+- **Pending verification:** Authenticated browser E2E for create/edit/reopen, multi-selection, changes/removal to unclassified, Tab 05 and Document card synchronization, plus Editor read-only behavior. Next.js/TypeScript build success does not replace runtime E2E.
