@@ -124,8 +124,10 @@ export async function createFindingAction(formData:FormData){
 export async function updateFindingAction(formData:FormData){
   const {supabase,user,profile}=await session();
   const findingId=textField(formData,"finding_id",80,true);
-  await allowedManager(supabase,user.id,profile.role,findingId);
   const id=textField(formData,"action_id",80,true);
+  const {data:actionTarget}=await supabase.from("finding_actions").select("id,assignee_id").eq("id",id).eq("finding_id",findingId).maybeSingle();
+  if(!actionTarget)throw new Error("Không tìm thấy action.");
+  if(actionTarget.assignee_id!==user.id)await allowedManager(supabase,user.id,profile.role,findingId);
   const status=textField(formData,"status",30,true);
   if(!["todo","in_progress","blocked","done","cancelled"].includes(status))throw new Error("Trạng thái action không hợp lệ.");
   const progress=Number(formData.get("progress_percent")||0);
