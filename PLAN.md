@@ -117,14 +117,16 @@ Exit: Viewer can trace inputs/outputs and related context; Editor can propose an
 
 Exit: the document/process authoring, approval, effective publication, and acknowledgment path works end-to-end.
 
-### Phase 7 — Findings & Actions
+### Phase 7 — Cross-document Findings & Corrective Actions
 
-- Add finding schema, workflow, participants, reactions, comments, decisions, and timeline.
-- Seed representative duplicate/overlap/conflict/supersession findings.
-- Add SLA calculation and notifications.
-- Link findings to process/document versions and resolution evidence.
+- Preserve the existing generic finding schema/workflow and history without surfacing generic findings on tab 06.
+- Build the `/findings` register around **cross-document** overlap, duplication, inconsistent clauses, conflicting validity/version, relationship conflict, and supersession cases.
+- Require at least two **distinct stable document IDs** (linked by specific version and excerpt) for every issue type, including Other. Server creation rejects invalid selections; database resolution/closure rejects insufficient evidence.
+- Record operational impact and an explicit action decision (`pending / required / not_required` with a mandatory no-action rationale).
+- Track multiple corrective actions per issue with owner, deadline, status, percentage, blockers, completion evidence and a durable event timeline. Retain the finding's existing assignment, comment and closure workflows and SLA calculation.
+- Seed 8 clearly labeled *fictional* cross-document findings linking 16 draft metadata-only DEMO documents to the 10 enterprise processes; 10 action fixtures exercise varied progress and outcomes. Never present seed content as extracted or verified real evidence.
 
-Exit: a seeded conflict can be assigned, discussed, resolved, validated, closed, and reopened by the correct roles.
+Exit: a cross-document finding can be created with two distinct documents, triaged and actioned (or explicitly dispositioned without action), updated by an authorized worker, and resolved/closed only after the database gates pass. **Status (2026-10-21):** implementation, Supabase transactional gate tests and production build completed; full signed-in browser/Editor-role E2E validation still pending.
 
 ### Phase 8 — Dashboards and Action Log
 
