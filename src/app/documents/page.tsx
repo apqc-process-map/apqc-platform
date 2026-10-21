@@ -37,14 +37,11 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   else if (sort === "review_asc") query = query.order("review_due_at", { ascending: true, nullsFirst: false });
   else if (sort === "valid_from_desc") query = query.order("valid_from", { ascending: false, nullsFirst: false });
   else query = query.order("updated_at", { ascending: false });
-  const { data: versions, error } = await query;
-  const selected = compare ? (versions || []).find((item) => item.id === compare) : null;
-  const previous = selected ? (versions || []).filter((item) => item.document_id === selected.document_id && item.version_number < selected.version_number).sort((a, b) => b.version_number - a.version_number)[0] : null;
-  const files = (versions || []).flatMap((item) => ((item.document_files as unknown as { id: string; original_file_name: string; mime_type: string; size_bytes: number }[]) || []).map((file) => ({ ...file, versionTitle: item.title_vi })));
-  const previewFile = preview ? files.find((file) => file.id === preview) : null;
   const canEdit = profile.role === "admin" || profile.role === "editor";
   const scopeDimensions = ["legal_entity","department","location","channel","product_service","employee_audience"];
-  const [processRows, peopleRows, typeRows, scopeRows, tagRows, editingResult, linkedRows, appliedRows, markedRows, assignmentResult] = await Promise.all([
+  // Kick off the document list and the independent metadata/reading lists in one round trip wave.
+  const [versionResult, processRows, peopleRows, typeRows, scopeRows, tagRows, editingResult, linkedRows, appliedRows, markedRows, assignmentResult] = await Promise.all([
+    query,
     canEdit ? supabase.from("processes").select("id,process_code,process_versions(name_vi)").order("display_order").limit(150) : Promise.resolve({data: []}),
     supabase.from("profiles").select("id,display_name,role").eq("is_active",true).order("display_name"),
     supabase.from("vocabulary_values").select("id,label_vi,document_group_code,vocabularies!inner(code)").eq("vocabularies.code","document_type").eq("is_active",true).order("display_order"),
@@ -56,6 +53,11 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
     canEdit && edit ? supabase.from("object_tags").select("tag_id").eq("object_type","document_version").eq("object_id",edit) : Promise.resolve({data: []}),
     supabase.from("reading_assignments").select("id,object_id,required,assigned_at,due_at,reading_acknowledgments(acknowledged_at)").eq("profile_id",profile.id).eq("object_type","document_version").order("due_at",{ascending:true,nullsFirst:false}),
   ]);
+  const { data: versions, error } = versionResult;
+  const selected = compare ? (versions || []).find((item) => item.id === compare) : null;
+  const previous = selected ? (versions || []).filter((item) => item.document_id === selected.document_id && item.version_number < selected.version_number).sort((a, b) => b.version_number - a.version_number)[0] : null;
+  const files = (versions || []).flatMap((item) => ((item.document_files as unknown as { id: string; original_file_name: string; mime_type: string; size_bytes: number }[]) || []).map((file) => ({ ...file, versionTitle: item.title_vi })));
+  const previewFile = preview ? files.find((file) => file.id === preview) : null;
   const availableProcesses = ((processRows.data||[]) as unknown as {id:string;process_code:string;process_versions:{name_vi:string}[]|null}[]).map(row=>({id:row.id,label:row.process_code+" · "+(row.process_versions?.[0]?.name_vi || "Quy trình")}));
   const people = (peopleRows.data||[]) as {id:string;display_name:string;role:string}[];
   const availablePeople = people.map(row=>({id:row.id,label:row.display_name}));
