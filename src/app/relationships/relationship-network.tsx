@@ -120,6 +120,8 @@ export default function RelationshipNetwork({ items, initialCenterKey }: Props) 
       </section>
 
       <div className="network-center-card">
+        {inbound.length ? <span className="network-center-port is-inbound" aria-hidden="true" /> : null}
+        {outbound.length ? <span className="network-center-port is-outbound" aria-hidden="true" /> : null}
         <span className="network-center-type">{objectTypeLabel(center.type)}</span>
         <strong className="network-center-code">{center.code || "CHƯA CÓ MÃ"}</strong>
         <span className="network-center-name">{center.label}</span>
