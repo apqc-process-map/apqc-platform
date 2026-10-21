@@ -54,12 +54,15 @@ export async function createDocumentFinding(formData:FormData){
   if(!["low","medium","high","critical"].includes(severity)||!["low","medium","high","urgent"].includes(priority))
     throw new Error("Mức độ hoặc mức ưu tiên không hợp lệ.");
   const documentIds=[...new Set(formData.getAll("document_version_id").map(String).filter(Boolean))];
-  const minimum=typeCode==="other"?1:2;
-  if(documentIds.length<minimum||documentIds.length>20)
-    throw new Error("Vấn đề này cần liên kết tối thiểu "+minimum+" phiên bản tài liệu (tối đa 20).");
-  const {data:validDocuments,error:documentError}=await supabase.from("document_versions").select("id").in("id",documentIds);
+  if(documentIds.length<2||documentIds.length>20)
+    throw new Error("Finding phải đối chiếu ít nhất 2 tài liệu khác nhau (tối đa 20 phiên bản).");
+  const {data:validDocuments,error:documentError}=await supabase.from("document_versions")
+    .select("id,document_id").in("id",documentIds);
   if(documentError||!validDocuments||validDocuments.length!==documentIds.length)
     throw new Error("Có tài liệu không tồn tại hoặc bạn không được phép truy cập.");
+  const distinctDocuments=new Set(validDocuments.map(doc=>doc.document_id));
+  if(distinctDocuments.size<2)
+    throw new Error("Hai phiên bản của cùng một tài liệu không tạo thành finding chồng chéo giữa nhiều tài liệu.");
   const {data:type,error:typeError}=await supabase.from("vocabulary_values")
     .select("id,vocabularies!inner(code)").eq("code",typeCode).eq("vocabularies.code","finding_type").eq("is_active",true).maybeSingle();
   if(typeError||!type)throw new Error("Loại finding chưa được cấu hình.");
