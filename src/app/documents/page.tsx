@@ -77,7 +77,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   const businessRoles = ((roleRows.data||[]) as {id:string;name:string}[]).map(row=>({id:row.id,label:row.name}));
   const roleNames = new Map(businessRoles.map(role=>[role.id,role.label]));
   const audienceTypeCodes = ["role_must_know_document","role_should_know_document","role_not_applicable_document"];
-  const documentIds=[...new Set((versions||[]).map(item=>item.document_id))];
+  const documentIds=[...new Set([...(versions||[]).map(item=>item.document_id),editingResult.data?.document_id].filter((id):id is string=>Boolean(id)))];
   const knowledgeRows= documentIds.length ? await supabase.from("object_relationships")
     .select("source_id,target_id,relationship_types!inner(code)")
     .eq("source_type","business_role").eq("target_type","document").eq("status","verified")
