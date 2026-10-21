@@ -33,3 +33,10 @@ pnpm build
 - Source-of-truth documents: [PRD](PRD.md) (scope), [DATA_MODEL](DATA_MODEL.md) (schema/RLS), [PLAN](PLAN.md) (milestones), [TASKS](TASKS.md) (status), and [PROJECT_STATE](PROJECT_STATE.md) (current verified state).
 
 Production: https://pnj-apqc-platform.vercel.app/
+
+## Performance and page loading
+
+- Authenticated page rendering explicitly waits for request context and verifies identity with Supabase `getClaims()`. Access to profiles, document versions and findings remains governed by RLS.
+- Filters on the main workspaces navigate through Next `<Form>` without full browser reload. Sidebar navigation prefetches on interaction intent; file downloads retain standard links.
+- Server-side Vercel Functions are configured in `syd1` (Sydney), alongside Supabase. Change this only after measuring latency from end-user locations.
+- The loading skeleton is a *perceived responsiveness* improvement; it does not replace optimizing real server response times. Performance acceptance targets and pending E2E checks are recorded in `TASKS.md` and `PROJECT_STATE.md`.
