@@ -209,8 +209,8 @@ Initial vocabularies include legal entity, department, location, channel, produc
 - shared lifecycle status enum
 - `title_vi text`
 - `title_en text nullable`
-- `document_group text`
-- `document_type_value_id uuid`
+- `document_group text` — derived automatically from the selected type, or retained from the saved group for a legacy untyped draft (no independent selector)
+- `document_type_value_id uuid` — optional on drafts; chosen vocabulary value maps to a group through `vocabulary_values.document_group_code`
 - `language text`
 - `document_abstract text nullable`
 - `access_level access_level`
@@ -308,6 +308,17 @@ Use lightweight catalog tables with a common shape where practical.
 - timestamps
 
 Relationships represent current state in the MVP. Temporal history is deferred.
+
+### Role-to-document knowledge classification (2026-10-21)
+
+- **Source**: `object_relationships.source_type='business_role'` and `source_id=business_roles.id`; **target**: `target_type='document'`, `target_id=documents.id` (stable identity, not a version).
+- **Three verified relationship types**: `role_must_know_document` (Phải biết), `role_should_know_document` (Nên biết), and `role_not_applicable_document` (Không áp dụng). All are in the `knowledge` relationship group and restrict source/target to business_role → document.
+- **Chưa xác định / Unclassified**: no verified knowledge relationship for that business role/document; never equate this with Not Applicable.
+- **Selection rule**: Tab 02 sends a multi-select classification mapping of active role UUID to one level (`must`, `should`, `none`). No role may occupy two levels on the same document. Roles omitted from the payload become unclassified.
+- **Write function**: `public.set_document_knowledge_audience(p_document_id uuid, p_assignments jsonb)` is `SECURITY INVOKER`, callable by `authenticated` but checks an active **Admin** via `current_profile_role()`; also checks active business roles and a draft/rejected version. It atomically rejects superseded verified mappings, reactivates an existing canonical mapping or inserts a new verified link, and keeps unchanged mappings. Its writes remain subject to table RLS and relationship constraints/triggers.
+- **Validation/evidence**: confirmed relations require description and evidence/source; the function supplies classification evidence and audit fields. Marked-rejected rows are retained, not deleted; this is **not** a full immutable event audit.
+- **Consumption**: Tab 05 `/role-knowledge` and Tab 02 library cards use verified classification. It does **not** change document/Storage permissions, issue individual `reading_assignments`, send notifications, or set `reading_acknowledgments`.
+- **Migration**: `supabase/migrations/20261021000034_document_knowledge_audience.sql` applied to the current APQC project.
 
 ### `process_business_object_flows`
 
@@ -512,6 +523,7 @@ Completeness must expose component scores and missing fields, not only a total.
 ### Admin
 
 - Full application data rights through policies/server actions.
+- May classify active business roles for editable document identities with the governed Admin-only function; Viewer/Editor cannot write knowledge assignments.
 - Approval must enforce separation from the last author.
 - Storage access still uses scoped server-generated signed URLs.
 
