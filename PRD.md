@@ -669,3 +669,45 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - A hollow source dot identifies where the relationship begins; the open chevron identifies the target. Inbound arrows terminate at the selected center object, while outbound arrows begin at the center and terminate at the related target node.
 - Connector rails use softened gradient fades and rounded junction points. Hover or keyboard focus highlights the connector belonging to the active node.
 - At constrained laptop widths, the same source-dot and target-chevron grammar is preserved in the inline relationship strip without overlapping cards.
+
+
+## 36. Relationship metadata intake and governance — 2026-10-21
+
+### 36.1 Metadata completeness review
+
+The existing object_relationships model already contains the metadata needed for governed end-user input. No custom field or new business column is required for the MVP. The missing capability was the input/edit workflow and its write authorization.
+
+The Relationship form must expose:
+
+- Source object: one active process, document, business object, system, risk, KPI, business role, or finding.
+- Controlled relationship type: filtered by the selected source and target object types.
+- Target object: one active object from the same governed catalogs.
+- Optional display label: overrides the controlled type label only for the current relationship.
+- Business description: explains why the relationship exists and how it is used.
+- Evidence/source of confirmation: meeting record, decision, document, ticket, or verification note.
+- Valid-from and valid-until dates.
+- Workflow status: proposed, verified, or rejected.
+- Automatic audit metadata: creator, last editor, verifier, created time, and last-updated time.
+
+### 36.2 Roles and workflow
+
+- Viewer is read-only and does not see create/edit controls.
+- Editor can create a proposed relationship and edit only their own proposed or rejected relationship. Saving a rejected relationship resubmits it as proposed.
+- Admin can create or edit any relationship and set proposed, verified, or rejected status.
+- Only Admin can verify a relationship. Verification identity is stamped by the system rather than accepted from the browser.
+- Relationship deletion is outside this increment; records remain governed and recoverable.
+
+### 36.3 Validation and security
+
+- Source and target must be different active objects.
+- The controlled type must be active and must allow the selected source/target object types.
+- The canonical Source + Type + Target tuple must be unique.
+- Valid-until cannot be earlier than valid-from.
+- Text lengths are validated in the UI contract and server action.
+- Server validation is repeated by a PostgreSQL trigger for direct database writes.
+- RLS is the authorization boundary: authenticated read remains unchanged; Editor/Admin write rules follow section 36.2.
+- Client code never receives a service-role key.
+
+### 36.4 Deferred relationship metadata scope
+
+Relationship version history, soft deletion, custom metadata-field creation, bulk import, and approval comments remain deferred. These items must not be inferred from the MVP form.
