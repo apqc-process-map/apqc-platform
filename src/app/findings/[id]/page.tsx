@@ -42,7 +42,7 @@ export default async function FindingDetailPage({ params }: { params: Promise<{ 
       .eq("finding_id",id).order("created_at",{ascending:true}):Promise.resolve({data:[],error:null}),
     isDocumentFinding?supabase.from("finding_links")
       .select("id,object_id,object_type,link_role,evidence_excerpt").eq("finding_id",id)
-      .eq("object_type","document_version").order("created_at",{ascending:true}):Promise.resolve({data:[],error:null}),
+      .eq("object_type","document_version"):Promise.resolve({data:[],error:null}),
     isDocumentFinding?supabase.from("document_versions").select("id,version_number,title_vi,valid_from,valid_until,status,documents(document_code)")
       .order("updated_at",{ascending:false}).limit(200):Promise.resolve({data:[],error:null}),
     finding.finding_type_value_id?supabase.from("vocabulary_values").select("label_vi")
