@@ -175,3 +175,14 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Viewer is read-only. Editor may create proposed records and revise only their own proposed/rejected records; Admin may manage and verify any relationship. Verified records require both description and evidence.
 - Supabase migrations 20261021000023 through 20261021000026 are applied. Admin insert/update and Viewer-denial probes passed inside rollback transactions; no test relationship persisted.
 - Vercel Preview QA passed for Admin create/edit rendering, metadata prefill, controlled-type filtering, Viewer control hiding, 1280/1024 px layout without horizontal overflow, and zero console errors. Editor browser QA remains unavailable because the approved account set contains no Editor.
+
+
+## 2026-10-21 — Document-centric Finding & Action
+
+- Tab 06 now prioritizes document-overlap/conflict findings and retains legacy general findings in a secondary all-findings view.
+- Added manually classified categories for exact/semantic duplication, scope overlap, inconsistent clauses, conflicting effective dates or versions, contradictory inter-document relationships, supersession candidate, and other document issue.
+- Each issue links concrete document versions with per-version cited excerpts and an operational-impact statement. Comparisons require two or more version references; other single-document findings can use one.
+- Document finding actions now have an explicit decision (required, not required with reason, pending), multiple corrective actions with assignees, deadlines, progress, blockers, closure evidence, and a chronological activity history. Closure is blocked by DB unless the decision and applicable actions are completed.
+- Database migrations 20261021000027/28/29 are applied; Preview deployment and TypeScript build READY. Read-boundaries were tested: Viewer sees legacy general findings but no restricted document findings.
+- Transactional Supabase smoke test succeeded: two linked versions, one action 0%→60%→100%, a resolved finding, and three action events; all test data rolled back.
+- Automated AI detection and file-content comparison are not implemented. Real authenticated browser E2E testing remains pending.
