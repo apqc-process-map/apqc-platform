@@ -1,3 +1,4 @@
+import { noteSlowPage } from "@/lib/page-perf";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { addFindingComment, removeFindingParticipant, setFindingParticipant, setFindingReaction, updateFindingWorkflow } from "@/app/actions";
@@ -26,6 +27,8 @@ function eventDescription(event: { event_type: string; from_value: unknown; to_v
 export default async function FindingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { supabase, profile } = await requireActiveAccount();
+  // Safe, post-response timing with no user or document identifiers.
+  noteSlowPage("/findings/detail", performance.now());
   // All ten queries depend only on route ID and RLS; execute in one concurrent
   // wave instead of waiting for finding metadata before fetching its actions.
   const [findingResult, profileResult, eventResult, reactionResult, commentResult,
