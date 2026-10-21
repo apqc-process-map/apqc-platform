@@ -364,3 +364,62 @@
 }
 
 @media(prefers-reduced-motion:reduce){.network-edge-line{transition:none}}
+
+
+/* Governed relationship metadata intake */
+.relationship-management-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:-4px 0 12px;color:#6c7d86;font-size:10px}
+.relationship-management-bar .primary-button{width:auto;padding:8px 13px;text-decoration:none;white-space:nowrap}
+.success-banner{margin:0 0 12px;padding:10px 13px;border:1px solid #bfe0d9;border-radius:7px;background:#eff9f6;color:#226f67;font-size:11px}
+.relationship-metadata-panel{margin-bottom:12px;overflow:hidden}
+.relationship-metadata-summary{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:13px 17px;cursor:pointer;list-style:none}
+.relationship-metadata-summary::-webkit-details-marker{display:none}
+.relationship-metadata-summary>span{display:grid;gap:4px}
+.relationship-metadata-summary strong{color:#294957;font-size:13px}
+.relationship-metadata-summary small{color:#85949c;font-size:10px}
+.relationship-metadata-summary::after{content:"+";display:grid;place-items:center;width:24px;height:24px;border:1px solid #d8e3e5;border-radius:50%;color:#287c74;font-size:15px}
+.relationship-metadata-panel[open] .relationship-metadata-summary{border-bottom:1px solid #edf1f3}
+.relationship-metadata-panel[open] .relationship-metadata-summary::after{content:"−"}
+.relationship-metadata-form{display:grid;gap:12px;padding:14px 17px 17px;background:#fbfcfc}
+.relationship-metadata-form fieldset{min-width:0;margin:0;padding:12px;border:1px solid #e1e8ea;border-radius:8px;background:#fff}
+.relationship-metadata-form legend{padding:0 7px;color:#526c78;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.relationship-metadata-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.relationship-definition-grid{grid-template-columns:1fr 1fr 1fr}
+.relationship-metadata-grid label,.relationship-proposal-note{display:grid;align-content:start;gap:5px;color:#526b77;font-size:10px;font-weight:700}
+.relationship-metadata-grid input,.relationship-metadata-grid select,.relationship-metadata-grid textarea{width:100%;min-width:0;border:1px solid #d8e2e5;border-radius:6px;background:#fff;color:#294654;font:inherit;font-weight:400;outline:none}
+.relationship-metadata-grid input,.relationship-metadata-grid select{height:36px;padding:0 10px}
+.relationship-metadata-grid textarea{padding:9px 10px;resize:vertical;line-height:1.45}
+.relationship-metadata-grid input:focus,.relationship-metadata-grid select:focus,.relationship-metadata-grid textarea:focus{border-color:#60b8ae;box-shadow:0 0 0 3px #1b8a8315}
+.relationship-metadata-grid label>small{color:#93a0a7;font-size:9px;font-weight:400;line-height:1.4}
+.relationship-field-wide{grid-column:span 2}
+.relationship-direction-preview{display:grid;grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:9px;margin-top:11px;padding:9px 11px;border-radius:7px;background:#f2f7f7;color:#45616d;font-size:10px}
+.relationship-direction-preview .source-dot{width:7px;height:7px;border:2px solid #2a8e85;border-radius:50%;background:#fff}
+.relationship-direction-preview strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.relationship-direction-preview .direction-line{display:flex;align-items:center;gap:7px;padding:4px 8px;border-radius:11px;background:#fff4dd;color:#875f16;font-size:9px;white-space:nowrap}
+.relationship-direction-preview .direction-line b{color:#2b817a;font-size:13px}
+.relationship-proposal-note{padding:7px 10px;border:1px solid #d8e7e4;border-radius:6px;background:#f3faf8}
+.relationship-proposal-note span{color:#78908d;font-size:9px;font-weight:400}
+.relationship-metadata-actions{display:flex;align-items:center;gap:12px}
+.relationship-metadata-actions .primary-button{width:auto;padding:9px 14px;cursor:pointer}
+.relationship-metadata-actions .text-button{padding:8px;color:#6c7e87;text-decoration:none}
+.relationship-metadata-actions small{margin-left:auto;max-width:430px;color:#8b999f;font-size:9px;line-height:1.4;text-align:right}
+.relationship-record-copy p{margin:5px 0 0;color:#667a84;font-size:10px;line-height:1.45}
+.relationship-record-meta{display:block;margin-top:4px;color:#87969d;font-size:9px}
+.relationship-edit-link{padding:5px 8px;border:1px solid #cfe1de;border-radius:5px;color:#267b73;font-size:9px;font-weight:700;text-decoration:none}
+.relationship-list article{grid-template-columns:90px minmax(0,1fr) 90px auto auto}
+@media(max-width:1100px){
+  .relationship-metadata-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .relationship-definition-grid{grid-template-columns:1fr}
+  .relationship-field-wide{grid-column:1/-1}
+  .relationship-list article{grid-template-columns:auto minmax(0,1fr) auto auto auto}
+}
+@media(max-width:760px){
+  .relationship-management-bar,.relationship-metadata-summary,.relationship-metadata-actions{align-items:stretch;flex-direction:column}
+  .relationship-management-bar .primary-button{width:100%;justify-content:center}
+  .relationship-metadata-grid{grid-template-columns:1fr}
+  .relationship-field-wide{grid-column:auto}
+  .relationship-direction-preview{grid-template-columns:auto minmax(0,1fr)}
+  .relationship-direction-preview .direction-line{grid-column:1/-1;justify-content:center}
+  .relationship-metadata-actions small{margin-left:0;text-align:left}
+  .relationship-list article{grid-template-columns:80px minmax(0,1fr) auto}
+  .relationship-list article>.target,.relationship-list article>.status-badge{display:none}
+}
