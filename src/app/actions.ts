@@ -72,6 +72,8 @@ export async function updateFindingWorkflow(formData: FormData) {
   const requestedStatus = String(formData.get("status") || "");
   const assigneeId = String(formData.get("assignee_id") || "");
   const resolutionSummary = String(formData.get("resolution_summary") || "").trim();
+  const dueDate = String(formData.get("due_at") || "").trim();
+  if(dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate))throw new Error("Ngày xử lý finding không hợp lệ.");
   if (!findingId || !findingStatuses.includes(requestedStatus as typeof findingStatuses[number])) throw new Error("Finding hoặc trạng thái không hợp lệ.");
 
   const { supabase, profile } = await authenticatedContext();
@@ -93,7 +95,7 @@ export async function updateFindingWorkflow(formData: FormData) {
   if (requestedStatus !== finding.status && profile.role !== "admin" && !editorTransitions[finding.status]?.includes(requestedStatus)) throw new Error("Chuyển trạng thái này cần quyền Admin.");
   if ((requestedStatus === "resolved" || requestedStatus === "closed") && !resolutionSummary) throw new Error("Resolved/closed bắt buộc có tóm tắt xử lý.");
 
-  const { error } = await supabase.from("findings").update({ status: requestedStatus, assignee_id: assigneeId || null, resolution_summary: resolutionSummary || null }).eq("id", findingId);
+  const { error } = await supabase.from("findings").update({ status: requestedStatus, assignee_id: assigneeId || null, due_at: dueDate? dueDate+"T17:00:00+07:00" : null, resolution_summary: resolutionSummary || null }).eq("id", findingId);
   if (error) throw new Error(error.message);
   revalidatePath(`/findings/${findingId}`);
   revalidatePath("/findings");
