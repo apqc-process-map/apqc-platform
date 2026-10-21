@@ -243,3 +243,12 @@ Do not mark these blockers complete using fabricated data, invented browser evid
 - [DONE] Display knowledge metadata in Document cards and Tab 05; PR #50 merged; Vercel Production commit 9868f9726f604aa2d7000a88e59f8b760ead0ece READY.
 - [VERIFIED] Rollback-only SQL Admin insert/reclassification and Viewer-denial tests passed; 20 versions and six original knowledge mappings preserved. Next.js/TypeScript Preview build passed.
 - [PENDING] Authenticated browser acceptance for create/edit/reopen, exclusivity, returning to unclassified, Tab 05 and document-card synchronization, and Editor read-only behavior. Build and SQL tests do not replace end-to-end testing.
+
+### Phase 12 — Tab 02 content and terminology review (2026-10-21)
+
+- [DONE] Audit all 23 document type names against the seven canonical groups; simplify nine confusing/duplicative labels without changing taxonomy IDs or codes.
+- [DONE] Separate the derived-group caption, read-only group value and help text visually on desktop and mobile; clarify blank-type and historical-group behavior.
+- [DONE] Consolidate Vietnamese presentation labels for group, status, language, access level, risk and date format; align create/edit, document filters, cards, comparison and file-uploader copy.
+- [DONE] Make the Document group filter case-insensitive to preserve visibility of legacy `Execution`/`Governance` values.
+- [DONE] Apply controlled-vocabulary label migration `20261021000035_normalize_document_type_labels.sql` without rewriting any business document/version relation.
+- [PENDING] Authenticated browser visual QA and end-to-end user testing for create/edit, type-to-group, group filtering, upload, card data, and lifecycle flows, beyond successful compilation/production build.
