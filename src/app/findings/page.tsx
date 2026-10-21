@@ -11,29 +11,25 @@ const issueStatuses:Record<string,string>={
   new:"Mới phát hiện",triage:"Đang xác minh",in_progress:"Đang xử lý",
   pending_decision:"Chờ quyết định",resolved:"Đã xử lý",closed:"Đã đóng",reopened:"Mở lại"
 };
-const actionLabels:Record<string,string>={
-  todo:"Chưa bắt đầu",in_progress:"Đang làm",blocked:"Vướng mắc",done:"Hoàn thành",cancelled:"Đã hủy"
-};
 const topicCodes=[
   "exact_duplicate","semantic_duplicate","scope_overlap","potential_conflict",
   "version_conflict","effective_date_conflict","relationship_conflict","supersession_candidate","other"
 ];
-type DocumentRow={id:string;title_vi:string;version_number:number;documents:{document_code:string}|null};
+type DocumentRow={id:string;document_id:string;title_vi:string;version_number:number;documents:{document_code:string}|null};
 type ActionRow={id:string;finding_id:string;status:string;progress_percent:number;due_at:string|null;assignee_id:string|null};
 type FindingLink={id:string;finding_id:string;object_type:string;object_id:string;link_role:string};
 const displayDate=(date:string|null|undefined)=>date?new Date(date).toLocaleDateString("vi-VN"):"Chưa có";
 const overdue=(date:string|null|undefined)=>!!date&&new Date(date).getTime()<Date.now();
 
 export default async function FindingsPage({searchParams}:{
-  searchParams:Promise<{status?:string;severity?:string;assigned?:string;type?:string;scope?:string}>
+  searchParams:Promise<{status?:string;severity?:string;assigned?:string;type?:string}>
 }) {
-  const {status="all",severity="all",assigned="all",type="all",scope="document"}=await searchParams;
+  const {status="all",severity="all",assigned="all",type="all"}=await searchParams;
   const {supabase,profile}=await requireActiveAccount();
   const canWrite=profile.role==="admin"||profile.role==="editor";
   let query=supabase.from("findings").select(
     "id,finding_code,title,description,impact_summary,finding_domain,action_decision,action_decision_reason,finding_type_value_id,severity,priority,status,due_at,assignee_id,created_at"
-  ).order("created_at",{ascending:false}).limit(200);
-  if(scope!=="all")query=query.eq("finding_domain","document");
+  ).eq("finding_domain","document").order("created_at",{ascending:false}).limit(200);
   if(status==="open")query=query.in("status",activeStatuses);
   else if(status!=="all")query=query.eq("status",status);
   if(severity!=="all")query=query.eq("severity",severity);
@@ -51,7 +47,7 @@ export default async function FindingsPage({searchParams}:{
   const findingIds=findings.map(x=>x.id);
   const [linksResult,actionsResult]=await Promise.all([
     findingIds.length?supabase.from("finding_links").select("id,finding_id,object_type,object_id,link_role")
-      .in("finding_id",findingIds).eq("object_type","document_version"):
+      .in("finding_id",findingIds).eq("object_type","document_version").eq("link_role","subject"):
       Promise.resolve({data:[],error:null}),
     findingIds.length?supabase.from("finding_actions").select("id,finding_id,status,progress_percent,due_at,assignee_id")
       .in("finding_id",findingIds):Promise.resolve({data:[],error:null})
@@ -60,13 +56,20 @@ export default async function FindingsPage({searchParams}:{
   const actions=(actionsResult.data||[]) as ActionRow[];
   const relevantDocs=[...new Set(links.map(l=>l.object_id))];
   const linkedDocuments=relevantDocs.length?await supabase.from("document_versions")
-    .select("id,title_vi,version_number,documents(document_code)").in("id",relevantDocs):{data:[]};
+    .select("id,document_id,title_vi,version_number,documents(document_code)").in("id",relevantDocs):{data:[]};
   const docMap=new Map(((linkedDocuments.data||[]) as unknown as DocumentRow[]).map(doc=>[doc.id,doc]));
   const types=(typesResult.data||[]) as {id:string;code:string;label_vi:string}[];
   const typeMap=new Map(types.map(t=>[t.id,t]));
   const people=(peopleResult.data||[]) as {id:string;display_name:string;role:string}[];
   const peopleMap=new Map(people.map(p=>[p.id,p.display_name]));
-  const filtered=type==="all"?findings:findings.filter(f=>typeMap.get(f.finding_type_value_id||"")?.code===type);
+  // A valid issue must compare at least two DISTINCT documents, not merely two versions of one document.
+  // Count only linked document versions visible under the caller's existing Supabase RLS.
+  const crossDocumentFindings=findings.filter(f=>{
+    const distinct=new Set(links.filter(l=>l.finding_id===f.id)
+      .map(l=>docMap.get(l.object_id)?.document_id).filter((id):id is string=>!!id));
+    return distinct.size>=2;
+  });
+  const filtered=type==="all"?crossDocumentFindings:crossDocumentFindings.filter(f=>typeMap.get(f.finding_type_value_id||"")?.code===type);
   const active=filtered.filter(f=>activeStatuses.includes(f.status));
   const activeActionIds=new Set(active.map(f=>f.id));
   const currentActions=actions.filter(a=>activeActionIds.has(a.finding_id)&&a.status!=="cancelled");
@@ -97,9 +100,9 @@ export default async function FindingsPage({searchParams}:{
         <label>Giao người phụ trách<select name="assignee_id" defaultValue=""><option value="">Chưa giao</option>{people.filter(p=>p.role==="admin"||p.role==="editor").map(p=><option value={p.id} key={p.id}>{p.display_name}</option>)}</select></label>
         <label className="finding-full">Mô tả vấn đề / nội dung khác nhau<textarea name="description" rows={3} maxLength={5000} required placeholder="Văn bản A quy định…, trong khi văn bản B quy định…; phạm vi trùng tại…"/></label>
         <label className="finding-full">Ảnh hưởng vận hành (nếu có)<textarea name="impact_summary" rows={2} maxLength={2000} placeholder="Ví dụ: cửa hàng có thể áp dụng mức phí không thống nhất"/></label>
-        <fieldset className="finding-full finding-doc-picker"><legend>Tài liệu liên quan · chọn ít nhất 2 với vấn đề chồng chéo/xung đột</legend>
+        <fieldset className="finding-full finding-doc-picker"><legend>Tài liệu liên quan · chọn ít nhất 2 tài liệu khác nhau</legend>
           <div className="finding-doc-options">{createDocs.length?createDocs.map(doc=><label key={doc.id}><input type="checkbox" name="document_version_id" value={doc.id}/><span><strong>{doc.documents?.document_code||"DOC"}</strong> · {doc.title_vi} · v{doc.version_number}</span></label>):<p>Chưa có phiên bản tài liệu bạn được phép chọn.</p>}</div>
-          <small>Riêng loại “Vấn đề tài liệu khác” có thể chọn một tài liệu; các loại đối chiếu cần tối thiểu hai.</small>
+          <small>Chỉ ghi nhận vấn đề phát sinh giữa ít nhất 2 tài liệu khác nhau. Hai phiên bản của cùng một tài liệu không được tính là 2 tài liệu.</small>
         </fieldset>
         <label className="finding-full">Dẫn chứng / vị trí điều khoản<textarea name="evidence_excerpt" rows={2} maxLength={2000} placeholder="Ví dụ: Điều 4.2 của tài liệu A so với Mục III tài liệu B"/></label>
         <label>Hạn xử lý (tùy chọn)<input type="date" name="due_at"/></label>
@@ -108,11 +111,9 @@ export default async function FindingsPage({searchParams}:{
     </details>}
 
     <div className="finding-view-row">
-      <div><strong>Danh sách vấn đề</strong><p>Ưu tiên quản trị các finding có liên quan giữa nhiều tài liệu.</p></div>
-      <div className="finding-view-tabs"><Link className={scope!=="all"?"is-selected":""} href="/findings">Về tài liệu</Link><Link className={scope==="all"?"is-selected":""} href="/findings?scope=all">Tất cả · bao gồm dữ liệu cũ</Link></div>
+      <div><strong>Danh sách vấn đề giữa các tài liệu</strong><p>Chỉ hiển thị finding liên quan ít nhất 2 tài liệu khác nhau; dữ liệu finding chung cũ được giữ lại ngoài danh sách này.</p></div>
     </div>
     <form className="catalog-toolbar finding-filter-toolbar">
-      {scope==="all"&&<input type="hidden" name="scope" value="all"/>}
       <select name="status" defaultValue={status} aria-label="Trạng thái finding"><option value="all">Tất cả trạng thái</option><option value="open">Đang mở</option>{Object.entries(issueStatuses).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select>
       <select name="type" defaultValue={type} aria-label="Loại finding"><option value="all">Mọi loại vấn đề</option>{allowedTypes.map(t=><option key={t.code} value={t.code}>{t.label_vi}</option>)}</select>
       <select name="severity" defaultValue={severity} aria-label="Mức độ"><option value="all">Mọi mức độ</option>{Object.entries(severityLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select>
@@ -122,13 +123,13 @@ export default async function FindingsPage({searchParams}:{
     <section className="data-panel">
       <div className="data-panel-heading"><div><p className="section-kicker">ISSUE REGISTER</p><h2>{filtered.length} finding</h2></div><span className="count-chip">Issue → Action → Kết quả</span></div>
       {findingsResult.error?<div className="state-message error-state"><strong>Không thể tải findings</strong><span>{findingsResult.error.message}</span></div>:
-      !filtered.length?<div className="state-message"><strong>Chưa ghi nhận finding về tài liệu phù hợp</strong><span>Đây không phải xác nhận “không có xung đột”. Có thể tạo finding thủ công bằng form phía trên hoặc chọn xem finding cũ.</span></div>:
+      !filtered.length?<div className="state-message"><strong>Chưa ghi nhận finding về tài liệu phù hợp</strong><span>Chưa có vấn đề đối chiếu từ 2 tài liệu trở lên phù hợp bộ lọc. Đây không phải kết luận tài liệu không có xung đột.</span></div>:
       <div className="finding-issue-list">{filtered.map(f=>{
         const docs=links.filter(l=>l.finding_id===f.id).map(l=>docMap.get(l.object_id)).filter((d):d is DocumentRow=>!!d);
         const itsActions=actions.filter(a=>a.finding_id===f.id && a.status!=="cancelled");
         const completed=itsActions.filter(a=>a.status==="done").length;
         const progress=itsActions.length?Math.round(itsActions.reduce((sum,a)=>sum+a.progress_percent,0)/itsActions.length):0;
-        const typeName=typeMap.get(f.finding_type_value_id||"")?.label_vi||(f.finding_domain==="document"?"Chưa phân loại":"Finding chung");
+        const typeName=typeMap.get(f.finding_type_value_id||"")?.label_vi||"Chưa phân loại";
         const actionText=f.action_decision==="pending"?"Chưa quyết định action":
           f.action_decision==="not_required"?"Không cần action":
           itsActions.length?completed+"/"+itsActions.length+" action hoàn tất":"Cần tạo action";
@@ -137,7 +138,7 @@ export default async function FindingsPage({searchParams}:{
           <p>{f.description}</p>
           <div className="finding-issue-type">{typeName}</div>
           {!!f.impact_summary&&<p className="finding-impact"><strong>Tác động:</strong> {f.impact_summary}</p>}
-          <div className="finding-related-documents"><strong>Tài liệu liên quan ({docs.length})</strong>{docs.length?<div>{docs.map(d=><Link key={d.id} href={"/documents?compare="+d.id}>{d.documents?.document_code||"DOC"} · {d.title_vi} · v{d.version_number}</Link>)}</div>:<small>{f.finding_domain==="document"?"Chưa liên kết tài liệu có thể xem":"Finding chung từ dữ liệu cũ"}</small>}</div>
+          <div className="finding-related-documents"><strong>Tài liệu liên quan ({docs.length})</strong>{docs.length?<div>{docs.map(d=><Link key={d.id} href={"/documents?compare="+d.id}>{d.documents?.document_code||"DOC"} · {d.title_vi} · v{d.version_number}</Link>)}</div>:<small>Không tìm thấy tài liệu được phép xem</small>}</div>
           <div className="finding-action-bar">
             <div><small>Action / kết quả xử lý</small><strong>{actionText}</strong>{itsActions.length>0&&<div className="finding-progress-track" role="progressbar" aria-label="Tiến độ action" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><span style={{width:progress+"%"}}/></div>}</div>
             <div><small>Người phụ trách</small><strong>{peopleMap.get(f.assignee_id||"")||"Chưa giao"}</strong></div>
