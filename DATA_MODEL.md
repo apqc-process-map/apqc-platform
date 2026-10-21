@@ -450,6 +450,7 @@ Additional `findings` columns:
 - `action_decision_reason text nullable` — required for `not_required`.
 - `impact_summary text nullable` — explicit operational implication.
 - `finding_links` associates multiple concrete `document_version` rows with per-version evidence.
+- Tab 06 shows only document findings where at least **two different `document_versions.document_id` values** are linked as `subject`. Linking two versions under one `documents.id` is not sufficient. The create action validates this, and a database trigger prevents resolution/closure without it. Generic findings remain stored but are not displayed on tab 06.
 
 The document-finding closure gate is enforced by a database trigger, separately from the existing generic finding workflow. No automated document-content comparison is part of this model.
 
