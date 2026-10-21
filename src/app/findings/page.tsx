@@ -25,15 +25,14 @@ const displayDate=(date:string|null|undefined)=>date?new Date(date).toLocaleDate
 const overdue=(date:string|null|undefined)=>!!date&&new Date(date).getTime()<Date.now();
 
 export default async function FindingsPage({searchParams}:{
-  searchParams:Promise<{status?:string;severity?:string;assigned?:string;type?:string;scope?:string}>
+  searchParams:Promise<{status?:string;severity?:string;assigned?:string;type?:string}>
 }) {
-  const {status="all",severity="all",assigned="all",type="all",scope="document"}=await searchParams;
+  const {status="all",severity="all",assigned="all",type="all"}=await searchParams;
   const {supabase,profile}=await requireActiveAccount();
   const canWrite=profile.role==="admin"||profile.role==="editor";
   let query=supabase.from("findings").select(
     "id,finding_code,title,description,impact_summary,finding_domain,action_decision,action_decision_reason,finding_type_value_id,severity,priority,status,due_at,assignee_id,created_at"
-  ).order("created_at",{ascending:false}).limit(200);
-  if(scope!=="all")query=query.eq("finding_domain","document");
+  ).eq("finding_domain","document").order("created_at",{ascending:false}).limit(200);
   if(status==="open")query=query.in("status",activeStatuses);
   else if(status!=="all")query=query.eq("status",status);
   if(severity!=="all")query=query.eq("severity",severity);
@@ -109,10 +108,8 @@ export default async function FindingsPage({searchParams}:{
 
     <div className="finding-view-row">
       <div><strong>Danh sách vấn đề</strong><p>Ưu tiên quản trị các finding có liên quan giữa nhiều tài liệu.</p></div>
-      <div className="finding-view-tabs"><Link className={scope!=="all"?"is-selected":""} href="/findings">Về tài liệu</Link><Link className={scope==="all"?"is-selected":""} href="/findings?scope=all">Tất cả · bao gồm dữ liệu cũ</Link></div>
     </div>
     <form className="catalog-toolbar finding-filter-toolbar">
-      {scope==="all"&&<input type="hidden" name="scope" value="all"/>}
       <select name="status" defaultValue={status} aria-label="Trạng thái finding"><option value="all">Tất cả trạng thái</option><option value="open">Đang mở</option>{Object.entries(issueStatuses).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select>
       <select name="type" defaultValue={type} aria-label="Loại finding"><option value="all">Mọi loại vấn đề</option>{allowedTypes.map(t=><option key={t.code} value={t.code}>{t.label_vi}</option>)}</select>
       <select name="severity" defaultValue={severity} aria-label="Mức độ"><option value="all">Mọi mức độ</option>{Object.entries(severityLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select>
@@ -122,7 +119,7 @@ export default async function FindingsPage({searchParams}:{
     <section className="data-panel">
       <div className="data-panel-heading"><div><p className="section-kicker">ISSUE REGISTER</p><h2>{filtered.length} finding</h2></div><span className="count-chip">Issue → Action → Kết quả</span></div>
       {findingsResult.error?<div className="state-message error-state"><strong>Không thể tải findings</strong><span>{findingsResult.error.message}</span></div>:
-      !filtered.length?<div className="state-message"><strong>Chưa ghi nhận finding về tài liệu phù hợp</strong><span>Đây không phải xác nhận “không có xung đột”. Có thể tạo finding thủ công bằng form phía trên hoặc chọn xem finding cũ.</span></div>:
+      !filtered.length?<div className="state-message"><strong>Chưa ghi nhận finding về tài liệu phù hợp</strong><span>Đây không phải xác nhận “không có xung đột”. Có thể tạo finding mới bằng form phía trên.</span></div>:
       <div className="finding-issue-list">{filtered.map(f=>{
         const docs=links.filter(l=>l.finding_id===f.id).map(l=>docMap.get(l.object_id)).filter((d):d is DocumentRow=>!!d);
         const itsActions=actions.filter(a=>a.finding_id===f.id && a.status!=="cancelled");
