@@ -9,7 +9,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export const getCurrentAccount = cache(async function getCurrentAccount() {
   await connection();
   const supabase = await createSupabaseServerClient();
-  const { data: { claims }, error } = await supabase.auth.getClaims();
+  const { data, error } = await supabase.auth.getClaims();
+  const claims = data?.claims;
   if (error || !claims?.sub) return { supabase, user: null, profile: null };
   const user = { id: claims.sub };
   const { data: profile } = await supabase.from("profiles")
