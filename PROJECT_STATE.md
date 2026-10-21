@@ -236,3 +236,10 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Library: group filtering is case-insensitive for legacy stored `Execution`, `Governance` and `Evidence`. Lifecycle names, access levels, risk, language, comparison metadata, visible dates and uploader controls use Vietnamese presentation labels while DB codes remain stable.
 - No schema changes or permission changes were made. Knowledge-audience groups (Phải biết, Nên biết, Không áp dụng) and reading/acknowledgment workflows remain unchanged.
 - Verification: Supabase post-migration queries confirmed 23 active type labels, nine updated names, and preserved references for existing versions. Vercel Preview build and TypeScript are the available compile gates. Authenticated browser visual/E2E testing is still pending and should not be inferred from a READY build.
+
+### Release verification / external deployment blocker (2026-10-21)
+
+- PR #52 merged to `main` at commit `ad9ee0207ee9d46fc6b687e632e971b27a7d691e`; the 6 canonical Markdown docs are also updated in that commit.
+- Supabase controlled-type label migration is **already applied** and its label changes can be observed via the existing production code because type labels are read from live data.
+- **The latest UI/CSS changes are NOT yet on Production.** Vercel returned HTTP 402 `api-deployments-free-per-day` (>100 deployments/day) when a new preview build was requested. The main commit shows a failed Vercel status pointing to a build-rate-limit upgrade page. At the check, Production is still running the previous main commit `0c2a11ca2ce696943369c1bd21bb77b841a1b197`.
+- Production publication needs the Vercel account owner to resolve/reset the deployment quota and trigger or retry the blocked main commit. Do not report feature publication until Vercel Production identifies commit `ad9ee020...` as READY and its domain alias targets that deployment. Latest app build and authenticated browser QA remain pending.
