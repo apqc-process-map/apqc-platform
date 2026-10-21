@@ -356,3 +356,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE FIND-015 Preserve legacy general findings via separate all-findings filter; document-centric navigation now primary.
 - [~] PARTIAL QA-FIND-01 Preview TypeScript/build and transactional Supabase workflow tested; authenticated end-to-end browser interactions and attachment evidence input require user-session QA.
 - [ ] BLOCKED FIND-011 AI extraction, automatic duplicate and conflict detection requires policy approval and representative file samples; not launched.
+
+## 2026-10-21 — Cross-document-only findings scope
+
+- [x] DONE FIND-016 Restrict tab 06 to findings with at least two distinct documents; remove legacy/general findings view from this tab without deleting its records.
+- [x] DONE FIND-017 Enforce two distinct document identities in the create-finding action, for every issue type including Other.
+- [x] DONE FIND-018 Prevent closing a document finding without two different linked documents at the database gate.
+- [x] DONE DEMO-FIND-01 Reuse 8 existing cross-document DEMO findings and 16 demo metadata document records mapped to enterprise processes; do not duplicate seed.
