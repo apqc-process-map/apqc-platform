@@ -1,3 +1,4 @@
+import { noteSlowPage } from "@/lib/page-perf";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { requireActiveAccount } from "@/lib/auth";
@@ -6,6 +7,8 @@ export const instant = false;
 
 export default async function GovernancePage() {
   const { supabase, profile } = await requireActiveAccount();
+  // Safe, post-response timing with no user or document identifiers.
+  noteSlowPage("/governance", performance.now());
   const [frameworks,elements,metrics,coverage,reviews,reading,findings] = await Promise.all([
     supabase.from("apqc_frameworks").select("id,code,name,version,imported_at,source_license_note"),
     supabase.from("apqc_elements").select("*",{count:"exact",head:true}),
