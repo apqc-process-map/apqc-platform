@@ -258,4 +258,4 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Process and Document detail now share one property-card renderer with Object Type, Class, grouped properties, origin, required state, explicit missing values, and completeness.
 - Document Class rules are version-controlled in application code; no custom metadata-field creation or database migration was introduced.
 - Document Views cover effective, review-due, missing-metadata, and process-linked records. Indirect discovery uses only RLS-visible process, applicability, tag, and role-knowledge rows and explains why each result appears.
-- TypeScript and authenticated browser verification must be recorded before this increment is marked delivered.
+- Verification passed: TypeScript, ESLint, production build, authenticated Production View/search/card smoke tests, Vietnamese-label mojibake scan, and browser console check. Production merge commit 2a15a62 is READY.
