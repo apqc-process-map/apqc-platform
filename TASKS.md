@@ -476,3 +476,12 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE REAL-DATA-005 — Make all six active profiles selectable as action assignees while preserving Viewer read-only authorization.
 - [x] DONE REAL-DATA-006 — Release legacy DOC upload support; attach exactly one private source file to each of the 12 document versions; verify Process Map, Findings, and Action Log on the signed-in Vercel Preview.
 - [ ] PENDING REAL-DATA-007 — Process Owner validates missing metadata, APQC proposals, evidence, effective dates, and publication decisions.
+
+## 2026-10-22 — Finding source-evidence matrix
+
+- [x] FIND-MATRIX-001 — Đối soát sheet Issue List: 35 finding, 14 nguồn và 113 ô bằng chứng có nội dung.
+- [x] FIND-MATRIX-002 — Bổ sung bảng finding_source_evidence, RLS đọc theo Finding hiển thị và nạp đủ 113 ô bằng chứng.
+- [x] FIND-MATRIX-003 — Hiển thị ma trận kiểu Excel với cột nhận diện cố định, nhóm thu gọn, toàn văn mở rộng và 14 header nguồn.
+- [x] FIND-MATRIX-004 — Bổ sung tìm kiếm tại chỗ, lọc phạm vi bằng chứng, trạng thái thiếu nguồn và chế độ Danh sách.
+- [x] FIND-MATRIX-005 — Giữ toàn bộ 35 finding; không còn loại bỏ finding một nguồn hoặc finding viện dẫn file chưa được cung cấp.
+- [ ] FIND-MATRIX-QA-001 — Process Owner xác nhận nội dung 113 ô bằng chứng và cung cấp binary nguồn 13–14 nếu cần truy cập file gốc.
