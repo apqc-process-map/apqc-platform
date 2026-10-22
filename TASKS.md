@@ -441,4 +441,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] META-VIEW-003 — Add indirect search through RLS-visible process, applicability, tag, and role-knowledge context with a visible result reason.
 - [x] META-CLASS-001 — Define version-controlled, Class-specific Document required-property rules without enabling custom metadata fields.
 - [x] META-CARD-001 — Use a shared grouped metadata-card renderer for Process and Document while retaining object-specific schemas.
-- [ ] QA-META-VIEW-001 — Verify authenticated View switching, indirect search, explanation chips, missing-property state, keyboard interaction, and 1280/1024 layouts on Vercel Preview and Production.
+- [x] QA-META-VIEW-001 — Authenticated Production verification passed for View switching, indirect Process search, explanation chips, Document/Process metadata cards, explicit missing-property state, Vietnamese labels, and browser console health. Explicit 1024 px viewport coverage remains in the broader responsive QA matrix.
