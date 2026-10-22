@@ -458,3 +458,11 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] QA-DESKTOP-005 — Home, Document, Process Map, Relationship, Finding, Catalog, Governance, Action Log, and Role Knowledge passed 1600 px horizontal-overflow and alert checks.
 - [x] QA-DESKTOP-006 — Browser console and Vercel Production error-log checks returned no errors during the executed flows.
 - [ ] QA-DESKTOP-007 — Dedicated Microsoft Edge run, complete keyboard traversal, real-file upload, Editor-role behavior, and populated deep L3/L4 hierarchy remain outstanding for the reasons recorded above.
+## Issue workbook alignment — 2026-10-22
+
+- [x] Model 4 issue groups and 11 standardized types with dependent selection and inline explanations.
+- [x] Add B → C → A → D diagnostic decision helper and primary-code recommendation.
+- [x] Add issue metadata from workbook sheet 2 to Finding intake/detail.
+- [x] Reframe Action Log as the cross-Finding corrective-action register while retaining notification history.
+- [x] Apply migration `20261022000034_issue_taxonomy_action_log.sql` and verify taxonomy counts and RLS advisors on connected Supabase.
+- [ ] Complete authenticated visual/E2E verification and production deployment after merge.

@@ -815,3 +815,12 @@ Process and Document detail use one metadata-card presentation: Object Type, Cla
 ### 40.4 Indirect discovery and explainability
 
 Users may find a document through RLS-visible related objects such as Business Process, applicability scope, governance tag, or role-knowledge assignment. Every result displays a concise reason explaining why it is present in the current View. Indirect discovery never broadens document access and never exposes labels from objects that the signed-in user cannot read.
+## 37. Issue taxonomy, decision support, and Action Log — 2026-10-22
+
+- Finding uses the governed 11-code taxonomy from `Issue.xlsx`. A user first selects **Nhóm vấn đề** (A–D), then a dependent **Loại lỗi chuẩn hóa** (A1–D3); the definition and minimum evidence appear beside the selection.
+- Each issue has exactly one `primary_issue_code`. Optional secondary codes are tags only and must not be counted as primary issues in reporting.
+- Diagnostic order is **B → C → A → D** and is explicitly separate from severity and business priority. The first Yes answer in the decision helper recommends the primary code; the user confirms it before save. If all answers are No, the issue is reviewed outside this taxonomy and no new code is invented.
+- Finding intake stores issue statement, process/version context, Decision Point, source document versions and clauses, Primary Code, classification rationale, evidence status (`candidate | pending | validated | rejected`), Process Owner question, preliminary proposed action, assignee and due date.
+- Finding detail is the governed place to update classification, validation metadata and Process Owner feedback. Corrective actions remain separate child records so one issue can have multiple owners/deadlines.
+- **09 · Action Log** is the cross-finding execution register. It shows finding/code, action/outcome, assignee, deadline, status, progress and latest update; system notifications remain available in a collapsed history section with read/unread state and deep links.
+- The taxonomy and field definitions are fixed MVP configuration; custom metadata-field creation remains deferred.

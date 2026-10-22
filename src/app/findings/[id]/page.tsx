@@ -1,9 +1,10 @@
 import { getServerTimestamp } from "@/lib/server-time";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
+import IssueClassifier from "@/components/issue-classifier";
 import { addFindingComment, removeFindingParticipant, setFindingParticipant, setFindingReaction, updateFindingWorkflow } from "@/app/actions";
 import { requireActiveAccount } from "@/lib/auth";
-import { addFindingDocumentEvidence, createFindingAction, saveDocumentFindingDecision, updateFindingAction } from "@/app/finding-actions";
+import { addFindingDocumentEvidence, createFindingAction, saveDocumentFindingDecision, updateFindingAction, updateFindingIssueMetadata } from "@/app/finding-actions";
 
 const statusLabels: Record<string, string> = {
   new: "Mới", triage: "Đang phân loại", in_progress: "Đang xử lý", pending_decision: "Chờ quyết định",
@@ -33,7 +34,7 @@ export default async function FindingDetailPage({ params, searchParams }: { para
   // wave instead of waiting for finding metadata before fetching its actions.
   const [findingResult, profileResult, eventResult, reactionResult, commentResult,
     participantResult, actionResponse, linkResponse, versionsResponse, typeResult] = await Promise.all([
-    supabase.from("findings").select("id,finding_code,title,description,severity,priority,status,created_by,assignee_id,due_at,resolution_summary,created_at,updated_at,finding_domain,action_decision,action_decision_reason,impact_summary,finding_type_value_id").eq("id", id).maybeSingle(),
+    supabase.from("findings").select("id,finding_code,title,description,severity,priority,status,created_by,assignee_id,due_at,resolution_summary,created_at,updated_at,finding_domain,action_decision,action_decision_reason,impact_summary,finding_type_value_id,primary_issue_code,classification_rationale,decision_point,evidence_status,owner_question,proposed_action,process_owner_feedback").eq("id", id).maybeSingle(),
     supabase.from("profiles").select("id,display_name,role").eq("is_active", true).order("display_name"),
     supabase.from("finding_events").select("id,event_type,from_value,to_value,created_at,actor_id").eq("finding_id", id).order("created_at", { ascending: false }).limit(100),
     supabase.from("finding_reactions").select("profile_id,reaction").eq("finding_id", id),
@@ -64,6 +65,8 @@ export default async function FindingDetailPage({ params, searchParams }: { para
   const overallProgress=activeActions.length?Math.round(activeActions.reduce((t,a)=>t+a.progress_percent,0)/activeActions.length):0;
   const actionStatusLabels:Record<string,string>={todo:"Chưa bắt đầu",in_progress:"Đang làm",blocked:"Vướng mắc",done:"Hoàn thành",cancelled:"Đã hủy"};
   const findType=(typeResult.data||[]).find(item=>item.id===finding.finding_type_value_id)?.label_vi||"Chưa phân loại";
+  const {data:taxonomy}=await supabase.from("issue_taxonomy").select("code,group_code,group_label_vi,type_label_vi,explanation_vi,decision_order,decision_question_vi,minimum_evidence_vi").eq("is_active",true).order("decision_order");
+  const selectedIssue=(taxonomy||[]).find(item=>item.code===finding.primary_issue_code);
   const formatDate=(date:string|null)=>date?new Date(date).toLocaleDateString("vi-VN"):"Chưa có";
 
   const profileMap = new Map((profiles || []).map((item) => [item.id, item.display_name]));
@@ -84,6 +87,20 @@ export default async function FindingDetailPage({ params, searchParams }: { para
     <Link className="text-button" href="/findings">← Quay lại Findings</Link>
     {workflowError ? <div className="state-message error-state" role="alert"><strong>Không thể lưu workflow</strong><span>{workflowErrors[workflowError] || workflowErrors.save_failed}</span></div> : null}
     {workflowSaved ? <div className="state-message" role="status"><strong>Đã lưu workflow.</strong><span>Trạng thái và thông tin phụ trách đã được cập nhật.</span></div> : null}
+    {isDocumentFinding&&<section className="data-panel issue-metadata-panel">
+      <div className="data-panel-heading"><div><p className="section-kicker">ISSUE CLASSIFICATION</p><h2>Phân loại & bối cảnh xác minh</h2><p>Mỗi issue có đúng một Primary Code; thứ tự chẩn đoán không phải mức độ nghiêm trọng.</p></div><span className="count-chip">{finding.primary_issue_code||"Chưa phân loại"}</span></div>
+      {canEdit?<form action={updateFindingIssueMetadata} className="finding-create-grid issue-metadata-form">
+        <input type="hidden" name="finding_id" value={finding.id}/>
+        <IssueClassifier items={taxonomy||[]} defaultCode={finding.primary_issue_code||""}/>
+        <label className="finding-full">Decision Point / điểm quyết định<input name="decision_point" maxLength={500} defaultValue={finding.decision_point||""}/></label>
+        <label className="finding-full">Lý do phân loại<textarea name="classification_rationale" rows={2} maxLength={2000} required defaultValue={finding.classification_rationale||""}/></label>
+        <label>Trạng thái bằng chứng<select name="evidence_status" defaultValue={finding.evidence_status||"candidate"}><option value="candidate">Candidate</option><option value="pending">Pending</option><option value="validated">Validated</option><option value="rejected">Rejected</option></select></label>
+        <label className="finding-full">Câu hỏi cho Process Owner<textarea name="owner_question" rows={2} maxLength={2000} defaultValue={finding.owner_question||""}/></label>
+        <label className="finding-full">Đề xuất hành động ban đầu<textarea name="proposed_action" rows={2} maxLength={3000} defaultValue={finding.proposed_action||""}/></label>
+        <label className="finding-full">Phản hồi từ Process Owner<textarea name="process_owner_feedback" rows={3} maxLength={3000} defaultValue={finding.process_owner_feedback||""}/></label>
+        <button className="primary-button" type="submit">Lưu metadata issue</button>
+      </form>:<dl className="finding-detail-meta issue-readonly-meta"><div><dt>Nhóm vấn đề</dt><dd>{selectedIssue?.group_label_vi||"—"}</dd></div><div><dt>Loại lỗi chuẩn hóa</dt><dd>{selectedIssue?selectedIssue.code+" · "+selectedIssue.type_label_vi:"—"}</dd></div><div><dt>Decision Point</dt><dd>{finding.decision_point||"—"}</dd></div><div><dt>Trạng thái bằng chứng</dt><dd>{finding.evidence_status||"candidate"}</dd></div></dl>}
+    </section>}
     {isDocumentFinding&&<>
       <section className="data-panel finding-document-evidence">
         <div className="data-panel-heading"><div><p className="section-kicker">DOCUMENT EVIDENCE</p>

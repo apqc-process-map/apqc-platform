@@ -4,6 +4,7 @@ import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { createDocumentFinding } from "@/app/finding-actions";
 import { requireActiveAccount } from "@/lib/auth";
+import IssueClassifier,{type IssueTaxonomyItem} from "@/components/issue-classifier";
 
 export const instant = false;
 
@@ -13,11 +14,8 @@ const issueStatuses:Record<string,string>={
   new:"Mới phát hiện",triage:"Đang xác minh",in_progress:"Đang xử lý",
   pending_decision:"Chờ quyết định",resolved:"Đã xử lý",closed:"Đã đóng",reopened:"Mở lại"
 };
-const topicCodes=[
-  "exact_duplicate","semantic_duplicate","scope_overlap","potential_conflict",
-  "version_conflict","effective_date_conflict","relationship_conflict","supersession_candidate","other"
-];
 type DocumentRow={id:string;document_id:string;title_vi:string;version_number:number;documents:{document_code:string}|null};
+type ProcessRow={id:string;name_vi:string;level_type:string;enterprise_processes:{process_code:string}|null};
 type ActionRow={id:string;finding_id:string;status:string;progress_percent:number;due_at:string|null;assignee_id:string|null};
 type FindingLink={id:string;finding_id:string;object_type:string;object_id:string;link_role:string};
 const displayDate=(date:string|null|undefined)=>date?new Date(date).toLocaleDateString("vi-VN"):"Chưa có";
@@ -32,20 +30,20 @@ export default async function FindingsPage({searchParams}:{
   noteSlowPage("/findings", performance.now());
   const canWrite=profile.role==="admin"||profile.role==="editor";
   let query=supabase.from("findings").select(
-    "id,finding_code,title,description,impact_summary,finding_domain,action_decision,action_decision_reason,finding_type_value_id,severity,priority,status,due_at,assignee_id,created_at"
+    "id,finding_code,title,description,impact_summary,finding_domain,action_decision,action_decision_reason,finding_type_value_id,primary_issue_code,severity,priority,status,due_at,assignee_id,created_at"
   ).eq("finding_domain","document").order("created_at",{ascending:false}).limit(200);
   if(status==="open")query=query.in("status",activeStatuses);
   else if(status!=="all")query=query.eq("status",status);
   if(severity!=="all")query=query.eq("severity",severity);
   if(assigned==="me")query=query.eq("assignee_id",profile.id);
   if(assigned==="unassigned")query=query.is("assignee_id",null);
-  const [findingsResult,allDocuments,typesResult,peopleResult] = await Promise.all([
+  const [findingsResult,allDocuments,taxonomyResult,peopleResult,processResult] = await Promise.all([
     query,
     canWrite ? supabase.from("document_versions").select("id,document_id,title_vi,version_number,documents(document_code)")
       .order("updated_at",{ascending:false}).limit(200) : Promise.resolve({data:[],error:null}),
-    supabase.from("vocabulary_values").select("id,code,label_vi,vocabularies!inner(code)")
-      .eq("vocabularies.code","finding_type").eq("is_active",true).order("display_order"),
-    supabase.from("profiles").select("id,display_name,role").eq("is_active",true).order("display_name")
+    supabase.from("issue_taxonomy").select("code,group_code,group_label_vi,type_label_vi,explanation_vi,decision_order,decision_question_vi,minimum_evidence_vi").eq("is_active",true).order("decision_order"),
+    supabase.from("profiles").select("id,display_name,role").eq("is_active",true).order("display_name"),
+    canWrite?supabase.from("process_versions").select("id,name_vi,level_type,enterprise_processes(process_code)").order("updated_at",{ascending:false}).limit(200):Promise.resolve({data:[],error:null})
   ]);
   const findings=(findingsResult.data||[]);
   const findingIds=findings.map(x=>x.id);
@@ -67,8 +65,8 @@ export default async function FindingsPage({searchParams}:{
       .select("id,document_id,title_vi,version_number,documents(document_code)").in("id",missingDocs);
     for(const doc of (moreDocs.data||[]) as unknown as DocumentRow[])docMap.set(doc.id,doc);
   }
-  const types=(typesResult.data||[]) as {id:string;code:string;label_vi:string}[];
-  const typeMap=new Map(types.map(t=>[t.id,t]));
+  const taxonomy=(taxonomyResult.data||[]) as IssueTaxonomyItem[];
+  const taxonomyMap=new Map(taxonomy.map(t=>[t.code,t]));
   const people=(peopleResult.data||[]) as {id:string;display_name:string;role:string}[];
   const peopleMap=new Map(people.map(p=>[p.id,p.display_name]));
   // A valid issue must compare at least two DISTINCT documents, not merely two versions of one document.
@@ -78,14 +76,15 @@ export default async function FindingsPage({searchParams}:{
       .map(l=>docMap.get(l.object_id)?.document_id).filter((id):id is string=>!!id));
     return distinct.size>=2;
   });
-  const filtered=type==="all"?crossDocumentFindings:crossDocumentFindings.filter(f=>typeMap.get(f.finding_type_value_id||"")?.code===type);
+  const filtered=(type==="all"?crossDocumentFindings:crossDocumentFindings.filter(f=>f.primary_issue_code===type))
+    .sort((a,b)=>(taxonomyMap.get(a.primary_issue_code||"")?.decision_order||99)-(taxonomyMap.get(b.primary_issue_code||"")?.decision_order||99));
   const active=filtered.filter(f=>activeStatuses.includes(f.status));
   const activeActionIds=new Set(active.map(f=>f.id));
   const currentActions=actions.filter(a=>activeActionIds.has(a.finding_id)&&a.status!=="cancelled");
   const delayed=currentActions.filter(a=>a.status!=="done"&&overdue(a.due_at)).length;
   const decisionPending=active.filter(f=>f.action_decision==="pending").length;
-  const allowedTypes=types.filter(t=>topicCodes.includes(t.code));
   const createDocs=(allDocuments.data||[]) as unknown as DocumentRow[];
+  const processes=(processResult.data||[]) as unknown as ProcessRow[];
 
   return <WorkspaceShell active="/findings" eyebrow="06 · DOCUMENT FINDINGS & ACTIONS"
     title="Finding & Action" description="Phát hiện trùng lặp, chồng chéo và xung đột giữa các tài liệu; gắn bằng chứng, giao việc và theo dõi kết quả."
@@ -101,12 +100,12 @@ export default async function FindingsPage({searchParams}:{
       <summary><strong>+ Ghi nhận finding về tài liệu</strong><span>Tạo issue có dẫn chứng và liên kết 2 hoặc nhiều tài liệu</span></summary>
       <form action={createDocumentFinding} className="finding-create-grid">
         <label className="finding-full">Tên vấn đề<input name="title" required maxLength={220} placeholder="Ví dụ: Hai chính sách áp dụng mức phí khác nhau cho cùng dịch vụ"/></label>
-        <label>Loại vấn đề<select name="type_code" required defaultValue="potential_conflict">
-          {allowedTypes.map(t=><option key={t.id} value={t.code}>{t.label_vi}</option>)}
-        </select></label>
+        <IssueClassifier items={taxonomy}/>
         <label>Mức độ ảnh hưởng<select name="severity" defaultValue="medium">{Object.entries(severityLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
         <label>Ưu tiên<select name="priority" defaultValue="medium"><option value="low">Thấp</option><option value="medium">Trung bình</option><option value="high">Cao</option><option value="urgent">Khẩn cấp</option></select></label>
         <label>Giao người phụ trách<select name="assignee_id" defaultValue=""><option value="">Chưa giao</option>{people.filter(p=>p.role==="admin"||p.role==="editor").map(p=><option value={p.id} key={p.id}>{p.display_name}</option>)}</select></label>
+        <label>Quy trình liên quan<select name="process_version_id" defaultValue=""><option value="">Chưa liên kết</option>{processes.map(p=><option key={p.id} value={p.id}>{p.enterprise_processes?.process_code||"PROC"} · {p.name_vi} · {p.level_type}</option>)}</select></label>
+        <label className="finding-full">Decision Point / điểm quyết định<input name="decision_point" maxLength={500} placeholder="Bước hoặc quyết định nghiệp vụ nơi vấn đề phát sinh"/></label>
         <label className="finding-full">Mô tả vấn đề / nội dung khác nhau<textarea name="description" rows={3} maxLength={5000} required placeholder="Văn bản A quy định…, trong khi văn bản B quy định…; phạm vi trùng tại…"/></label>
         <label className="finding-full">Ảnh hưởng vận hành (nếu có)<textarea name="impact_summary" rows={2} maxLength={2000} placeholder="Ví dụ: cửa hàng có thể áp dụng mức phí không thống nhất"/></label>
         <fieldset className="finding-full finding-doc-picker"><legend>Tài liệu liên quan · chọn ít nhất 2 tài liệu khác nhau</legend>
@@ -114,6 +113,10 @@ export default async function FindingsPage({searchParams}:{
           <small>Chỉ ghi nhận vấn đề phát sinh giữa ít nhất 2 tài liệu khác nhau. Hai phiên bản của cùng một tài liệu không được tính là 2 tài liệu.</small>
         </fieldset>
         <label className="finding-full">Dẫn chứng / vị trí điều khoản<textarea name="evidence_excerpt" rows={2} maxLength={2000} placeholder="Ví dụ: Điều 4.2 của tài liệu A so với Mục III tài liệu B"/></label>
+        <label className="finding-full">Lý do phân loại<textarea name="classification_rationale" rows={2} maxLength={2000} required placeholder="Vì sao chọn mã này thay vì mã gần nhất?"/></label>
+        <label>Trạng thái bằng chứng<select name="evidence_status" defaultValue="candidate"><option value="candidate">Candidate · mới ghi nhận</option><option value="pending">Pending · chờ xác minh</option><option value="validated">Validated · đã xác nhận</option><option value="rejected">Rejected · không hợp lệ</option></select></label>
+        <label className="finding-full">Câu hỏi cho Process Owner<textarea name="owner_question" rows={2} maxLength={2000} placeholder="Nội dung cụ thể cần Process Owner xác nhận"/></label>
+        <label className="finding-full">Đề xuất hành động ban đầu<textarea name="proposed_action" rows={2} maxLength={3000} placeholder="Khuyến nghị sơ bộ; action thực thi sẽ được giao ở trang chi tiết"/></label>
         <label>Hạn xử lý (tùy chọn)<input type="date" name="due_at"/></label>
         <div className="finding-full"><button className="primary-button" type="submit">Tạo finding & liên kết tài liệu</button></div>
       </form>
@@ -124,7 +127,7 @@ export default async function FindingsPage({searchParams}:{
     </div>
     <Form action="/findings" scroll={false} className="catalog-toolbar finding-filter-toolbar">
       <select name="status" defaultValue={status} aria-label="Trạng thái finding"><option value="all">Tất cả trạng thái</option><option value="open">Đang mở</option>{Object.entries(issueStatuses).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select>
-      <select name="type" defaultValue={type} aria-label="Loại finding"><option value="all">Mọi loại vấn đề</option>{allowedTypes.map(t=><option key={t.code} value={t.code}>{t.label_vi}</option>)}</select>
+      <select name="type" defaultValue={type} aria-label="Loại finding"><option value="all">Mọi loại vấn đề</option>{taxonomy.map(t=><option key={t.code} value={t.code}>{t.code} · {t.type_label_vi}</option>)}</select>
       <select name="severity" defaultValue={severity} aria-label="Mức độ"><option value="all">Mọi mức độ</option>{Object.entries(severityLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select>
       <select name="assigned" defaultValue={assigned} aria-label="Người phụ trách"><option value="all">Mọi người phụ trách</option><option value="me">Được giao cho tôi</option><option value="unassigned">Chưa giao</option></select>
       <button type="submit">Lọc</button>
@@ -138,7 +141,8 @@ export default async function FindingsPage({searchParams}:{
         const itsActions=actions.filter(a=>a.finding_id===f.id && a.status!=="cancelled");
         const completed=itsActions.filter(a=>a.status==="done").length;
         const progress=itsActions.length?Math.round(itsActions.reduce((sum,a)=>sum+a.progress_percent,0)/itsActions.length):0;
-        const typeName=typeMap.get(f.finding_type_value_id||"")?.label_vi||"Chưa phân loại";
+        const issueType=taxonomyMap.get(f.primary_issue_code||"");
+        const typeName=issueType?`${issueType.code} · ${issueType.type_label_vi}`:"Chưa phân loại chuẩn hóa";
         const actionText=f.action_decision==="pending"?"Chưa quyết định action":
           f.action_decision==="not_required"?"Không cần action":
           itsActions.length?completed+"/"+itsActions.length+" action hoàn tất":"Cần tạo action";
