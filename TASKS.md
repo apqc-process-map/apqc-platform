@@ -138,9 +138,9 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] `DONE QA-001` Transactionally test lifecycle, publication gates, completeness, SLA, and inverse labels.
 - [~] `PARTIAL QA-002` Test RLS for all three roles and private Storage.
 - [~] `PARTIAL QA-003` Test forbidden direct client mutations.
-- [ ] `TODO QA-004` Test empty, loading, error, and long-text states.
-- [ ] `TODO QA-005` Run accessibility checks and keyboard navigation review.
-- [ ] `TODO QA-006` Run visual QA at 1024, 1280, and wide desktop widths.
+- [~] `PARTIAL QA-004` Test empty, loading, error, and long-text states; Production now covers empty L3/L4, inline workflow validation errors, and long Process tooltip content, while route-loading and remaining module-specific empty/error states remain.
+- [~] `PARTIAL QA-005` Run accessibility checks and keyboard navigation review; Process tooltip focus/Escape behavior and visible form focus ring passed, while a complete route-by-route keyboard/semantic audit remains.
+- [~] `PARTIAL QA-006` Run visual QA at 1024, 1280, and wide desktop widths; critical Process Map/Relationship/Document surfaces and all main routes passed horizontal-overflow checks, while browser-specific Edge evidence remains.
 - [~] `PARTIAL QA-007` Run the golden demo Playwright flow in Chrome and Edge.
 - [x] `DONE QA-008` Run security review for Auth, RLS, uploads, signed URLs, and secrets.
 - [x] `DONE DEPLOY-001` Configure Vercel environment variables.
@@ -430,8 +430,8 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 ### 2026-10-21 — Deployment blocked by Vercel daily quota
 
 - [x] DOC-COPY-007 — GitHub PR #52 merged into main, commit `ad9ee0207ee9d46fc6b687e632e971b27a7d691e`; Supabase 23 types / 7 groups / 20 versions / 0 broken type links verified.
-- [ ] DOC-COPY-DEPLOY-001 — Remove or resolve Vercel deployment quota blocker (HTTP 402 `api-deployments-free-per-day`, CI context Vercel=FAILURE due to `build-rate-limit`). Trigger/retry production build of main commit `ad9ee020...` and verify READY plus alias.
-- [ ] DOC-COPY-DEPLOY-002 — Verify Next.js build/TypeScript for the final main commit; earlier READY previews covered only earlier intermediate commits.
+- [x] DOC-COPY-DEPLOY-001 — Historical Vercel daily quota blocker cleared; subsequent main deployments reached READY and the Production alias is serving current main.
+- [x] DOC-COPY-DEPLOY-002 — Later main commits passed Next.js production build/TypeScript and reached Vercel Production READY.
 - [ ] DOC-COPY-QA-004 — Finish signed-in Production UI/visual workflows once deployment is actually READY.
 
 ## 2026-10-22 — Metadata-driven Views and shared property card
@@ -449,3 +449,12 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] FIND-WF-UX-003 — Preserve the database closure trigger and RLS as the final authorization/data-integrity boundary.
 - [x] FIND-WF-UX-004 — TypeScript, targeted ESLint, and Next.js production build passed.
 - [x] FIND-WF-UX-QA-001 — Authenticated Production QA passed: missing-summary and incomplete-action closure attempts return inline Vietnamese alerts, preserve the page, write no invalid status, and produce no browser console errors.
+## 2026-10-22 — Desktop visual and interaction QA
+
+- [x] QA-DESKTOP-001 — Process Map at 1024×768: no horizontal overflow; L0–L4 bands, empty L3/L4, header controls, and stacked detail panel remain usable.
+- [x] QA-DESKTOP-002 — Relationship at 1024×768: statistics, filters, create control, focus selector, and network container remain within the viewport.
+- [x] QA-DESKTOP-003 — Document at 1280×800: intake and governed controls fit without horizontal overflow; input focus ring is visible.
+- [x] QA-DESKTOP-004 — Process L2 tooltip fits within 1024×768, opens on keyboard focus, and dismisses with Escape.
+- [x] QA-DESKTOP-005 — Home, Document, Process Map, Relationship, Finding, Catalog, Governance, Action Log, and Role Knowledge passed 1600 px horizontal-overflow and alert checks.
+- [x] QA-DESKTOP-006 — Browser console and Vercel Production error-log checks returned no errors during the executed flows.
+- [ ] QA-DESKTOP-007 — Dedicated Microsoft Edge run, complete keyboard traversal, real-file upload, Editor-role behavior, and populated deep L3/L4 hierarchy remain outstanding for the reasons recorded above.
