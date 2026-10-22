@@ -824,3 +824,13 @@ Users may find a document through RLS-visible related objects such as Business P
 - Finding detail is the governed place to update classification, validation metadata and Process Owner feedback. Corrective actions remain separate child records so one issue can have multiple owners/deadlines.
 - **09 · Action Log** is the cross-finding execution register. It shows finding/code, action/outcome, assignee, deadline, status, progress and latest update; system notifications remain available in a collapsed history section with read/unread state and deep links.
 - The taxonomy and field definitions are fixed MVP configuration; custom metadata-field creation remains deferred.
+
+## 38. Bộ dữ liệu nghiệp vụ trả góp được kiểm soát — 2026-10-22
+
+- Bộ nguồn gồm 12 tài liệu nghiệp vụ do người dùng cung cấp và Issue List.xlsx. Tệp nguồn là dữ liệu nội bộ: chỉ lưu trong Supabase Storage riêng tư, không đưa vào Git và không dùng làm fixture công khai.
+- 12 tệp nguồn được quản lý dưới dạng **12 tài liệu**, không được mô tả sai thành 12 quy trình. Cây quy trình được trích từ tài liệu quy trình có cấu trúc rõ ràng: L0 Bán hàng trả góp, L1 Thực hiện bán hàng trả góp, và chín bước L2 QTTG.1–QTTG.9.
+- Metadata chỉ được nhập khi có bằng chứng trực tiếp trong nguồn. Trường chưa xác định để trống và phải hiển thị là thiếu/chờ xác nhận. Tất cả phiên bản tài liệu khởi tạo ở draft; ánh xạ APQC khởi tạo ở proposed và cần Process Owner xác nhận trước khi công bố.
+- Hệ thống nhận PDF, DOC, DOCX, XLSX, PPTX, PNG và JPEG, tối đa 25 MB/tệp. Tệp nhị phân đi thẳng từ trình duyệt đã xác thực vào bucket riêng tư; metadata và checksum được ghi sau khi upload thành công.
+- Issue List.xlsx cung cấp 35 finding và 22 action có nội dung xử lý. Finding liên kết với phiên bản quy trình trả góp và với từng phiên bản tài liệu có bằng chứng; không tạo liên kết tài liệu khi tệp nguồn tương ứng chưa được cung cấp.
+- Sáu tài khoản đang hoạt động đều xuất hiện trong danh sách người thực hiện. Quyền chọn người thực hiện không làm thay đổi quyền cập nhật: Viewer vẫn chỉ đọc; Admin/Editor mới được sửa action theo RLS và Server Action hiện hành.
+- Khi thay dữ liệu thử bằng dữ liệu thật, việc xóa phải giới hạn bằng marker/mã fixture đã xác minh; không dùng thao tác xóa rộng theo toàn bảng hoặc toàn bucket.

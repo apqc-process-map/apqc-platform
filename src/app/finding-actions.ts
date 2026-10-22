@@ -33,8 +33,8 @@ async function allowedManager(supabase:Client,userId:string,role:string,findingI
 }
 async function validateAssignee(supabase:Client,id:string){
   if(!id)return null;
-  const {data,error}=await supabase.from("profiles").select("id,role").eq("id",id).eq("is_active",true).maybeSingle();
-  if(error||!data||!["admin","editor"].includes(data.role))throw new Error("Người thực hiện phải là Admin hoặc Editor đang hoạt động.");
+  const {data,error}=await supabase.from("profiles").select("id").eq("id",id).eq("is_active",true).maybeSingle();
+  if(error||!data)throw new Error("Người thực hiện phải là một tài khoản đang hoạt động.");
   return id;
 }
 function refresh(id:string){

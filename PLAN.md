@@ -252,3 +252,13 @@ Do not mark these blockers complete using fabricated data, invented browser evid
 - [DONE] Make the Document group filter case-insensitive to preserve visibility of legacy `Execution`/`Governance` values.
 - [DONE] Apply controlled-vocabulary label migration `20261021000035_normalize_document_type_labels.sql` without rewriting any business document/version relation.
 - [PENDING] Authenticated browser visual QA and end-to-end user testing for create/edit, type-to-group, group filtering, upload, card data, and lifecycle flows, beyond successful compilation/production build.
+
+### Phase 10 — Controlled installment source onboarding (2026-10-22)
+
+- Replace tagged synthetic fixtures with the user-supplied installment document set without deleting unrelated production records.
+- Keep all 12 source binaries outside Git and upload them to private Supabase Storage only after the compatible application release is live.
+- Represent the sources as 12 governed documents and derive only the evidenced L0–L2 process hierarchy; keep unknown metadata blank.
+- Import Issue List.xlsx as Findings and child Actions, link evidence to document versions and the end-to-end installment process, and expose all six active profiles as assignment candidates without widening Viewer write access.
+- Require proposed APQC mappings and draft documents to pass owner review before verification/publication.
+
+Exit: database counts and authorization boundaries are verified, the production build is healthy, 12 private files are attached to the correct versions, and signed-in browser smoke tests cover Documents, Process Map, Findings, and Action Log.

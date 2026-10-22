@@ -185,7 +185,7 @@ export default async function FindingDetailPage({ params, searchParams }: { para
                 <input name="finding_id" type="hidden" value={finding.id}/><input name="action_id" type="hidden" value={action.id}/>
                 <label>Trạng thái<select name="status" defaultValue={action.status}>{Object.entries(actionStatusLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
                 <label>Tiến độ (%)<input type="number" name="progress_percent" min="0" max="100" defaultValue={action.progress_percent}/></label>
-                {canEdit&&<><label>Người thực hiện<select name="assignee_id" defaultValue={action.assignee_id||""}><option value="">Chưa giao</option>{(profiles||[]).filter(x=>x.role==="editor"||x.role==="admin").map(p=><option value={p.id} key={p.id}>{p.display_name}</option>)}</select></label>
+                {canEdit&&<><label>Người thực hiện<select name="assignee_id" defaultValue={action.assignee_id||""}><option value="">Chưa giao</option>{(profiles||[]).map(p=><option value={p.id} key={p.id}>{p.display_name} · {p.role}</option>)}</select></label>
                 <label>Hạn hoàn tất<input type="date" name="due_at" defaultValue={action.due_at||""}/></label></>}
                 <label className="finding-full">Cập nhật tiến độ / lý do vướng mắc<textarea name="last_update" rows={2} maxLength={3000} defaultValue={action.last_update||""}/></label>
                 <label className="finding-full">Kết quả / dẫn chứng đóng action<textarea name="completion_evidence" rows={2} maxLength={3000} defaultValue={action.completion_evidence||""} placeholder="Bắt buộc khi hoàn thành action"/></label>
@@ -199,7 +199,7 @@ export default async function FindingDetailPage({ params, searchParams }: { para
             <input name="finding_id" type="hidden" value={finding.id}/>
             <label className="finding-full">Nội dung công việc<input name="action_title" required maxLength={300} placeholder="Ví dụ: Hợp nhất quy định tính phí trong hai tài liệu"/></label>
             <label className="finding-full">Kết quả cần đạt<textarea name="description" rows={2} maxLength={3000} placeholder="Mô tả đầu ra và tiêu chí nghiệm thu"/></label>
-            <label>Người thực hiện<select name="assignee_id" defaultValue=""><option value="">Chưa giao</option>{(profiles||[]).filter(x=>x.role==="editor"||x.role==="admin").map(p=><option value={p.id} key={p.id}>{p.display_name}</option>)}</select></label>
+            <label>Người thực hiện<select name="assignee_id" defaultValue=""><option value="">Chưa giao</option>{(profiles||[]).map(p=><option value={p.id} key={p.id}>{p.display_name} · {p.role}</option>)}</select></label>
             <label>Deadline<input type="date" name="due_at"/></label>
             <button className="primary-button" type="submit">Thêm action</button>
           </form>

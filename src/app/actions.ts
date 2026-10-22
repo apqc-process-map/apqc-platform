@@ -9,6 +9,7 @@ const reactions = ["agree", "disagree", "need_more_information"] as const;
 const documentStatuses = ["draft", "in_review", "rejected", "approved", "scheduled", "effective", "cancelled", "superseded", "archived"] as const;
 const allowedMimeTypes = new Set([
   "application/pdf",
+  "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
@@ -17,6 +18,7 @@ const allowedMimeTypes = new Set([
 ]);
 const allowedFileExtensions: Record<string, string[]> = {
   "application/pdf": ["pdf"],
+  "application/msword": ["doc"],
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ["docx"],
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ["xlsx"],
   "application/vnd.openxmlformats-officedocument.presentationml.presentation": ["pptx"],
@@ -173,7 +175,7 @@ export async function uploadDocumentFile(formData: FormData) {
   const file = formData.get("file");
   if (!documentVersionId || !(file instanceof File) || !file.size) throw new Error("Hãy chọn file cần upload.");
   if (file.size > 26_214_400) throw new Error("File vượt giới hạn 25 MB.");
-  if (!allowedMimeTypes.has(file.type)) throw new Error("Chỉ chấp nhận PDF, DOCX, XLSX, PPTX, PNG hoặc JPEG.");
+  if (!allowedMimeTypes.has(file.type)) throw new Error("Chỉ chấp nhận PDF, DOC, DOCX, XLSX, PPTX, PNG hoặc JPEG.");
   const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "";
   if (!allowedFileExtensions[file.type]?.includes(extension)) throw new Error("Phần mở rộng file không khớp với MIME type.");
 
@@ -250,7 +252,7 @@ function documentFile(data:FormData):File|null {
   const value=data.get("file");
   if(!(value instanceof File)||!value.size) return null;
   if(value.size>26_214_400) throw new Error("File vượt giới hạn 25 MB.");
-  if(!allowedMimeTypes.has(value.type)) throw new Error("Chỉ nhận PDF, DOCX, XLSX, PPTX, PNG hoặc JPEG.");
+  if(!allowedMimeTypes.has(value.type)) throw new Error("Chỉ nhận PDF, DOC, DOCX, XLSX, PPTX, PNG hoặc JPEG.");
   const extension=value.name.split(".").pop()?.toLowerCase()||"";
   if(!allowedFileExtensions[value.type]?.includes(extension)) throw new Error("Định dạng và phần mở rộng file không khớp.");
   return value;
