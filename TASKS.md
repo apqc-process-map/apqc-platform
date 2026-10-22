@@ -354,4 +354,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] PROC-META-002 — Expand the Process Map read model for hierarchy, assignments, allowed roles, applicability dimensions, systems, APQC mapping detail, lifecycle dates, actors, and audit timestamps.
 - [x] PROC-META-003 — Replace the partial right panel with six layered metadata sections that keep every property visible.
 - [x] PROC-META-004 — Add explicit missing-field rows, overall completion, per-section missing counts, and system-field labels.
-- [ ] QA-PROC-META-001 — Verify authenticated Vercel Preview and production at 1280 px and 1024 px, including process switching, long values, missing states, overflow, and console errors.
+- [~] QA-PROC-META-001 — Authenticated Vercel Preview passed data loading, six-section rendering, process switching, long Executive Summary values, explicit missing states, keyboard dismissal, and desktop visual review. Production smoke test remains pending until PR merge; an explicit 1024 px browser run remains in the broader multi-viewport QA matrix.

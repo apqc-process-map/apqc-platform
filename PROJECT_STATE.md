@@ -184,4 +184,5 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Empty properties remain visible with an explicit warning state. Overall completion and per-group missing counts make metadata gaps discoverable without entering edit mode.
 - Process Map now reads source code, allowed roles, all assignments, structured applicability, APQC mapping details, superseded version, lifecycle events, actors, and timestamps through the authenticated Supabase client and existing RLS.
 - No database migration, new dependency, custom metadata-field creation, or authorization change is required.
-- Local ESLint and TypeScript verification passed; authenticated Vercel Preview/production visual QA is pending delivery.
+- Authenticated Vercel Preview QA passed for all six metadata sections, 45 visible properties, process switching, long values, explicit missing states, and Escape-dismissible previews. A PostgREST self-relationship schema-cache error was removed by resolving supersedes_version_id from the already-authorized version result set instead of requesting an unavailable embedded self-join.
+- Local ESLint, TypeScript, and production build verification passed. Authenticated Vercel Preview QA passed; production smoke testing remains pending until PR merge.
