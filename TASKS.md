@@ -474,5 +474,5 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE REAL-DATA-003 — Add 35 findings and 22 source-backed actions from Issue List.xlsx, linked to the installment process and available document evidence.
 - [x] DONE REAL-DATA-004 — Add proposed APQC L0–L2 mappings with explicit owner-verification rationale; do not mark them verified.
 - [x] DONE REAL-DATA-005 — Make all six active profiles selectable as action assignees while preserving Viewer read-only authorization.
-- [~] IN PROGRESS REAL-DATA-006 — Release legacy DOC upload support, attach all 12 private source binaries, and run signed-in production smoke tests.
+- [x] DONE REAL-DATA-006 — Release legacy DOC upload support; attach exactly one private source file to each of the 12 document versions; verify Process Map, Findings, and Action Log on the signed-in Vercel Preview.
 - [ ] PENDING REAL-DATA-007 — Process Owner validates missing metadata, APQC proposals, evidence, effective dates, and publication decisions.
