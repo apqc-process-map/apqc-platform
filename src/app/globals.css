@@ -430,6 +430,29 @@
   .relationship-list article>.target,.relationship-list article>.status-badge{display:none}
 }
 
+/* M-Files-inspired layered process metadata card */
+.process-map-workspace{grid-template-columns:minmax(0,1.65fr) minmax(410px,.9fr)}
+.process-metadata-card{display:grid;gap:10px;margin-top:16px}
+.process-metadata-model{display:flex;align-items:center;gap:5px;overflow:auto;padding-bottom:2px;color:#67808a;font-size:9px;white-space:nowrap}
+.process-metadata-model span{border:1px solid #d9e5e7;border-radius:999px;background:#f8fbfb;padding:4px 7px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.process-metadata-model b{color:#9cabb1;font-size:13px}
+.process-metadata-health{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;padding:11px 12px;border:1px solid #d8e6e4;border-radius:8px;background:#f7fbfa}
+.process-metadata-health>div:first-child{display:flex;align-items:baseline;gap:8px}.process-metadata-health strong{color:#153b49;font-size:18px}.process-metadata-health div span{color:#607680;font-size:10px}
+.process-metadata-health>span{align-self:center;border-radius:999px;padding:4px 7px;font-size:9px;font-weight:800}.process-metadata-health>span.is-incomplete{background:#fff0cf;color:#8b5d05}.process-metadata-health>span.is-complete{background:#e3f5ef;color:#167467}
+.process-metadata-progress{grid-column:1/-1;height:5px;overflow:hidden;border-radius:999px;background:#dfe9e8}.process-metadata-progress i{display:block;height:100%;border-radius:inherit;background:#21877f}
+.process-metadata-groups{display:grid;gap:10px}
+.process-metadata-group{overflow:hidden;border:1px solid #dfe7e9;border-radius:8px;background:#fff}
+.process-metadata-group>header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 11px;border-bottom:1px solid #e8edef;background:#f8fafb}
+.process-metadata-group h3{margin:0;color:#294854;font-size:11px}.process-metadata-group header p{margin:3px 0 0;color:#829098;font-size:9px;line-height:1.4}
+.process-metadata-group header>span{flex:none;border-radius:999px;padding:3px 6px;font-size:8px;font-weight:800}.process-metadata-group header>span.has-missing{background:#fff0cf;color:#8b5d05}.process-metadata-group header>span.is-complete{background:#e3f5ef;color:#167467}
+.process-metadata-group dl{margin:0}.process-property-row{display:grid;grid-template-columns:130px minmax(0,1fr);border-top:1px solid #edf1f2}.process-property-row:first-child{border-top:0}
+.process-property-row dt,.process-property-row dd{margin:0;padding:8px 9px;font-size:9.5px;line-height:1.45}.process-property-row dt{display:flex;align-items:flex-start;justify-content:space-between;gap:5px;background:#fbfcfc;color:#4f6872;font-weight:800}.process-property-row dd{min-width:0;color:#314f5b;overflow-wrap:anywhere}
+.process-property-row dt small{border:1px solid #d9e3e6;border-radius:999px;padding:1px 4px;color:#84959c;font-size:7px;text-transform:uppercase;letter-spacing:.04em}
+.process-property-row.is-missing{box-shadow:inset 3px 0 #d9a83d}.process-property-row.is-missing dt,.process-property-row.is-missing dd{background:#fffaf0}
+.process-property-missing{display:inline-flex;align-items:center;gap:5px;color:#97670e;font-weight:800}.process-property-missing>span{display:inline-grid;width:15px;height:15px;place-items:center;border-radius:50%;background:#f4d486;color:#6d4a04;font-size:9px}
+.process-property-values{display:grid;gap:3px;margin:0;padding:0;list-style:none}.process-property-values li{position:relative;padding-left:10px}.process-property-values li::before{content:"";position:absolute;top:.55em;left:1px;width:4px;height:4px;border-radius:50%;background:#4a9c94}
+@media(max-width:1180px){.process-map-workspace{grid-template-columns:minmax(0,1fr)}.process-property-row{grid-template-columns:180px minmax(0,1fr)}}
+@media(max-width:700px){.process-metadata-health{grid-template-columns:1fr}.process-metadata-health>span{justify-self:start}.process-property-row{grid-template-columns:1fr}.process-property-row dd{border-top:1px solid #edf1f2}.process-metadata-model{align-items:flex-start}}
 
 /* 06 / Document-centric findings & corrective actions */
 .finding-dashboard-links{grid-template-columns:repeat(4,minmax(0,1fr))}

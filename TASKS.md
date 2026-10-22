@@ -352,6 +352,13 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [~] QA-REL-005 — Editor-specific browser flow remains unexecuted because the approved six-user account set contains no Editor profile; Editor RLS is implemented and policy-inspected.
 
 
+## Layered Process metadata card — 2026-10-21
+
+- [x] PROC-META-001 — Audit Process Map against the M-Files reference and distinguish Business Process selection from Document metadata.
+- [x] PROC-META-002 — Expand the Process Map read model for hierarchy, assignments, allowed roles, applicability dimensions, systems, APQC mapping detail, lifecycle dates, actors, and audit timestamps.
+- [x] PROC-META-003 — Replace the partial right panel with six layered metadata sections that keep every property visible.
+- [x] PROC-META-004 — Add explicit missing-field rows, overall completion, per-section missing counts, and system-field labels.
+- [~] QA-PROC-META-001 — Authenticated Vercel Preview passed data loading, six-section rendering, process switching, long Executive Summary values, explicit missing states, keyboard dismissal, and desktop visual review. Production smoke test remains pending until PR merge; an explicit 1024 px browser run remains in the broader multi-viewport QA matrix.
 ## 2026-10-21 — Document Findings & Action Tracker
 
 - [x] DONE FIND-012 Document-first 06 workspace, with manual overlap, duplication, version/effective-date and relationship conflict types and multiple version-linked evidence records.

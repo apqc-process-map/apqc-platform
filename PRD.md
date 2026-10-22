@@ -751,6 +751,37 @@ The Relationship form must expose:
 
 Relationship version history, soft deletion, custom metadata-field creation, bulk import, and approval comments remain deferred. These items must not be inferred from the MVP form.
 
+
+## 39. Layered Process metadata card — 2026-10-21
+
+### 39.1 Selection behavior
+
+Selecting any enterprise process block in Process Map must refresh the right-hand Process Detail panel without navigating away from the L0–L4 canvas. The selected object is a **Business Process**, not a Document. Documents may reference a process through controlled relationships, but document metadata remains in the Document module.
+
+### 39.2 M-Files-inspired metadata model
+
+The Process Detail panel follows the useful M-Files metadata-card pattern without claiming to reproduce the M-Files product or physical schema:
+
+- Object Type identifies the governed object as Business Process.
+- Class is derived from the enterprise process level and determines the expected property context.
+- Property Definitions are represented by the governed fields already defined in the Process Map data model.
+- Property Values show the current version's stored values.
+- Lookup properties show references to parent/child processes, assignments, tags, applicability, systems, and APQC mappings.
+- Workflow/system properties show version, status, effective dates, review date, superseded version, timestamps, and lifecycle actors.
+
+The card groups properties into six visible sections: classification and hierarchy; identity and governance; five-part Executive Summary; business content and flow; lookups and relationships; lifecycle and audit.
+
+### 39.3 Missing-field visibility
+
+- Every governed field remains visible after a process is selected, including fields with no value.
+- An empty property uses an explicit `Thiếu dữ liệu` state with a warning-colored row; empty fields must not disappear or silently inherit a different field's value.
+- The panel displays overall completion as populated fields over total visible properties and a per-section missing count.
+- System-managed properties are labelled `System` so users can distinguish audit/workflow values from business metadata they may edit.
+- The existing Admin edit action remains the write entry point. Viewer remains read-only; the card does not bypass RLS or introduce custom metadata-field creation.
+
+### 39.4 Performance and accessibility
+
+The page reads the selected process metadata, controlled lookups, and audit relations in the existing authenticated server request. Missing states use text and icons in addition to color. The right panel remains independently scrollable on wide desktop layouts and stacks below the canvas at constrained laptop widths.
 ## 37. Document classification and knowledge audience — 2026-10-21
 
 - **Tab 02 Document:** One editable controlled document type; its group is derived and displayed read-only. Existing untyped draft group values are preserved. Admin can multi-select existing business roles into three mutually exclusive groups; no selection means unclassified.

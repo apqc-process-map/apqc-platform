@@ -180,6 +180,15 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Vercel Preview QA passed for Admin create/edit rendering, metadata prefill, controlled-type filtering, Viewer control hiding, 1280/1024 px layout without horizontal overflow, and zero console errors. Editor browser QA remains unavailable because the approved account set contains no Editor.
 
 
+## Layered Process metadata card milestone — 2026-10-21
+
+- Selecting an enterprise process now drives an M-Files-inspired metadata card in the persistent right panel; Document metadata remains in the Document module.
+- The card exposes all currently modelled Process properties across classification/hierarchy, governance, Executive Summary, business flow, controlled lookups, APQC mappings, lifecycle and audit groups.
+- Empty properties remain visible with an explicit warning state. Overall completion and per-group missing counts make metadata gaps discoverable without entering edit mode.
+- Process Map now reads source code, allowed roles, all assignments, structured applicability, APQC mapping details, superseded version, lifecycle events, actors, and timestamps through the authenticated Supabase client and existing RLS.
+- No database migration, new dependency, custom metadata-field creation, or authorization change is required.
+- Authenticated Vercel Preview QA passed for all six metadata sections, 45 visible properties, process switching, long values, explicit missing states, and Escape-dismissible previews. A PostgREST self-relationship schema-cache error was removed by resolving supersedes_version_id from the already-authorized version result set instead of requesting an unavailable embedded self-join.
+- Local ESLint, TypeScript, and production build verification passed. Authenticated Vercel Preview QA passed; production smoke testing remains pending until PR merge.
 ## 2026-10-21 — Cross-document Finding & Action (current scope)
 
 - **Tab 06 is exclusively a multi-document comparison register** for duplicate/semantic overlap, applicability overlap, contradictory conditions, version/effective-date differences, relationship conflicts and supersession candidates. Every displayed issue must link at least two different `documents.id` values using concrete `document_version` subject references. An alternate two-version pairing within one document does **not** qualify; no single-document exception is allowed, even for Other.

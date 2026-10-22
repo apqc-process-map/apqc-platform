@@ -4,16 +4,24 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { updateProcessMetadata } from "@/app/actions";
 import WorkspaceShell from "@/components/workspace-shell";
+import ProcessMetadataCard from "./process-metadata-card";
 
 export type ProcessMapTag = { code: string; label: string; color: string };
+export type ProcessMapAssignment = { role: string; profileName: string };
+export type ProcessMapApplicability = { dimension: string; label: string; isInherited: boolean };
+export type ProcessMapApqcMapping = { pcfId: string; name: string; role: string; matchType: string; status: string; rationale: string };
 export type ProcessMapNode = {
   id: string; versionId: string; versionNumber: number; parentId: string | null; code: string; name: string; nameEn: string;
+  sourceCode: string; allowedRoles: string[];
   level: string; status: string; owner: string; summary: string; purpose: string; description: string;
   scopeIn: string; scopeOut: string; trigger: string; outcome: string; changeSummary: string;
   validFrom: string | null; validUntil: string | null; mappingCount: number; displayOrder: number;
   businessPurpose: string; scopeAndBoundaries: string; criticalDecisionPoints: string;
   accountabilityAndImpact: string; accessLevel: string; reviewDueAt: string | null;
-  tags: ProcessMapTag[]; applicability: string[]; systems: string[];
+  tags: ProcessMapTag[]; assignments: ProcessMapAssignment[]; applicability: ProcessMapApplicability[]; systems: string[]; apqcMappings: ProcessMapApqcMapping[];
+  supersedesVersionNumber: number | null;
+  createdAt: string | null; createdBy: string; updatedAt: string | null; updatedBy: string;
+  submittedAt: string | null; submittedBy: string; approvedAt: string | null; approvedBy: string; publishedAt: string | null; publishedBy: string;
 };
 
 type Props = { nodes: ProcessMapNode[]; userName: string; role: string; errorMessage?: string };
@@ -28,10 +36,6 @@ const LEVEL_BANDS = [
 
 const EDITABLE_STATUSES = new Set(["draft", "rejected"]);
 const PREVIEWABLE_LEVELS = new Set(["L2", "L3", "L4"]);
-
-function detailText(value: string | null | undefined, fallback = "Chưa cập nhật") {
-  return value?.trim() || fallback;
-}
 
 export default function ProcessMapClient({ nodes, userName, role, errorMessage }: Props) {
   const roots = useMemo(() => nodes.filter((node) => !node.parentId || !nodes.some((candidate) => candidate.id === node.parentId)), [nodes]);
@@ -73,7 +77,6 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
 
   const effectiveSelectedId = nodes.some((node) => node.id === selectedId) ? selectedId : (roots[0]?.id || nodes[0]?.id || "");
   const selected = nodes.find((node) => node.id === effectiveSelectedId) || roots[0] || nodes[0];
-  const directChildren = nodes.filter((node) => node.parentId === selected?.id);
   const normalizedQuery = query.trim().toLocaleLowerCase("vi");
   const visibleNodes = nodes.filter((node) => {
     const matchesLevel = !activeLevels.length || activeLevels.includes(node.level);
@@ -146,19 +149,7 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
       </section>
       <aside className="detail-panel process-detail-panel">
         <div className="process-detail-heading"><div><p className="section-kicker">PROCESS DETAIL</p><span className="detail-code">{selected.code} · v{selected.versionNumber}</span><h2>{selected.name}</h2><span className="detail-level">{selected.level} · {selected.status}</span></div>{canEdit ? <button type="button" className="process-edit-toggle" onClick={() => setEditing((value) => !value)} aria-expanded={editing}>{editing ? "Đóng chỉnh sửa" : "Chỉnh sửa metadata"}</button> : null}</div>
-        <div className="tag-list" aria-label="Tags">{selected.tags.length ? selected.tags.map((tag) => <span className="tag-chip" key={tag.code} style={{ borderColor: tag.color, color: tag.color }}>{tag.label}</span>) : <span className="detail-muted">Chưa gắn tag</span>}</div>
-        <div className="process-overview-panel">
-          <div className="detail-block"><span>Tổng quan điều hành</span><p>Tooltip chỉ xuất hiện khi hover hoặc focus bằng bàn phím ở L2–L4; 5 nội dung luôn có tại khung này để đọc và chỉnh sửa.</p></div>
-          <dl className="process-overview-list">
-            <div><dt>1. Mục đích kinh doanh</dt><dd>{selected.businessPurpose}</dd></div>
-            <div><dt>2. Phạm vi & điểm đầu–cuối</dt><dd>{selected.scopeAndBoundaries}</dd></div>
-            <div><dt>3. Luồng nghiệp vụ chính</dt><dd>{selected.summary}</dd></div>
-            <div><dt>4. Ba quyết định trọng yếu</dt><dd>{selected.criticalDecisionPoints}</dd></div>
-            <div><dt>5. Trách nhiệm & quy mô tác động</dt><dd>{selected.accountabilityAndImpact}</dd></div>
-          </dl>
-        </div>
-        <div className="detail-meta"><div><span>Owner</span><strong>{selected.owner}</strong></div><div><span>Child</span><strong>{directChildren.length}</strong></div><div><span>APQC mapping</span><strong>{selected.mappingCount}</strong></div><div><span>Access</span><strong>{selected.accessLevel}</strong></div><div><span>Review due</span><strong>{selected.reviewDueAt || "Chưa đặt"}</strong></div><div><span>Systems</span><strong>{selected.systems.join(", ") || "Chưa gắn"}</strong></div></div>
-        <div className="detail-copy-grid"><div className="detail-copy"><span>Purpose</span><p>{detailText(selected.purpose)}</p></div><div className="detail-copy"><span>Mô tả</span><p>{detailText(selected.description)}</p></div><div className="detail-copy"><span>Đầu vào / đầu ra</span><p>{detailText(selected.scopeIn)} → {detailText(selected.scopeOut)}</p></div><div className="detail-copy"><span>Trigger / outcome</span><p>{detailText(selected.trigger)} → {detailText(selected.outcome)}</p></div><div className="detail-copy"><span>Applicability</span><p>{selected.applicability.join(" · ") || "Chưa cấu hình"}</p></div></div>
+        <ProcessMetadataCard key={selected.versionId || selected.id} process={selected} nodes={nodes} />
         {editing && canEdit ? <form key={selected.versionId} action={updateProcessMetadata} className="process-metadata-form">
           <input type="hidden" name="process_id" value={selected.id} />
           <input type="hidden" name="process_version_id" value={selected.versionId} />
