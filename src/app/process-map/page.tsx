@@ -44,7 +44,7 @@ type VersionRow = {
   submitted_profile: ProfileRelation;
   approved_profile: ProfileRelation;
   published_profile: ProfileRelation;
-  superseded_version: { version_number: number } | Array<{ version_number: number }> | null;
+  supersedes_version_id: string | null;
   process_assignments: Array<{ assignment_role: string; profile_id: string; profiles: ProfileRelation }>;
   process_apqc_mappings: MappingRow[];
 };
@@ -98,12 +98,15 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
   const { supabase, profile } = await requireActiveAccount();
   const { data, error } = await supabase
     .from("processes")
-    .select("id,process_code,source_code,parent_process_id,level_type,display_order,process_versions(id,version_number,status,name_vi,name_en,purpose,description,scope_in,scope_out,trigger,outcome,process_at_a_glance,business_purpose,scope_and_boundaries,critical_decision_points,accountability_and_impact,access_level,allowed_roles,valid_from,valid_until,review_due_at,change_summary,created_at,updated_at,submitted_at,approved_at,published_at,created_by,updated_by,submitted_by,approved_by,published_by,created_profile:profiles!process_versions_created_by_fkey(display_name),updated_profile:profiles!process_versions_updated_by_fkey(display_name),submitted_profile:profiles!process_versions_submitted_by_fkey(display_name),approved_profile:profiles!process_versions_approved_by_fkey(display_name),published_profile:profiles!process_versions_published_by_fkey(display_name),superseded_version:process_versions!process_versions_supersedes_version_id_fkey(version_number),process_assignments(assignment_role,profile_id,profiles(display_name)),process_apqc_mappings(id,mapping_role,match_type,status,rationale,apqc_elements(pcf_id,name))))")
+    .select("id,process_code,source_code,parent_process_id,level_type,display_order,process_versions(id,version_number,status,name_vi,name_en,purpose,description,scope_in,scope_out,trigger,outcome,process_at_a_glance,business_purpose,scope_and_boundaries,critical_decision_points,accountability_and_impact,access_level,allowed_roles,valid_from,valid_until,review_due_at,change_summary,created_at,updated_at,submitted_at,approved_at,published_at,created_by,updated_by,submitted_by,approved_by,published_by,supersedes_version_id,created_profile:profiles!process_versions_created_by_fkey(display_name),updated_profile:profiles!process_versions_updated_by_fkey(display_name),submitted_profile:profiles!process_versions_submitted_by_fkey(display_name),approved_profile:profiles!process_versions_approved_by_fkey(display_name),published_profile:profiles!process_versions_published_by_fkey(display_name),process_assignments(assignment_role,profile_id,profiles(display_name)),process_apqc_mappings(id,mapping_role,match_type,status,rationale,apqc_elements(pcf_id,name))))")
     .is("archived_at", null)
     .order("display_order");
 
   const processes = (data || []) as unknown as ProcessRow[];
   const versionIds = processes.flatMap((process) => process.process_versions || []).map((version) => version.id);
+  const versionNumberById = new Map(
+    processes.flatMap((process) => process.process_versions || []).map((version) => [version.id, version.version_number]),
+  );
   const [tagResult, applicabilityResult] = versionIds.length ? await Promise.all([
     supabase.from("object_tags").select("object_id,governance_tags(code,label_vi,color)").eq("object_type", "process_version").in("object_id", versionIds),
     supabase.from("object_applicability").select("object_id,dimension,free_text,is_inherited,vocabulary_values(label_vi,label_en),systems(name,code)").eq("object_type", "process_version").in("object_id", versionIds),
@@ -189,7 +192,7 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
       applicability: version ? applicabilityByVersion.get(version.id) || [] : [],
       systems: version ? systemsByVersion.get(version.id) || [] : [],
       apqcMappings,
-      supersedesVersionNumber: firstRelation(version?.superseded_version || null)?.version_number || null,
+      supersedesVersionNumber: version?.supersedes_version_id ? versionNumberById.get(version.supersedes_version_id) || null : null,
       createdAt: version?.created_at || null,
       createdBy: actorDisplayName(version?.created_profile || null, version?.created_by),
       updatedAt: version?.updated_at || null,
