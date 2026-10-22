@@ -834,3 +834,12 @@ Users may find a document through RLS-visible related objects such as Business P
 - Issue List.xlsx cung cấp 35 finding và 22 action có nội dung xử lý. Finding liên kết với phiên bản quy trình trả góp và với từng phiên bản tài liệu có bằng chứng; không tạo liên kết tài liệu khi tệp nguồn tương ứng chưa được cung cấp.
 - Sáu tài khoản đang hoạt động đều xuất hiện trong danh sách người thực hiện. Quyền chọn người thực hiện không làm thay đổi quyền cập nhật: Viewer vẫn chỉ đọc; Admin/Editor mới được sửa action theo RLS và Server Action hiện hành.
 - Khi thay dữ liệu thử bằng dữ liệu thật, việc xóa phải giới hạn bằng marker/mã fixture đã xác minh; không dùng thao tác xóa rộng theo toàn bảng hoặc toàn bucket.
+
+## 41. Ma trận Finding theo nguồn tài liệu — 2026-10-22
+
+- Tab **06 · Finding & Action** mặc định hiển thị ma trận đối chiếu tương đương sheet Issue List: năm cột nghiệp vụ cố định gồm ID, Loại lỗi chuẩn hóa, Điểm quyết định, Vấn đề và Hướng xử lý; tiếp theo là xác nhận/ý kiến Owner và 14 cột nguồn tài liệu.
+- Hiển thị đủ 35 finding và 113 ô bằng chứng có nội dung trong workbook. Ô trống mang nghĩa “Chưa đánh giá”, không được diễn giải thành không có quan hệ hoặc không có xung đột.
+- Nội dung dài được thu gọn trong ô và có thể mở toàn văn, không cắt mất dữ liệu. Header và năm cột nhận diện được ghim khi cuộn; nhóm vấn đề có thể thu gọn. Chế độ Danh sách là phương án đọc chi tiết bổ sung, không thay thế ma trận mặc định.
+- Tìm kiếm tại chỗ theo ID, vấn đề, điểm quyết định, hướng xử lý và loại lỗi. Bộ lọc bằng chứng phân biệt một nguồn, từ hai nguồn và nguồn chưa được cung cấp.
+- Danh mục nguồn giữ metadata tiêu đề, loại tài liệu, đơn vị ban hành và ngày hiệu lực khi có dữ liệu. Nguồn 13–14 vẫn được hiển thị và đánh dấu thiếu file nếu chưa có binary; nội dung workbook liên quan vẫn được bảo toàn.
+- Dữ liệu ô bằng chứng được lưu tại finding_source_evidence theo khóa Finding + số thứ tự nguồn. Chỉ người dùng đã xác thực và có quyền thấy Finding tương ứng mới đọc được; không đưa workbook hoặc nội dung tài liệu nội bộ vào Git.

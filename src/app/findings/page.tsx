@@ -1,10 +1,10 @@
 import { noteSlowPage } from "@/lib/page-perf";
 import Form from "next/form";
-import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { createDocumentFinding } from "@/app/finding-actions";
 import { requireActiveAccount } from "@/lib/auth";
 import IssueClassifier,{type IssueTaxonomyItem} from "@/components/issue-classifier";
+import FindingIssueMatrix,{type MatrixDocument,type MatrixEvidence,type MatrixFinding} from "@/components/finding-issue-matrix";
 
 export const instant = false;
 
@@ -14,11 +14,11 @@ const issueStatuses:Record<string,string>={
   new:"Mới phát hiện",triage:"Đang xác minh",in_progress:"Đang xử lý",
   pending_decision:"Chờ quyết định",resolved:"Đã xử lý",closed:"Đã đóng",reopened:"Mở lại"
 };
-type DocumentRow={id:string;document_id:string;title_vi:string;version_number:number;documents:{document_code:string}|null};
+type DocumentRow={id:string;document_id:string;title_vi:string;version_number:number;issuing_department:string|null;valid_from:string|null;vocabulary_values:{label_vi:string}|null;documents:{document_code:string}|null};
 type ProcessRow={id:string;name_vi:string;level_type:string;enterprise_processes:{process_code:string}|null};
 type ActionRow={id:string;finding_id:string;status:string;progress_percent:number;due_at:string|null;assignee_id:string|null};
-type FindingLink={id:string;finding_id:string;object_type:string;object_id:string;link_role:string};
-const displayDate=(date:string|null|undefined)=>date?new Date(date).toLocaleDateString("vi-VN"):"Chưa có";
+type FindingLink={id:string;finding_id:string;object_type:string;object_id:string;link_role:string;evidence_excerpt:string|null};
+type SourceEvidenceRow={finding_id:string;source_ref:number;evidence_excerpt:string};
 const overdue=(date:string|null|undefined)=>!!date&&new Date(date).getTime()<Date.now();
 
 export default async function FindingsPage({searchParams}:{
@@ -30,7 +30,7 @@ export default async function FindingsPage({searchParams}:{
   noteSlowPage("/findings", performance.now());
   const canWrite=profile.role==="admin"||profile.role==="editor";
   let query=supabase.from("findings").select(
-    "id,finding_code,title,description,impact_summary,finding_domain,action_decision,action_decision_reason,finding_type_value_id,primary_issue_code,severity,priority,status,due_at,assignee_id,created_at"
+    "id,finding_code,title,description,impact_summary,finding_domain,action_decision,action_decision_reason,finding_type_value_id,primary_issue_code,severity,priority,status,due_at,assignee_id,created_at,decision_point,evidence_status,proposed_action,owner_question,process_owner_feedback"
   ).eq("finding_domain","document").order("created_at",{ascending:false}).limit(200);
   if(status==="open")query=query.in("status",activeStatuses);
   else if(status!=="all")query=query.eq("status",status);
@@ -39,44 +39,42 @@ export default async function FindingsPage({searchParams}:{
   if(assigned==="unassigned")query=query.is("assignee_id",null);
   const [findingsResult,allDocuments,taxonomyResult,peopleResult,processResult] = await Promise.all([
     query,
-    canWrite ? supabase.from("document_versions").select("id,document_id,title_vi,version_number,documents(document_code)")
-      .order("updated_at",{ascending:false}).limit(200) : Promise.resolve({data:[],error:null}),
+    supabase.from("document_versions").select("id,document_id,title_vi,version_number,issuing_department,valid_from,vocabulary_values(label_vi),documents(document_code)")
+      .order("updated_at",{ascending:false}).limit(200),
     supabase.from("issue_taxonomy").select("code,group_code,group_label_vi,type_label_vi,explanation_vi,decision_order,decision_question_vi,minimum_evidence_vi").eq("is_active",true).order("decision_order"),
     supabase.from("profiles").select("id,display_name,role").eq("is_active",true).order("display_name"),
     canWrite?supabase.from("process_versions").select("id,name_vi,level_type,enterprise_processes(process_code)").order("updated_at",{ascending:false}).limit(200):Promise.resolve({data:[],error:null})
   ]);
   const findings=(findingsResult.data||[]);
   const findingIds=findings.map(x=>x.id);
-  const [linksResult,actionsResult]=await Promise.all([
-    findingIds.length?supabase.from("finding_links").select("id,finding_id,object_type,object_id,link_role")
+  const [linksResult,actionsResult,sourceEvidenceResult]=await Promise.all([
+    findingIds.length?supabase.from("finding_links").select("id,finding_id,object_type,object_id,link_role,evidence_excerpt")
       .in("finding_id",findingIds).eq("object_type","document_version").eq("link_role","subject"):
       Promise.resolve({data:[],error:null}),
     findingIds.length?supabase.from("finding_actions").select("id,finding_id,status,progress_percent,due_at,assignee_id")
+      .in("finding_id",findingIds):Promise.resolve({data:[],error:null}),
+    findingIds.length?supabase.from("finding_source_evidence").select("finding_id,source_ref,evidence_excerpt")
       .in("finding_id",findingIds):Promise.resolve({data:[],error:null})
   ]);
   const links=(linksResult.data||[]) as FindingLink[];
   const actions=(actionsResult.data||[]) as ActionRow[];
+  const sourceEvidence=(sourceEvidenceResult.data||[]) as SourceEvidenceRow[];
   const docMap=new Map(((allDocuments.data||[]) as unknown as DocumentRow[]).map(doc=>[doc.id,doc]));
   // The intake already loads recent versions; reuse them and fetch only missing
   // older linked versions, avoiding a third sequential DB request for normal cases.
   const missingDocs=[...new Set(links.map(l=>l.object_id))].filter(id=>!docMap.has(id));
   if(missingDocs.length){
     const moreDocs=await supabase.from("document_versions")
-      .select("id,document_id,title_vi,version_number,documents(document_code)").in("id",missingDocs);
+      .select("id,document_id,title_vi,version_number,issuing_department,valid_from,vocabulary_values(label_vi),documents(document_code)").in("id",missingDocs);
     for(const doc of (moreDocs.data||[]) as unknown as DocumentRow[])docMap.set(doc.id,doc);
   }
   const taxonomy=(taxonomyResult.data||[]) as IssueTaxonomyItem[];
   const taxonomyMap=new Map(taxonomy.map(t=>[t.code,t]));
   const people=(peopleResult.data||[]) as {id:string;display_name:string;role:string}[];
   const peopleMap=new Map(people.map(p=>[p.id,p.display_name]));
-  // A valid issue must compare at least two DISTINCT documents, not merely two versions of one document.
-  // Count only linked document versions visible under the caller's existing Supabase RLS.
-  const crossDocumentFindings=findings.filter(f=>{
-    const distinct=new Set(links.filter(l=>l.finding_id===f.id)
-      .map(l=>docMap.get(l.object_id)?.document_id).filter((id):id is string=>!!id));
-    return distinct.size>=2;
-  });
-  const filtered=(type==="all"?crossDocumentFindings:crossDocumentFindings.filter(f=>f.primary_issue_code===type))
+  // The Excel register contains single-source, cross-document and missing-source issues.
+  // Keep all three classes visible; filters describe evidence scope instead of hiding valid rows.
+  const filtered=(type==="all"?findings:findings.filter(f=>f.primary_issue_code===type))
     .sort((a,b)=>(taxonomyMap.get(a.primary_issue_code||"")?.decision_order||99)-(taxonomyMap.get(b.primary_issue_code||"")?.decision_order||99));
   const active=filtered.filter(f=>activeStatuses.includes(f.status));
   const activeActionIds=new Set(active.map(f=>f.id));
@@ -85,6 +83,58 @@ export default async function FindingsPage({searchParams}:{
   const decisionPending=active.filter(f=>f.action_decision==="pending").length;
   const createDocs=(allDocuments.data||[]) as unknown as DocumentRow[];
   const processes=(processResult.data||[]) as unknown as ProcessRow[];
+  const sourceTitles=[
+    "Thông báo giảm phí trả góp VNPAY","Quy trình bán hàng trả góp","Chính sách bán hàng trả góp",
+    "Hướng dẫn thao tác trên phần mềm trả góp","Biểu mẫu F5 thông báo thay đổi phí chuyển đổi trả góp",
+    "Thông báo ngân hàng được áp dụng trả góp qua Payoo năm 2026",
+    "Thông báo quy định chung trả góp qua thẻ tín dụng tại PNJ",
+    "Thông báo dừng tính năng chuyển đơn đặt cọc sang đơn bán hàng trả góp",
+    "Thông báo tính năng chuyển đơn đặt cọc sang đơn bán hàng trả góp",
+    "Phụ lục hướng dẫn thanh toán quẹt thẻ trả góp luồng độc lập tại máy POS VNPAY",
+    "Thông báo hợp nhất về trả góp tại PNJ","Thông báo hợp nhất trả góp 2022",
+    "Thông báo đối tác Payoo thay mới máy POS và hướng dẫn thanh toán mPOS",
+    "1104-Hướng dẫn thanh toán QR-trả thẳng-trả góp trên mPOS"
+  ];
+  const refFromDoc=(doc:DocumentRow)=>{
+    const match=doc.documents?.document_code?.match(/TG-DOC-(\d{3})$/);
+    return match?Number(match[1]):null;
+  };
+  const sourceByRef=new Map<number,DocumentRow>();
+  for(const doc of docMap.values()){const ref=refFromDoc(doc);if(ref&&ref<=14&&!sourceByRef.has(ref))sourceByRef.set(ref,doc);}
+  const matrixDocuments:MatrixDocument[]=sourceTitles.map((title,index)=>{
+    const ref=index+1,doc=sourceByRef.get(ref);
+    return {id:doc?.id||null,ref,code:doc?.documents?.document_code||("SOURCE-"+String(ref).padStart(2,"0")),
+      title:doc?.title_vi||title,department:doc?.issuing_department||null,documentType:doc?.vocabulary_values?.label_vi||null,
+      validFrom:doc?.valid_from||null,available:Boolean(doc)};
+  });
+  const matrixFindings:MatrixFinding[]=filtered.map(f=>{
+    const issueType=taxonomyMap.get(f.primary_issue_code||"");
+    const itsActions=actions.filter(a=>a.finding_id===f.id&&a.status!=="cancelled");
+    const completed=itsActions.filter(a=>a.status==="done").length;
+    const progress=itsActions.length?Math.round(itsActions.reduce((sum,a)=>sum+a.progress_percent,0)/itsActions.length):0;
+    const actionSummary=f.action_decision==="pending"?"Chưa quyết định action":
+      f.action_decision==="not_required"?"Không cần action":
+      itsActions.length?(completed+"/"+itsActions.length+" action hoàn tất"):"Cần tạo action";
+    const evidence:MatrixEvidence[]=sourceEvidence.filter(item=>item.finding_id===f.id).map(item=>({
+      documentId:sourceByRef.get(item.source_ref)?.document_id||null,ref:item.source_ref,evidence:item.evidence_excerpt
+    }));
+    for(const link of links.filter(link=>link.finding_id===f.id)){
+      const doc=docMap.get(link.object_id),ref=doc?refFromDoc(doc)||0:0;
+      if(ref>0&&!evidence.some(item=>item.ref===ref))evidence.push({documentId:doc?.document_id||null,ref,evidence:link.evidence_excerpt});
+    }
+    const referencedText=[f.title,f.description,f.proposed_action,f.owner_question,f.process_owner_feedback].filter(Boolean).join(" ");
+    for(const match of referencedText.matchAll(/\[(\d{1,2})\]/g)){
+      const ref=Number(match[1]);if(ref>=1&&ref<=14&&!evidence.some(item=>item.ref===ref))evidence.push({documentId:sourceByRef.get(ref)?.document_id||null,ref,evidence:null});
+    }
+    const excelId=f.title.match(/^\[([^\]]+)\]/)?.[1]||f.finding_code;
+    return {id:f.id,code:excelId,title:f.title.replace(/^\[[^\]]+\]\s*/,""),description:f.description,impact:f.impact_summary,
+      issueCode:f.primary_issue_code,issueType:issueType?.type_label_vi||"Chưa phân loại chuẩn hóa",
+      groupCode:issueType?.group_code||"—",groupLabel:issueType?.group_label_vi||"Chưa phân nhóm",
+      decisionPoint:f.decision_point,proposedAction:f.proposed_action,ownerQuestion:f.owner_question,
+      ownerFeedback:f.process_owner_feedback,evidenceStatus:f.evidence_status,status:f.status,statusLabel:issueStatuses[f.status]||f.status,
+      severity:f.severity,severityLabel:severityLabels[f.severity]||f.severity,assignee:peopleMap.get(f.assignee_id||"")||"Chưa giao",
+      dueAt:f.due_at,actionSummary,actionProgress:progress,evidence};
+  });
 
   return <WorkspaceShell active="/findings" eyebrow="06 · DOCUMENT FINDINGS & ACTIONS"
     title="Finding & Action" description="Phát hiện trùng lặp, chồng chéo và xung đột giữa các tài liệu; gắn bằng chứng, giao việc và theo dõi kết quả."
@@ -123,7 +173,7 @@ export default async function FindingsPage({searchParams}:{
     </details>}
 
     <div className="finding-view-row">
-      <div><strong>Danh sách vấn đề giữa các tài liệu</strong><p>Chỉ hiển thị finding liên quan ít nhất 2 tài liệu khác nhau; dữ liệu finding chung cũ được giữ lại ngoài danh sách này.</p></div>
+      <div><strong>Ma trận issue theo nguồn tài liệu</strong><p>Giữ cách đọc của file Excel: thông tin issue ở bên trái, 14 nguồn đối chiếu theo chiều ngang; không ẩn issue chỉ có một nguồn hoặc đang thiếu file.</p></div>
     </div>
     <Form action="/findings" scroll={false} className="catalog-toolbar finding-filter-toolbar">
       <select name="status" defaultValue={status} aria-label="Trạng thái finding"><option value="all">Tất cả trạng thái</option><option value="open">Đang mở</option>{Object.entries(issueStatuses).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select>
@@ -132,35 +182,8 @@ export default async function FindingsPage({searchParams}:{
       <select name="assigned" defaultValue={assigned} aria-label="Người phụ trách"><option value="all">Mọi người phụ trách</option><option value="me">Được giao cho tôi</option><option value="unassigned">Chưa giao</option></select>
       <button type="submit">Lọc</button>
     </Form>
-    <section className="data-panel">
-      <div className="data-panel-heading"><div><p className="section-kicker">ISSUE REGISTER</p><h2>{filtered.length} finding</h2></div><span className="count-chip">Issue → Action → Kết quả</span></div>
-      {findingsResult.error?<div className="state-message error-state"><strong>Không thể tải findings</strong><span>{findingsResult.error.message}</span></div>:
-      !filtered.length?<div className="state-message"><strong>Chưa ghi nhận finding về tài liệu phù hợp</strong><span>Chưa có vấn đề đối chiếu từ 2 tài liệu trở lên phù hợp bộ lọc. Đây không phải kết luận tài liệu không có xung đột.</span></div>:
-      <div className="finding-issue-list">{filtered.map(f=>{
-        const docs=links.filter(l=>l.finding_id===f.id).map(l=>docMap.get(l.object_id)).filter((d):d is DocumentRow=>!!d);
-        const itsActions=actions.filter(a=>a.finding_id===f.id && a.status!=="cancelled");
-        const completed=itsActions.filter(a=>a.status==="done").length;
-        const progress=itsActions.length?Math.round(itsActions.reduce((sum,a)=>sum+a.progress_percent,0)/itsActions.length):0;
-        const issueType=taxonomyMap.get(f.primary_issue_code||"");
-        const typeName=issueType?`${issueType.code} · ${issueType.type_label_vi}`:"Chưa phân loại chuẩn hóa";
-        const actionText=f.action_decision==="pending"?"Chưa quyết định action":
-          f.action_decision==="not_required"?"Không cần action":
-          itsActions.length?completed+"/"+itsActions.length+" action hoàn tất":"Cần tạo action";
-        return <article key={f.id} className="finding-issue-card">
-          <div className="finding-issue-head"><div><span className="mono-code">{f.finding_code}</span> <span className="status-badge">{issueStatuses[f.status]||f.status}</span><h3><Link href={"/findings/"+f.id}>{f.title}</Link></h3></div><span className={"finding-severity-pill finding-severity-"+f.severity}>{severityLabels[f.severity]||f.severity}</span></div>
-          <p>{f.description}</p>
-          <div className="finding-issue-type">{typeName}</div>
-          {!!f.impact_summary&&<p className="finding-impact"><strong>Tác động:</strong> {f.impact_summary}</p>}
-          <div className="finding-related-documents"><strong>Tài liệu liên quan ({docs.length})</strong>{docs.length?<div>{docs.map(d=><Link key={d.id} href={"/documents?compare="+d.id}>{d.documents?.document_code||"DOC"} · {d.title_vi} · v{d.version_number}</Link>)}</div>:<small>Không tìm thấy tài liệu được phép xem</small>}</div>
-          <div className="finding-action-bar">
-            <div><small>Action / kết quả xử lý</small><strong>{actionText}</strong>{itsActions.length>0&&<div className="finding-progress-track" role="progressbar" aria-label="Tiến độ action" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><span style={{width:progress+"%"}}/></div>}</div>
-            <div><small>Người phụ trách</small><strong>{peopleMap.get(f.assignee_id||"")||"Chưa giao"}</strong></div>
-            <div><small>Hạn finding</small><strong>{displayDate(f.due_at)}</strong></div>
-            <Link className="text-button" href={"/findings/"+f.id}>Xem issue & action →</Link>
-          </div>
-        </article>;
-      })}</div>}
-      {(linksResult.error||actionsResult.error)&&<p className="state-message error-state">Không thể tải đầy đủ liên kết tài liệu hoặc action. Vui lòng thử lại.</p>}
-    </section>
+    {findingsResult.error?<div className="state-message error-state"><strong>Không thể tải findings</strong><span>{findingsResult.error.message}</span></div>:
+      <FindingIssueMatrix findings={matrixFindings} documents={matrixDocuments}/>}
+    {(linksResult.error||actionsResult.error||sourceEvidenceResult.error)&&<p className="state-message error-state">Không thể tải đầy đủ liên kết tài liệu hoặc action. Vui lòng thử lại.</p>}
   </WorkspaceShell>;
 }

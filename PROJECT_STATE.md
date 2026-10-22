@@ -281,3 +281,11 @@ PRs #60 and #61 add the governed Issue.xlsx taxonomy, a dependent classifier and
 - Six active profiles remain available for assignment: three Admin and three Viewer. Selecting a Viewer as assignee does not grant write permission; action mutation remains Admin/Editor-only under existing Server Actions and RLS.
 - Migration 20261022000035_real_data_readiness.sql adds private upload support for legacy Word .doc (application/msword). The 12 source binaries and Issue List.xlsx remain outside Git.
 - All 12 private source binaries are attached one-to-one to the 12 document versions. Signed-in Vercel Preview smoke tests passed for Documents, Process Map, Findings and Action Log; merged Production deployment and post-merge health verification remain pending.
+
+## Finding evidence matrix — 2026-10-22
+
+- Workbook Issue List.xlsx was reconciled to 35 findings, 14 source columns and 113 non-empty evidence cells. Production Supabase now stores all 113 cells across all 35 findings in finding_source_evidence; source references span 1–14.
+- /findings now preserves the workbook comparison pattern: fixed issue columns, owner columns, 14 source columns, grouped rows, local search, evidence-scope filters, expandable full text and a list fallback. Single-source and missing-binary findings are no longer hidden.
+- Source 13 and 14 remain explicit missing-file references where applicable. Their workbook evidence is preserved without inventing document metadata or committing internal workbook contents.
+- Migration 20261022000036_issue_source_matrix.sql is applied. The table has RLS, authenticated read access constrained by visible findings, no anonymous access and no client write grant.
+- Next.js production build and TypeScript pass locally. Authenticated Preview/Production visual QA and final deployment status are recorded with the release commit when completed.
