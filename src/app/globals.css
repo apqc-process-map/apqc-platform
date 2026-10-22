@@ -617,13 +617,13 @@
 .issue-matrix-scroll{max-width:100%;overflow:auto;max-height:70vh;overscroll-behavior:contain;background:#fff;scrollbar-color:#9fb6bd #edf2f3}
 .issue-matrix-scroll:focus{outline:2px solid #72b9b0;outline-offset:-2px}.issue-matrix-table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;font-size:10px;color:#405c68}
 .issue-matrix-table th,.issue-matrix-table td{border-right:1px solid #dfe7e9;border-bottom:1px solid #e4eaec;padding:8px;vertical-align:top;background:#fff}
-.issue-matrix-table thead th{position:sticky;top:0;z-index:8;height:110px;background:#edf3f5;color:#365360;text-align:left}
-.issue-matrix-table thead .matrix-sticky{z-index:12;background:#e7f0f1}.issue-matrix-table tbody .matrix-sticky{z-index:4}
+.issue-matrix-table thead th{position:sticky;top:0;z-index:8;height:88px;background:#edf3f5;color:#365360;text-align:left}
+.issue-matrix-table thead .matrix-sticky{background:#e7f0f1}
 .issue-matrix-table tbody tr:hover td{background:#f8fbfb}.issue-matrix-table tbody tr:hover .matrix-sticky{background:#f1f7f6}
-.issue-matrix-table .matrix-col-id{left:0;width:90px;min-width:90px;max-width:90px}.issue-matrix-table .matrix-col-type{left:90px;width:180px;min-width:180px;max-width:180px}
-.issue-matrix-table .matrix-col-decision{left:270px;width:240px;min-width:240px;max-width:240px}.issue-matrix-table .matrix-col-problem{left:510px;width:260px;min-width:260px;max-width:260px}
-.issue-matrix-table .matrix-col-action{left:770px;width:250px;min-width:250px;max-width:250px;box-shadow:5px 0 10px #203e4b12}
-.issue-matrix-table .matrix-owner{width:180px;min-width:180px}.issue-matrix-table .matrix-owner-note{width:220px;min-width:220px}
+.issue-matrix-table .matrix-col-id{width:82px;min-width:82px;max-width:82px}.issue-matrix-table .matrix-col-type{width:160px;min-width:160px;max-width:160px}
+.issue-matrix-table .matrix-col-decision{width:170px;min-width:170px;max-width:170px}.issue-matrix-table .matrix-col-problem{width:220px;min-width:220px;max-width:220px}
+.issue-matrix-table .matrix-col-action{width:210px;min-width:210px;max-width:210px}
+.issue-matrix-table .matrix-owner{width:155px;min-width:155px}.issue-matrix-table .matrix-owner-note{width:185px;min-width:185px}
 .issue-matrix-table .matrix-doc-head,.issue-matrix-table .matrix-evidence{width:155px;min-width:155px;max-width:155px}.issue-matrix-table .matrix-doc-head.is-missing{background:#fff4db}
 .matrix-doc-head span,.matrix-doc-head strong,.matrix-doc-head small{display:block}.matrix-doc-head span{color:#277c75;font-size:8px;text-transform:uppercase}.matrix-doc-head strong{display:-webkit-box;overflow:hidden;margin:5px 0;color:#294b5a;font-size:9px;line-height:1.35;-webkit-box-orient:vertical;-webkit-line-clamp:3}.matrix-doc-head small{color:#84959d;font-size:8px;line-height:1.35}
 .matrix-col-id>a{display:block;color:#167f77;font-family:var(--font-geist-mono),monospace;font-size:9px;font-weight:800;text-decoration:none}.matrix-col-id .finding-severity-pill{display:inline-block;margin-top:7px;font-size:7px}
@@ -635,4 +635,4 @@
 .matrix-evidence.has-evidence{background:#eff9f5}.matrix-evidence.missing-source{background:#fff8e8}.matrix-evidence-mark{display:block;margin-bottom:5px;color:#1b8178;font-family:var(--font-geist-mono),monospace;font-size:8px;font-weight:800}.matrix-evidence.missing-source .matrix-evidence-mark{color:#a56a12}
 .issue-list-view{padding-top:12px}.issue-list-view>section>header{display:flex;justify-content:space-between;margin:10px 0 7px;padding:8px 10px;border-radius:6px;background:#173b50;color:#fff;font-size:10px}.issue-list-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
 .issue-list-meta>span{padding:9px;border-radius:6px;background:#f5f8f9;color:#60747e;font-size:10px;line-height:1.45}.issue-list-meta strong{display:block;margin-bottom:4px;color:#294d5b;font-size:8px;text-transform:uppercase}.issue-list-view article footer{display:flex;align-items:center;gap:12px;margin-top:10px;color:#809098;font-size:9px}.issue-list-view article footer a{margin-left:auto}
-@media(max-width:1100px){.issue-matrix-toolbar{grid-template-columns:1fr 190px}.issue-matrix-key{grid-column:1/-1}.issue-document-index>div{grid-template-columns:1fr}.issue-matrix-table .matrix-col-decision,.issue-matrix-table .matrix-col-problem,.issue-matrix-table .matrix-col-action{position:static}.issue-list-meta{grid-template-columns:1fr}}
+@media(max-width:1100px){.issue-matrix-toolbar{grid-template-columns:1fr 190px}.issue-matrix-key{grid-column:1/-1}.issue-document-index>div{grid-template-columns:1fr}.issue-list-meta{grid-template-columns:1fr}}
