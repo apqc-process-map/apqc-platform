@@ -448,4 +448,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] FIND-WF-UX-002 — Preflight closing requirements in the Server Action and redirect expected validation failures back to the workflow form with actionable Vietnamese messages.
 - [x] FIND-WF-UX-003 — Preserve the database closure trigger and RLS as the final authorization/data-integrity boundary.
 - [x] FIND-WF-UX-004 — TypeScript, targeted ESLint, and Next.js production build passed.
-- [ ] FIND-WF-UX-QA-001 — Verify the rejected close and successful non-closing update paths in authenticated Vercel Production.
+- [x] FIND-WF-UX-QA-001 — Authenticated Production QA passed: missing-summary and incomplete-action closure attempts return inline Vietnamese alerts, preserve the page, write no invalid status, and produce no browser console errors.
