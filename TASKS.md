@@ -44,7 +44,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE PROC-008 Add many-to-many APQC mapping and verification.
 - [x] DONE PROC-009 Add publication-gate validation.
 - [x] DONE PROC-010 Add transparent completeness scoring.
-- [ ] `BLOCKED PROC-011` Seed 20–30 real enterprise processes after samples arrive.
+- [~] `PARTIAL PROC-011` Seed representative enterprise processes from supplied evidence: 11 L0–L2 nodes are live; the 20–30 target needs additional evidenced process samples.
 
 ## EPIC 4 — Process Map and discovery
 
@@ -91,7 +91,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE DOC-010 Add review comments, replies, mentions, and resolution.
 - [x] DONE DOC-011 Add rejection reason and four-eyes approval.
 - [x] DONE DOC-012 Add required-reading assignment and acknowledgment.
-- [ ] `BLOCKED DOC-013` Design Excel/CSV/PDF/DOCX importer after sample inspection.
+- [~] `PARTIAL DOC-013` Sample inspection and governed direct upload are complete for DOC/DOCX/PDF/XLSX; a reusable batch importer still needs an agreed structured import contract.
 
 
 ## E0-E6 pending reasons (verified 2026-10-16)
@@ -100,11 +100,11 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - AUTH-005/006/007 remain partial: route protection and database gates exist; Admin and Viewer access were exercised, while Editor and complete four-eyes behavioral tests remain.
 - APQC-004/005/006 are complete: the supplied licensed workbook was validated and imported as 2,017 elements, 3,284 metrics, five levels, and 13 categories, with attribution/version metadata and no duplicate IDs or missing parents.
 - APQC-007 remains partial: Catalog search and attribution display use imported records, but a dedicated APQC detail screen is not implemented.
-- PROC-011 remains blocked until representative enterprise samples are supplied.
+- PROC-011 is partial: the supplied installment procedure supports 11 evidenced L0–L2 nodes; no additional nodes are fabricated to reach the original 20–30 target.
 - MAP-001/005/006/009/010 remain partial because the map still uses synthetic fixtures and full browser/long-text QA is not complete.
 - REL-006/008 are implemented: the relationship table, filters, centered direct-link graph, document focus, and explicit neighboring-link expansion exist; the current milestone adds coded nodes and labeled connector lanes.
 - DOC-007 remains partial: upload, preview/download, role-gated lifecycle actions and comparison now exist; metadata editing for validity/review scheduling is not yet exposed as a complete form.
-- DOC-013 remains blocked until representative Excel/CSV/PDF/DOCX samples are supplied.
+- DOC-013 is partial: representative DOC/DOCX/PDF/XLSX files were inspected and uploaded; reusable batch-import mapping/error rules remain undefined.
 
 ## EPIC 7 — Findings & Actions
 
@@ -485,3 +485,11 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] FIND-MATRIX-004 — Bổ sung tìm kiếm tại chỗ, lọc phạm vi bằng chứng, trạng thái thiếu nguồn và chế độ Danh sách.
 - [x] FIND-MATRIX-005 — Giữ toàn bộ 35 finding; không còn loại bỏ finding một nguồn hoặc finding viện dẫn file chưa được cung cấp.
 - [ ] FIND-MATRIX-QA-001 — Process Owner xác nhận nội dung 113 ô bằng chứng và cung cấp binary nguồn 13–14 nếu cần truy cập file gốc.
+
+## 2026-10-23 — Production data and responsive QA
+
+- [x] REAL-DATA-QA-001 — Authenticated Production confirms 12 document cards, 11 process nodes, 35 findings, 14 evidence-source headers and 22 Action Log rows with no page error or browser console warning.
+- [x] FIND-MATRIX-QA-002 — Production at 1024 px shows 35/35 findings, 14 sources, horizontal scrolling contained inside the matrix, local search and evidence/list filters working.
+- [x] DOC-RESP-001 — Constrain the native file input and uploader grid with minmax(0,1fr)/min-width:0 so the Document page no longer inherits the input's 230 px intrinsic overflow at laptop width.
+- [ ] BLOCKED REAL-DATA-007 / FIND-MATRIX-QA-001 — Process Owner must validate APQC proposals, effective dates, missing metadata and 113 evidence cells; source binaries 13–14 are still not supplied.
+- [ ] BLOCKED QA-EDITOR-001 — Editor browser/RLS behavior needs an approved Editor account or authorization to change the six-user role mix.

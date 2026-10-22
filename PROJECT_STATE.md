@@ -12,8 +12,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 ## Verified data
 
 - APQC import: 2,017 elements, 3,284 metrics, 13 categories, levels 1–5, no missing parents, duplicate PCF IDs, or orphan metrics.
-- Base demo sandbox: 10 disposable enterprise processes with Executive Summary metadata, 10 applicability-covered versions, 6 controlled tags/15 process tag assignments, and 38 verified relationships (including 6 role-to-document knowledge mappings). The preexisting finding/document fixture counts below predate the tab 06 seed.
-- Existing original documents: 3 disposable documents / 4 versions covering draft, in-review and effective states. In addition, the 2026-10-21 finding demo contributes **16 separate metadata-only draft documents/versions**, yielding **19 document identities and 20 versions** at the seed snapshot; 2 original reading assignments remain.
+- Current controlled business dataset: 12 installment document identities/versions with private binaries, 11 evidenced enterprise-process nodes (L0, L1 and nine L2), 11 proposed APQC mappings, 35 findings, 22 corrective actions, 104 document-version links, 35 process-version links and 113 source-matrix evidence cells. Tagged synthetic process/document/finding fixtures were removed.
 - Six active Auth accounts use the approved mix of three Admin and three Viewer. Credentials are not stored in Git. There is no Editor account.
 - Licensed APQC source files and private documents remain outside Git.
 
@@ -27,7 +26,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - RLS-gated direct authenticated-browser upload to private Storage with a 25 MB client-side MIME/extension guard, SHA-256 checksum, file metadata, and cleanup if metadata recording fails.
 - Tab 02 Document intake uses a single Loại tài liệu with automatically derived Nhóm tài liệu and Admin-managed multi-selection of active business roles in three exclusive knowledge groups. This is not access authorization and does not automatically assign individual reading tasks.
 - Signed private file route, PDF/image preview, Office download, role-gated lifecycle action, field-level version comparison, and disposable document fixtures.
-- Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, and evidence links. Tab 06 now restricts its listing and creation to **2+ distinct-document** overlap/conflict findings, with evidence excerpts, action decisions, an individual corrective-action tracker and progress history.
+- Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, evidence links and corrective-action progress. Tab 06 displays all 35 workbook findings—including single-source and missing-binary references—in a 14-source matrix; governed manual creation still requires at least two distinct documents.
 - Action Log (backed by notification events) with per-item/bulk read actions, live finding/assignment/review/reading triggers, and a daily due-date scheduler.
 - Governance and finding summary views.
 
@@ -59,7 +58,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Editor RLS behavior cannot be executed without changing the user-approved account mix or temporarily changing a production profile role.
 - Document intake/editing exposes validity and review dates; a dedicated scheduled-publication timestamp control remains a lifecycle gap.
 - Dashboard drill-down, accessible/dismissible process previews, global cross-module search, and authenticated multi-viewport/browser QA remain partial.
-- Real process seeding and document importer design require representative enterprise/document samples.
+- The supplied installment sources support 11 real L0–L2 process nodes and direct governed upload. More process nodes require additional evidence; a reusable batch importer requires an agreed structured import contract.
 - AI document analysis requires an approved data-handling policy and samples.
 - Deferred backlog remains deferred: Entra SSO, full retention audit, relationship history, fine-grained ACL, extraction/search pipeline, AI conflict detection, operational KPI observations, saved views/exports, mobile UI, and BPMN editor.
 
@@ -280,7 +279,7 @@ PRs #60 and #61 add the governed Issue.xlsx taxonomy, a dependent classifier and
 - The hierarchy comes from the supplied installment sales procedure; the other supplied files remain documents linked to that hierarchy. Unknown owner, validity, approval and other unsupported metadata stays blank. APQC mappings are proposed, not verified.
 - Six active profiles remain available for assignment: three Admin and three Viewer. Selecting a Viewer as assignee does not grant write permission; action mutation remains Admin/Editor-only under existing Server Actions and RLS.
 - Migration 20261022000035_real_data_readiness.sql adds private upload support for legacy Word .doc (application/msword). The 12 source binaries and Issue List.xlsx remain outside Git.
-- All 12 private source binaries are attached one-to-one to the 12 document versions. Signed-in Vercel Preview smoke tests passed for Documents, Process Map, Findings and Action Log; merged Production deployment and post-merge health verification remain pending.
+- All 12 private source binaries are attached one-to-one to the 12 document versions. Authenticated Production smoke testing confirms 12 documents, 11 process nodes, 35 findings/14 source headers and 22 Action Log rows with no page errors or console warnings.
 
 ## Finding evidence matrix — 2026-10-22
 
@@ -288,4 +287,10 @@ PRs #60 and #61 add the governed Issue.xlsx taxonomy, a dependent classifier and
 - /findings now preserves the workbook comparison pattern: fixed issue columns, owner columns, 14 source columns, grouped rows, local search, evidence-scope filters, expandable full text and a list fallback. Single-source and missing-binary findings are no longer hidden.
 - Source 13 and 14 remain explicit missing-file references where applicable. Their workbook evidence is preserved without inventing document metadata or committing internal workbook contents.
 - Migration 20261022000036_issue_source_matrix.sql is applied. The table has RLS, authenticated read access constrained by visible findings, no anonymous access and no client write grant.
-- Next.js production build and TypeScript pass locally. Authenticated Preview/Production visual QA and final deployment status are recorded with the release commit when completed.
+- Release commit db4428b is READY on Vercel Production. Authenticated Production checks passed at 1024 px for the matrix, search/filter/list interactions and contained horizontal scrolling.
+
+## Production QA continuation — 2026-10-23
+
+- Production routes /documents, /process-map, /findings and /notifications were exercised with the approved Admin account at an explicit 1024×768 viewport. Data counts were 12, 11, 35/14 and 22 respectively; no application error state or browser console warning appeared.
+- The only new visual defect was a 25 px Document-page overflow caused by the native file input's intrinsic width in the two-column uploader. The uploader now uses shrinkable grid tracks and constrains the file input to its column.
+- Remaining external decisions are unchanged: Process Owner validation, source files 13–14, additional evidenced processes for the 20–30 target, an approved Editor identity, and data-policy approval for AI/deferred scope.
