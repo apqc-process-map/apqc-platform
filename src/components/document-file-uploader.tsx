@@ -34,7 +34,7 @@ export default function DocumentFileUploader({versions}:{versions:VersionOption[
     </div><span className="count-chip">Tối đa 25 MB/tệp</span></div>
     <form className="document-upload-form" onSubmit={handleUpload}>
       <label>Phiên bản tài liệu<select name="document_version_id" required>{versions.map(v=><option key={v.id} value={v.id}>{v.label}</option>)}</select></label>
-      <label>Chọn tệp<input type="file" name="file" accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg" required/></label>
+      <label>Chọn tệp<input type="file" name="file" accept=".pdf,.doc,.docx,.xlsx,.pptx,.png,.jpg,.jpeg" required/></label>
       <button type="submit" className="primary-button" disabled={busy}>{busy?"Đang tải lên…":"Tải tệp lên"}</button>
     </form>
     {error&&<p role="alert" className="document-intake-error">{error}</p>}

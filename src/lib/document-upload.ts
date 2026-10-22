@@ -5,6 +5,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 const MAX_DOCUMENT_BYTES=26_214_400;
 const allowed:Record<string,string[]>={
   "application/pdf":["pdf"],
+  "application/msword":["doc"],
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document":["docx"],
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":["xlsx"],
   "application/vnd.openxmlformats-officedocument.presentationml.presentation":["pptx"],
@@ -16,7 +17,7 @@ export function validateDocumentFile(file:File){
   if(!file.size)throw new Error("Vui lòng chọn file.");
   if(file.size>MAX_DOCUMENT_BYTES)throw new Error("File vượt quá 25 MB.");
   const extension=file.name.split(".").pop()?.toLowerCase()||"";
-  if(!allowed[file.type]?.includes(extension))throw new Error("Chỉ nhận PDF, DOCX, XLSX, PPTX, PNG, JPG hoặc JPEG.");
+  if(!allowed[file.type]?.includes(extension))throw new Error("Chỉ nhận PDF, DOC, DOCX, XLSX, PPTX, PNG, JPG hoặc JPEG.");
 }
 
 export async function uploadPrivateDocumentFile(documentVersionId:string,file:File){

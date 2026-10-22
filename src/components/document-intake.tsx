@@ -108,7 +108,7 @@ export default function DocumentIntake({
             <input name="title_vi" maxLength={255} defaultValue={existing?.title_vi||""} placeholder="Nếu để trống, hệ thống lấy tên file"/>
           </label>
           {!editing&&<label className="document-meta-wide">File đính kèm
-            <input name="file" type="file" accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg"/>
+            <input name="file" type="file" accept=".pdf,.doc,.docx,.xlsx,.pptx,.png,.jpg,.jpeg"/>
             <small>PDF, Word, Excel, PowerPoint hoặc ảnh · tối đa 25 MB · lưu riêng tư</small>
           </label>}
           <label>Loại tài liệu
@@ -198,7 +198,7 @@ export default function DocumentIntake({
           </div>)}
           <div className="document-meta-wide document-scope-group">
             <strong>Chưa xác định · {businessRoles.filter(role=>!knowledge[role.id]).length} chức danh</strong>
-            <small>Không đồng nghĩa với "Không áp dụng". Chỉ những chức danh đã được phân loại mới được ghi nhận.</small>
+            <small>Không đồng nghĩa với &quot;Không áp dụng&quot;. Chỉ những chức danh đã được phân loại mới được ghi nhận.</small>
             <span>{businessRoles.filter(role=>!knowledge[role.id]).map(role=>role.label).join(", ")||"Đã phân loại tất cả chức danh."}</span>
           </div>
         </div>
