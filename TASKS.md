@@ -465,4 +465,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] Add issue metadata from workbook sheet 2 to Finding intake/detail.
 - [x] Reframe Action Log as the cross-Finding corrective-action register while retaining notification history.
 - [x] Apply migration `20261022000034_issue_taxonomy_action_log.sql` and verify taxonomy counts and RLS advisors on connected Supabase.
-- [ ] Complete authenticated visual/E2E verification and production deployment after merge.
+- [x] Complete authenticated production verification for dependent classification and Action Log; deploy merge commit through Vercel.
