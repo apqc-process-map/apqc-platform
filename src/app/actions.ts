@@ -79,7 +79,7 @@ export async function updateFindingWorkflow(formData: FormData) {
   const { supabase, profile } = await authenticatedContext();
   if (profile.role !== "admin" && profile.role !== "editor") throw new Error("Bạn không có quyền cập nhật finding.");
 
-  const { data: finding, error: readError } = await supabase.from("findings").select("status,created_by,assignee_id").eq("id", findingId).single();
+  const { data: finding, error: readError } = await supabase.from("findings").select("status,created_by,assignee_id,finding_domain").eq("id", findingId).single();
   if (readError || !finding) throw new Error("Không tìm thấy finding.");
   if (profile.role === "editor" && finding.created_by !== profile.id && finding.assignee_id !== profile.id) throw new Error("Editor chỉ được cập nhật finding do mình tạo hoặc được giao.");
 
@@ -93,12 +93,30 @@ export async function updateFindingWorkflow(formData: FormData) {
     reopened: ["in_progress", "resolved"],
   };
   if (requestedStatus !== finding.status && profile.role !== "admin" && !editorTransitions[finding.status]?.includes(requestedStatus)) throw new Error("Chuyển trạng thái này cần quyền Admin.");
-  if ((requestedStatus === "resolved" || requestedStatus === "closed") && !resolutionSummary) throw new Error("Resolved/closed bắt buộc có tóm tắt xử lý.");
+  const isClosing = requestedStatus === "resolved" || requestedStatus === "closed";
+  if (isClosing && !resolutionSummary) {
+    redirect(`/findings/${findingId}?workflow_error=resolution_required#finding-workflow`);
+  }
+  if (isClosing && finding.finding_domain === "document") {
+    const { count, error: actionCheckError } = await supabase
+      .from("finding_actions")
+      .select("id", { count: "exact", head: true })
+      .eq("finding_id", findingId)
+      .not("status", "in", '("done","cancelled")');
+    if (actionCheckError) redirect(`/findings/${findingId}?workflow_error=validation_unavailable#finding-workflow`);
+    if ((count || 0) > 0) redirect(`/findings/${findingId}?workflow_error=actions_incomplete#finding-workflow`);
+  }
 
   const { error } = await supabase.from("findings").update({ status: requestedStatus, assignee_id: assigneeId || null, due_at: dueDate? dueDate+"T17:00:00+07:00" : null, resolution_summary: resolutionSummary || null }).eq("id", findingId);
-  if (error) throw new Error(error.message);
+  if (error) {
+    const code = error.message.includes("corrective actions") ? "actions_incomplete"
+      : error.message.toLowerCase().includes("resolution summary") ? "resolution_required"
+      : "save_failed";
+    redirect(`/findings/${findingId}?workflow_error=${code}#finding-workflow`);
+  }
   revalidatePath(`/findings/${findingId}`);
   revalidatePath("/findings");
+  redirect(`/findings/${findingId}?workflow_saved=1#finding-workflow`);
 }
 
 export async function setFindingReaction(formData: FormData) {

@@ -442,3 +442,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] META-CLASS-001 — Define version-controlled, Class-specific Document required-property rules without enabling custom metadata fields.
 - [x] META-CARD-001 — Use a shared grouped metadata-card renderer for Process and Document while retaining object-specific schemas.
 - [x] QA-META-VIEW-001 — Authenticated Production verification passed for View switching, indirect Process search, explanation chips, Document/Process metadata cards, explicit missing-property state, Vietnamese labels, and browser console health. Explicit 1024 px viewport coverage remains in the broader responsive QA matrix.
+## 2026-10-22 — Finding workflow validation UX
+
+- [x] FIND-WF-UX-001 — Trace the Production failure to Finding FND-000024: resolved/closed was rejected because the resolution summary was blank and all three active corrective actions were incomplete.
+- [x] FIND-WF-UX-002 — Preflight closing requirements in the Server Action and redirect expected validation failures back to the workflow form with actionable Vietnamese messages.
+- [x] FIND-WF-UX-003 — Preserve the database closure trigger and RLS as the final authorization/data-integrity boundary.
+- [x] FIND-WF-UX-004 — TypeScript, targeted ESLint, and Next.js production build passed.
+- [ ] FIND-WF-UX-QA-001 — Verify the rejected close and successful non-closing update paths in authenticated Vercel Production.

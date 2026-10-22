@@ -259,3 +259,8 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Document Class rules are version-controlled in application code; no custom metadata-field creation or database migration was introduced.
 - Document Views cover effective, review-due, missing-metadata, and process-linked records. Indirect discovery uses only RLS-visible process, applicability, tag, and role-knowledge rows and explains why each result appears.
 - Verification passed: TypeScript, ESLint, production build, authenticated Production View/search/card smoke tests, Vietnamese-label mojibake scan, and browser console check. Production merge commit 2a15a62 is READY.
+## Finding workflow validation UX — 2026-10-22
+
+- Production logs identified two expected governance rejections on Finding FND-000024: missing resolution summary and three incomplete corrective actions. These were previously surfaced as a generic Next.js error page.
+- The Server Action now preflights document-finding closure requirements and returns coded, non-sensitive messages to the workflow panel. Database triggers and RLS remain authoritative and unchanged.
+- TypeScript, targeted ESLint, and production build passed; authenticated Production smoke verification remains pending deployment.

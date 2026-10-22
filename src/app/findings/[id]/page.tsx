@@ -1,4 +1,4 @@
-import { noteSlowPage } from "@/lib/page-perf";
+import { getServerTimestamp } from "@/lib/server-time";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { addFindingComment, removeFindingParticipant, setFindingParticipant, setFindingReaction, updateFindingWorkflow } from "@/app/actions";
@@ -24,11 +24,11 @@ function eventDescription(event: { event_type: string; from_value: unknown; to_v
   return event.event_type.replaceAll("_", " ");
 }
 
-export default async function FindingDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function FindingDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ workflow_error?: string; workflow_saved?: string }> }) {
   const { id } = await params;
+  const { workflow_error: workflowError, workflow_saved: workflowSaved } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
-  // Safe, post-response timing with no user or document identifiers.
-  noteSlowPage("/findings/detail", performance.now());
+  const requestNow = await getServerTimestamp();
   // All ten queries depend only on route ID and RLS; execute in one concurrent
   // wave instead of waiting for finding metadata before fetching its actions.
   const [findingResult, profileResult, eventResult, reactionResult, commentResult,
@@ -74,8 +74,16 @@ export default async function FindingDetailPage({ params }: { params: Promise<{ 
   const editorTransitions: Record<string, string[]> = { new: ["triage", "in_progress"], triage: ["in_progress"], in_progress: ["pending_decision", "resolved"], pending_decision: ["in_progress", "resolved"], resolved: [], closed: [], reopened: ["in_progress", "resolved"] };
   const availableStatuses = profile.role === "admin" ? allStatuses : [...new Set([finding.status, ...(editorTransitions[finding.status] || [])])];
 
+  const workflowErrors: Record<string, string> = {
+    resolution_required: "Hãy nhập Tóm tắt xử lý trước khi chuyển Finding sang Đã xử lý hoặc Đã đóng.",
+    actions_incomplete: "Chưa thể hoàn tất Finding: tất cả corrective action đang hoạt động phải được đánh dấu Hoàn thành hoặc Đã hủy.",
+    validation_unavailable: "Chưa thể kiểm tra corrective action. Vui lòng thử lại.",
+    save_failed: "Không thể lưu workflow do lỗi dữ liệu tạm thời. Vui lòng thử lại.",
+  };
   return <WorkspaceShell active="/findings" eyebrow="FINDING DETAIL" title={finding.title} description={finding.description} userName={profile.display_name} role={profile.role}>
     <Link className="text-button" href="/findings">← Quay lại Findings</Link>
+    {workflowError ? <div className="state-message error-state" role="alert"><strong>Không thể lưu workflow</strong><span>{workflowErrors[workflowError] || workflowErrors.save_failed}</span></div> : null}
+    {workflowSaved ? <div className="state-message" role="status"><strong>Đã lưu workflow.</strong><span>Trạng thái và thông tin phụ trách đã được cập nhật.</span></div> : null}
     {isDocumentFinding&&<>
       <section className="data-panel finding-document-evidence">
         <div className="data-panel-heading"><div><p className="section-kicker">DOCUMENT EVIDENCE</p>
@@ -144,7 +152,7 @@ export default async function FindingDetailPage({ params }: { params: Promise<{ 
           <span>{finding.action_decision==="not_required"?"Finding đã được kết luận không cần action.":finding.action_decision==="pending"?"Hãy xác định có cần action hay không.":"Finding cần action nhưng chưa có đầu việc được giao."}</span>
         </div>:<div className="finding-action-list">{correctiveActions.map(action=>{
           const due=action.due_at;
-          const isLate=!!due&&action.status!=="done"&&action.status!=="cancelled"&&new Date(due).getTime()<Date.now();
+          const isLate=!!due&&action.status!=="done"&&action.status!=="cancelled"&&new Date(due).getTime()<requestNow;
           return <article key={action.id} className="finding-action-item">
             <div className="finding-action-title"><h3>{action.action_title}</h3><span className="status-badge">{actionStatusLabels[action.status]||action.status}</span>{isLate&&<span className="finding-late">Quá hạn</span>}</div>
             {action.description&&<p>{action.description}</p>}
@@ -183,7 +191,7 @@ export default async function FindingDetailPage({ params }: { params: Promise<{ 
       </section>
     </>}
 
-    <div className="finding-detail-grid"><section className="data-panel"><div className="data-panel-heading"><div><span className="mono-code">{finding.finding_code}</span><h2>Workflow</h2></div><span className="status-badge">{statusLabels[finding.status] || finding.status}</span></div><dl className="finding-detail-meta"><div><dt>Mức độ</dt><dd>{finding.severity}</dd></div><div><dt>Ưu tiên</dt><dd>{finding.priority}</dd></div><div><dt>Người phụ trách</dt><dd>{assignee}</dd></div><div><dt>Hạn xử lý</dt><dd>{finding.due_at ? new Date(finding.due_at).toLocaleDateString("vi-VN") : "—"}</dd></div></dl>{canEdit ? <form className="finding-workflow-form" action={updateFindingWorkflow}><input type="hidden" name="finding_id" value={finding.id}/><label>Trạng thái<select name="status" defaultValue={finding.status}>{availableStatuses.map((value) => <option key={value} value={value}>{statusLabels[value] || value}</option>)}</select></label><label>Người phụ trách<select name="assignee_id" defaultValue={finding.assignee_id || ""}><option value="">Chưa giao</option>{(profiles || []).map((item) => <option key={item.id} value={item.id}>{item.display_name} · {item.role}</option>)}</select></label><label>Hạn xử lý finding<input type="date" name="due_at" defaultValue={finding.due_at?.slice(0,10)||""}/></label><label>Tóm tắt xử lý<textarea name="resolution_summary" defaultValue={finding.resolution_summary || ""} placeholder="Bắt buộc khi đánh dấu đã xử lý hoặc đã đóng" maxLength={5000} /></label><button className="primary-button" type="submit">Lưu workflow</button></form> : <div className="state-message compact-state"><span>Bạn có quyền xem nhưng không phải người tạo hoặc người được giao finding này.</span></div>}</section>
+    <div className="finding-detail-grid"><section className="data-panel" id="finding-workflow"><div className="data-panel-heading"><div><span className="mono-code">{finding.finding_code}</span><h2>Workflow</h2></div><span className="status-badge">{statusLabels[finding.status] || finding.status}</span></div><dl className="finding-detail-meta"><div><dt>Mức độ</dt><dd>{finding.severity}</dd></div><div><dt>Ưu tiên</dt><dd>{finding.priority}</dd></div><div><dt>Người phụ trách</dt><dd>{assignee}</dd></div><div><dt>Hạn xử lý</dt><dd>{finding.due_at ? new Date(finding.due_at).toLocaleDateString("vi-VN") : "—"}</dd></div></dl>{canEdit ? <form className="finding-workflow-form" action={updateFindingWorkflow}><input type="hidden" name="finding_id" value={finding.id}/><label>Trạng thái<select name="status" defaultValue={finding.status}>{availableStatuses.map((value) => <option key={value} value={value}>{statusLabels[value] || value}</option>)}</select></label><label>Người phụ trách<select name="assignee_id" defaultValue={finding.assignee_id || ""}><option value="">Chưa giao</option>{(profiles || []).map((item) => <option key={item.id} value={item.id}>{item.display_name} · {item.role}</option>)}</select></label><label>Hạn xử lý finding<input type="date" name="due_at" defaultValue={finding.due_at?.slice(0,10)||""}/></label><label>Tóm tắt xử lý<textarea name="resolution_summary" defaultValue={finding.resolution_summary || ""} placeholder="Bắt buộc khi đánh dấu đã xử lý hoặc đã đóng" maxLength={5000} /></label><button className="primary-button" type="submit">Lưu workflow</button></form> : <div className="state-message compact-state"><span>Bạn có quyền xem nhưng không phải người tạo hoặc người được giao finding này.</span></div>}</section>
       <aside className="legend-panel"><p className="section-kicker">COLLABORATION</p><h2>Phản hồi</h2>{Object.keys(reactionLabels).map((value) => <form className="reaction-row" action={setFindingReaction} key={value}><input type="hidden" name="finding_id" value={finding.id}/><input type="hidden" name="reaction" value={value}/><button type="submit" className="text-button">{reactionLabels[value]}</button><span>{(reactions || []).filter((item) => item.reaction === value).length}</span></form>)}</aside></div>
 
     <section className="data-panel participant-panel"><div className="data-panel-heading"><div><p className="section-kicker">PARTICIPANTS</p><h2>Người tham gia và theo dõi</h2></div><span className="count-chip">{participants?.length || 0} người</span></div>
