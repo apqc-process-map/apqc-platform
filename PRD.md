@@ -328,6 +328,7 @@ Admin manages controlled vocabulary values. The MVP does not include custom-fiel
 - The browser calculates a SHA-256 checksum, creates a unique storage key, and records the original name, MIME type, size, checksum, uploader, and upload time in `document_files`. If recording that metadata fails, the just-uploaded object is removed.
 - Storage and document-file policies restrict upload to an authorized editable draft. Files remain private; signed URLs are issued only after authorization.
 - A title-only draft may be created first and a file added later. Each upload creates a new stored object and never overwrites a prior object.
+- At the supported 1024 px desktop width, upload controls—including the native file picker—must shrink within their grid columns and must not create page-level horizontal overflow.
 - PDF/image preview; Office download in the MVP.
 - Use archive/soft-delete behavior from the UI.
 

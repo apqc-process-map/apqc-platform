@@ -220,8 +220,9 @@ The remaining work is limited to:
 
 1. Authenticated multi-browser and multi-viewport QA, including keyboard/focus evidence.
 2. Complete Editor RLS/action testing, blocked by the confirmed six-user mix containing no Editor account.
-3. Real enterprise-process seeding and importer design, blocked until representative source samples are supplied.
-4. AI analysis and deferred backlog, blocked by data policy or explicit non-MVP scope.
+3. Extend the evidenced enterprise hierarchy beyond the 11 live L0–L2 nodes only when additional process samples are supplied; define a reusable batch-import contract before implementing a generic importer.
+4. Obtain Process Owner validation for APQC proposals, effective dates, missing metadata and the 113 evidence cells; obtain source binaries 13–14.
+5. AI analysis and deferred backlog remain blocked by data policy or explicit non-MVP scope.
 
 Do not mark these blockers complete using fabricated data, invented browser evidence, or an unauthorized role/account change.
 
@@ -262,3 +263,7 @@ Do not mark these blockers complete using fabricated data, invented browser evid
 - Require proposed APQC mappings and draft documents to pass owner review before verification/publication.
 
 Exit: database counts and authorization boundaries are verified, the production build is healthy, 12 private files are attached to the correct versions, and signed-in browser smoke tests cover Documents, Process Map, Findings, and Action Log.
+
+### 2026-10-23 — Production QA continuation
+
+Authenticated Production acceptance covers the current installment dataset across Documents, Process Map, Finding Matrix and Action Log. The next delivery boundary is external validation, not additional inferred metadata: Process Owner review, missing sources 13–14, an approved Editor test identity, and any additional real process samples.
