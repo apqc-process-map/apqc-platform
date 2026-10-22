@@ -26,7 +26,7 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - RLS-gated direct authenticated-browser upload to private Storage with a 25 MB client-side MIME/extension guard, SHA-256 checksum, file metadata, and cleanup if metadata recording fails.
 - Tab 02 Document intake uses a single Loại tài liệu with automatically derived Nhóm tài liệu and Admin-managed multi-selection of active business roles in three exclusive knowledge groups. This is not access authorization and does not automatically assign individual reading tasks.
 - Signed private file route, PDF/image preview, Office download, role-gated lifecycle action, field-level version comparison, and disposable document fixtures.
-- Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, evidence links and corrective-action progress. Tab 06 displays all 35 workbook findings—including single-source and missing-binary references—in a 14-source matrix; governed manual creation still requires at least two distinct documents.
+- Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, evidence links and corrective-action progress. Tab 06 displays all 35 workbook findings—including single-source and missing-binary references—in a compact nine-column register; related processes/documents and conflicting excerpts are consolidated into two resizable columns. Governed manual creation still requires at least two distinct documents.
 - Action Log (backed by notification events) with per-item/bulk read actions, live finding/assignment/review/reading triggers, and a daily due-date scheduler.
 - Governance and finding summary views.
 
@@ -297,5 +297,8 @@ PRs #60 and #61 add the governed Issue.xlsx taxonomy, a dependent classifier and
 
 ## Finding matrix layout QA — 2026-10-23
 
-- The five leading Finding headers no longer pin horizontally; only the header row remains vertically sticky. Decision Point is 170 px and the adjacent narrative/Owner columns are compact.
-- Authenticated Vercel Preview QA passed at 1024 px and 1280 px with 35 rows and 14 source columns. At 1024 px, scrolling the matrix 1,400 px moved all leading headers out of view and exposed source columns [1]–[7]; page-level overflow and console warnings/errors were absent.
+- Tab 06 now uses nine columns instead of 14 separate source columns: the last two columns consolidate related process/document identities and source-by-source conflicting excerpts. All 35 findings remain visible, including single-source and missing-file cases.
+- Default widths are compact: Decision Point 96 px and Owner Comment 112 px. The header is 48 px high. Every column can be resized temporarily with pointer drag or keyboard ArrowLeft/ArrowRight; widths reset on reload.
+- The process lookup now follows the current `process_versions.process_id → processes.id` relationship. Preview QA confirmed all 35 process-version subject links render with process codes; the prior relation/column names caused the process query to fail.
+- Authenticated Vercel Preview QA passed at 1024 px and 1280 px: 35 rows, nine headers, contained horizontal scrolling, no page-level overflow, pointer/keyboard resizing and no browser console errors. Next.js production build and TypeScript passed all 15 routes. Targeted lint remains blocked only by the pre-existing `performance.now()` React purity error in `/findings`.
+- Production deployment and smoke verification remain pending until PR merge.
