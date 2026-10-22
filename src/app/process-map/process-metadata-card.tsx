@@ -1,4 +1,5 @@
 import type { ProcessMapNode } from "./process-map-client";
+import SharedMetadataCard, { type MetadataGroup as SharedMetadataGroup } from "@/components/metadata-card";
 
 type MetadataProperty = {
   label: string;
@@ -62,12 +63,6 @@ const dimensionLabels: Record<string, string> = {
   exception: "Ngoại lệ",
 };
 
-function hasMetadataValue(value: MetadataProperty["value"]) {
-  if (Array.isArray(value)) return value.some((item) => item.trim().length > 0);
-  if (typeof value === "number") return true;
-  return Boolean(value?.trim());
-}
-
 const dateFormatter = new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeZone: "Asia/Ho_Chi_Minh" });
 const dateTimeFormatter = new Intl.DateTimeFormat("vi-VN", {
   dateStyle: "short",
@@ -80,16 +75,6 @@ function formatDate(value: string | null, includeTime = false) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return (includeTime ? dateTimeFormatter : dateFormatter).format(date);
-}
-
-function MetadataValue({ property }: { property: MetadataProperty }) {
-  if (!hasMetadataValue(property.value)) {
-    return <span className="process-property-missing"><span aria-hidden="true">!</span> Thiếu dữ liệu</span>;
-  }
-  if (Array.isArray(property.value)) {
-    return <ul className="process-property-values">{property.value.map((item, index) => <li key={item + index}>{item}</li>)}</ul>;
-  }
-  return <span>{property.value}</span>;
 }
 
 type Props = {
@@ -197,36 +182,19 @@ export default function ProcessMetadataCard({ process, nodes }: Props) {
     },
   ];
 
-  const properties = groups.flatMap((group) => group.properties);
-  const completedCount = properties.filter((property) => hasMetadataValue(property.value)).length;
-  const missingCount = properties.length - completedCount;
-  const completionPercent = Math.round((completedCount / properties.length) * 100);
-
-  return <div className="process-metadata-card" data-testid="process-metadata-card">
-    <div className="process-metadata-model" aria-label="Cơ chế metadata phân tầng">
-      <span>Object Type</span><b aria-hidden="true">›</b><span>Class</span><b aria-hidden="true">›</b><span>Property</span><b aria-hidden="true">›</b><span>Value / Lookup</span>
-    </div>
-    <div className="process-metadata-health">
-      <div><strong>{completionPercent}%</strong><span>{completedCount}/{properties.length} thuộc tính đã có dữ liệu</span></div>
-      <span className={missingCount ? "is-incomplete" : "is-complete"}>{missingCount ? `${missingCount} trường còn thiếu` : "Metadata đầy đủ"}</span>
-      <div className="process-metadata-progress" role="progressbar" aria-label="Mức độ hoàn thiện metadata" aria-valuemin={0} aria-valuemax={100} aria-valuenow={completionPercent}><i style={{ width: `${completionPercent}%` }} /></div>
-    </div>
-    <div className="process-metadata-groups">
-      {groups.map((group) => {
-        const groupMissing = group.properties.filter((property) => !hasMetadataValue(property.value)).length;
-        return <section className="process-metadata-group" key={group.key} aria-labelledby={`metadata-group-${group.key}`}>
-          <header><div><h3 id={`metadata-group-${group.key}`}>{group.title}</h3><p>{group.description}</p></div><span className={groupMissing ? "has-missing" : "is-complete"}>{groupMissing ? `${groupMissing} thiếu` : "Đủ"}</span></header>
-          <dl>
-            {group.properties.map((property) => {
-              const missing = !hasMetadataValue(property.value);
-              return <div className={`process-property-row${missing ? " is-missing" : ""}`} key={property.label} data-metadata-state={missing ? "missing" : "complete"}>
-                <dt>{property.label}{property.system ? <small>System</small> : null}</dt>
-                <dd><MetadataValue property={property} /></dd>
-              </div>;
-            })}
-          </dl>
-        </section>;
-      })}
-    </div>
-  </div>;
+  const alwaysOptional = new Set(["Tên tiếng Anh", "Phân công khác", "Governance tags", "Hệ thống", "Phạm vi áp dụng", "Hiệu lực đến", "Thay thế phiên bản", "Gửi duyệt", "Người gửi duyệt", "Phê duyệt", "Người phê duyệt", "Xuất bản", "Người xuất bản"]);
+  const operational = new Set(["4. Ba quyết định trọng yếu", "Đầu vào", "Đầu ra", "Trigger", "Outcome"]);
+  const sharedGroups: SharedMetadataGroup[] = groups.map((group) => ({
+    key: group.key,
+    title: group.title,
+    description: group.description,
+    properties: group.properties.map((property, index) => ({
+      key: group.key+"-"+index,
+      label: property.label,
+      value: property.value,
+      required: !alwaysOptional.has(property.label) && (!operational.has(property.label) || ["process","subprocess","activity","task"].includes(process.level)),
+      origin: property.system ? "system" : ["Thuộc quy trình cha","Quy trình con","Phân công khác","Hệ thống","APQC mappings"].includes(property.label) ? "relationship" : ["Phân loại truy cập","Vai trò được phép","Governance tags","Phạm vi áp dụng"].includes(property.label) ? "controlled" : "user",
+    })),
+  }));
+  return <SharedMetadataCard objectType="Business Process" className={levelLabels[process.level] || process.level} groups={sharedGroups} testId="process-metadata-card" />;
 }

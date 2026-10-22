@@ -797,3 +797,21 @@ The page reads the selected process metadata, controlled lookups, and audit rela
 - Document filters include readable names for all seven groups and all lifecycle statuses; group queries are case-insensitive to include legacy `Governance`/`Execution` values. Cards display language, group, access, risk, and dates with Vietnamese labels and DD/MM/YYYY dates.
 - Migration `20261021000035_normalize_document_type_labels.sql` updates nine Vietnamese vocabulary labels in place (stable IDs and codes, no version rewrite). Scope and knowledge-audience rules from section 37 are unchanged.
 - Validate the Next.js Preview TypeScript build and Production deployment; full authenticated visual/browser create-edit-filter-save smoke QA is a separate check.
+
+## 40. Metadata-driven discovery and shared metadata card — 2026-10-22
+
+### 40.1 Governed document Views
+
+The Document workspace provides governed presets for all visible documents, effective documents, documents approaching review within 30 days, records missing Class-required metadata, and records linked to a Business Process. Users may group the current result set by document type, primary process, status, or owner.
+
+### 40.2 Class-specific required properties
+
+Document Class is derived from the controlled document group. Required and applicable properties are defined in version-controlled application schema, not by end-user custom fields. Common identity and governance properties apply to every Class; Governance, Execution, Evidence/Form, Contract, and Assurance groups add their own required context. Missing required values remain visible and are included in completeness calculations.
+
+### 40.3 Shared property-card pattern
+
+Process and Document detail use one metadata-card presentation: Object Type, Class, grouped properties, required/optional state, property origin, explicit missing state, and completion summary. Process and Document retain separate schemas and permissions.
+
+### 40.4 Indirect discovery and explainability
+
+Users may find a document through RLS-visible related objects such as Business Process, applicability scope, governance tag, or role-knowledge assignment. Every result displays a concise reason explaining why it is present in the current View. Indirect discovery never broadens document access and never exposes labels from objects that the signed-in user cannot read.
