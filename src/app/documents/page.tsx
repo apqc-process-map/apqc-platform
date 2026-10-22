@@ -1,4 +1,3 @@
-import { noteSlowPage } from "@/lib/page-perf";
 import Link from "next/link";
 import Form from "next/form";
 import WorkspaceShell from "@/components/workspace-shell";
@@ -7,6 +6,8 @@ import DocumentFileUploader from "@/components/document-file-uploader";
 import { acknowledgeReadingAssignment, updateDocumentLifecycle } from "@/app/actions";
 import { requireActiveAccount } from "@/lib/auth";
 import { getServerTimestamp } from "@/lib/server-time";
+import MetadataCard from "@/components/metadata-card";
+import { buildDocumentMetadataGroups, documentRequiredKeys } from "@/lib/metadata-schema";
 import {
   documentGroupOptions, documentStatusOptions, documentLanguageOptions,
   documentAccessOptions, documentRiskOptions, documentDate, documentOptionLabel,
@@ -25,12 +26,11 @@ const sortOptions = [
   ["valid_from_desc", "Hiệu lực mới nhất"],
 ] as const;
 
-export default async function DocumentsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; type?: string; group?: string; language?: string; access?: string; risk?: string; owner?: string; sort?: string; read_q?: string; read_status?: string; compare?: string; preview?: string; edit?: string; created?: string; updated?: string }> }) {
-  const { q = "", status = "all", type = "all", group = "all", language = "all", access = "all", risk = "all", owner = "all", sort = "updated_desc", read_q = "", read_status = "pending", compare, preview, edit, created, updated } = await searchParams;
+export default async function DocumentsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; type?: string; group?: string; language?: string; access?: string; risk?: string; owner?: string; sort?: string; preset?: string; group_by?: string; related_q?: string; detail?: string; read_q?: string; read_status?: string; compare?: string; preview?: string; edit?: string; created?: string; updated?: string }> }) {
+  const { q = "", status = "all", type = "all", group = "all", language = "all", access = "all", risk = "all", owner = "all", sort = "updated_desc", preset = "all", group_by = "none", related_q = "", detail, read_q = "", read_status = "pending", compare, preview, edit, created, updated } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
-  // Safe, post-response timing with no user or document identifiers.
-  noteSlowPage("/documents", performance.now());
-  let query = supabase.from("document_versions").select("id, document_id, version_number, status, title_vi, title_en, document_group, language, document_abstract, change_summary, valid_from, valid_until, review_due_at, access_level, risk_rating, issuing_department, keywords, legal_reference, retention_note, updated_at, owner_id, created_by, document_type_value_id, vocabulary_values(label_vi), documents(document_code), document_files(id, original_file_name, mime_type, size_bytes)").limit(100);
+  const requestNow=await getServerTimestamp();
+  let query = supabase.from("document_versions").select("id, document_id, version_number, status, title_vi, title_en, document_group, language, document_abstract, change_summary, valid_from, valid_until, review_due_at, access_level, risk_rating, issuing_department, applicability_note, keywords, legal_reference, retention_note, created_at, updated_at, owner_id, designated_approver_id, created_by, document_type_value_id, vocabulary_values(label_vi), documents(document_code), document_files(id, original_file_name, mime_type, size_bytes)").limit(100);
   if (q.trim()) query = query.or(`title_vi.ilike.%${q.trim()}%,title_en.ilike.%${q.trim()}%,document_abstract.ilike.%${q.trim()}%,keywords.ilike.%${q.trim()}%,issuing_department.ilike.%${q.trim()}%`);
   if (status !== "all") query = query.eq("status", status);
   if (type !== "all") query = query.eq("document_type_value_id", type);
@@ -39,6 +39,8 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   if (access !== "all") query = query.eq("access_level", access);
   if (risk !== "all") query = query.eq("risk_rating", risk);
   if (owner !== "all") query = query.eq("owner_id", owner);
+  if (preset === "effective") query = query.eq("status", "effective");
+  if (preset === "review_due") query = query.not("review_due_at", "is", null).lte("review_due_at", new Date(requestNow + 30 * 86400000).toISOString().slice(0, 10));
   if (sort === "updated_asc") query = query.order("updated_at", { ascending: true });
   else if (sort === "title_asc") query = query.order("title_vi", { ascending: true });
   else if (sort === "title_desc") query = query.order("title_vi", { ascending: false });
@@ -50,7 +52,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   // Kick off the document list and the independent metadata/reading lists in one round trip wave.
   const [versionResult, processRows, peopleRows, typeRows, scopeRows, tagRows, editingResult, linkedRows, appliedRows, markedRows, assignmentResult, roleRows] = await Promise.all([
     query,
-    canEdit ? supabase.from("processes").select("id,process_code,process_versions(name_vi)").order("display_order").limit(150) : Promise.resolve({data: []}),
+    supabase.from("processes").select("id,process_code,process_versions(name_vi)").order("display_order").limit(150),
     supabase.from("profiles").select("id,display_name,role").eq("is_active",true).order("display_name"),
     supabase.from("vocabulary_values").select("id,label_vi,document_group_code,vocabularies!inner(code)").eq("vocabularies.code","document_type").eq("is_active",true).order("display_order"),
     canEdit ? supabase.from("vocabulary_values").select("id,label_vi,vocabularies!inner(code)").in("vocabularies.code",scopeDimensions).eq("is_active",true).order("display_order") : Promise.resolve({data: []}),
@@ -63,6 +65,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
     supabase.from("business_roles").select("id,name").eq("is_active",true).order("name"),
   ]);
   const { data: versions, error } = versionResult;
+  const versionIds = (versions || []).map((item) => item.id);
   const selected = compare ? (versions || []).find((item) => item.id === compare) : null;
   const previous = selected ? (versions || []).filter((item) => item.document_id === selected.document_id && item.version_number < selected.version_number).sort((a, b) => b.version_number - a.version_number)[0] : null;
   const files = (versions || []).flatMap((item) => ((item.document_files as unknown as { id: string; original_file_name: string; mime_type: string; size_bytes: number }[]) || []).map((file) => ({ ...file, versionTitle: item.title_vi })));
@@ -114,7 +117,82 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   const assignedVersionIds=assignments.map(item=>item.object_id);
   const assignedVersionsResult=assignedVersionIds.length?await supabase.from("document_versions").select("id,version_number,title_vi,document_abstract,keywords,issuing_department,valid_from,vocabulary_values(label_vi),documents(document_code),document_files(id,original_file_name,mime_type)").in("id",assignedVersionIds):{data:[],error:null};
   const assignedVersions=new Map(((assignedVersionsResult.data||[]) as unknown as AssignedVersion[]).map(item=>[item.id,item]));
-  const now=await getServerTimestamp();
+  const [allProcessLinksResult, allApplicabilityResult, allTagsResult] = versionIds.length ? await Promise.all([
+    supabase.from("document_process_links").select("document_version_id,process_id,link_role").in("document_version_id",versionIds),
+    supabase.from("object_applicability").select("object_id,dimension,free_text,is_inherited,vocabulary_values(label_vi),systems(name)").eq("object_type","document_version").in("object_id",versionIds),
+    supabase.from("object_tags").select("object_id,governance_tags(code,label_vi)").eq("object_type","document_version").in("object_id",versionIds),
+  ]) : [{data:[]},{data:[]},{data:[]}];
+  type ProcessLinkRow={document_version_id:string;process_id:string;link_role:string};
+  type ApplicabilityViewRow={object_id:string;dimension:string;free_text:string|null;is_inherited:boolean;vocabulary_values:{label_vi:string}|{label_vi:string}[]|null;systems:{name:string}|{name:string}[]|null};
+  type TagViewRow={object_id:string;governance_tags:{code:string;label_vi:string}|{code:string;label_vi:string}[]|null};
+  const processLabelById=new Map(availableProcesses.map(item=>[item.id,item.label]));
+  const processLinksByVersion=new Map<string,ProcessLinkRow[]>();
+  for(const row of (allProcessLinksResult.data||[]) as ProcessLinkRow[]) processLinksByVersion.set(row.document_version_id,[...(processLinksByVersion.get(row.document_version_id)||[]),row]);
+  const applicabilityByVersion=new Map<string,string[]>();
+  const inheritedApplicabilityByVersion=new Set<string>();
+  for(const row of (allApplicabilityResult.data||[]) as unknown as ApplicabilityViewRow[]){
+    const vocabulary=Array.isArray(row.vocabulary_values)?row.vocabulary_values[0]:row.vocabulary_values;
+    const system=Array.isArray(row.systems)?row.systems[0]:row.systems;
+    const label=vocabulary?.label_vi||system?.name||row.free_text||row.dimension;
+    applicabilityByVersion.set(row.object_id,[...(applicabilityByVersion.get(row.object_id)||[]),label]);
+    if(row.is_inherited) inheritedApplicabilityByVersion.add(row.object_id);
+  }
+  const tagsByVersion=new Map<string,string[]>();
+  for(const row of (allTagsResult.data||[]) as unknown as TagViewRow[]){
+    const tag=Array.isArray(row.governance_tags)?row.governance_tags[0]:row.governance_tags;
+    if(tag) tagsByVersion.set(row.object_id,[...(tagsByVersion.get(row.object_id)||[]),tag.code+" · "+tag.label_vi]);
+  }
+  const knowledgeByDocument=new Map<string,string[]>();
+  for(const [documentId,entries] of Object.entries(selectedByDocument)){
+    knowledgeByDocument.set(documentId,Object.entries(entries).map(([roleId,level])=>(roleNames.get(roleId)||"Chức danh")+" · "+({must:"Phải biết",should:"Nên biết",none:"Không áp dụng"} as const)[level]));
+  }
+  type DocumentVersion=NonNullable<typeof versions>[number];
+  const contextTerms=(item:DocumentVersion)=>[
+    ...(processLinksByVersion.get(item.id)||[]).map(link=>processLabelById.get(link.process_id)||""),
+    ...(applicabilityByVersion.get(item.id)||[]),
+    ...(tagsByVersion.get(item.id)||[]),
+    ...(knowledgeByDocument.get(item.document_id)||[]),
+  ].filter(Boolean);
+  const hasRequiredMetadata=(item:DocumentVersion)=>{
+    const keys=documentRequiredKeys(item.document_group);
+    const values:Record<string,unknown>={
+      documentCode:(item.documents as unknown as {document_code:string}|null)?.document_code,
+      documentType:item.document_type_value_id,documentGroup:item.document_group,version:item.version_number,status:item.status,
+      titleVi:item.title_vi,language:item.language,abstract:item.document_abstract,changeSummary:item.change_summary,
+      owner:item.owner_id,issuingDepartment:item.issuing_department,accessLevel:item.access_level,reviewDue:item.review_due_at,
+      primaryProcess:(processLinksByVersion.get(item.id)||[]).find(link=>link.link_role==="primary")?.process_id,
+      applicability:applicabilityByVersion.get(item.id),files:(item.document_files as unknown as unknown[])||[],
+      validFrom:item.valid_from,validUntil:item.valid_until,legalReference:item.legal_reference,riskRating:item.risk_rating,
+      createdAt:item.created_at,updatedAt:item.updated_at,
+    };
+    return [...keys].every(key=>Array.isArray(values[key])?values[key].length>0:Boolean(values[key]));
+  };
+  const relatedNeedle=related_q.trim().toLocaleLowerCase("vi");
+  const displayVersions=(versions||[]).filter(item=>{
+    if(preset==="linked_process"&&!(processLinksByVersion.get(item.id)||[]).length)return false;
+    if(preset==="missing_metadata"&&hasRequiredMetadata(item))return false;
+    if(relatedNeedle&&!contextTerms(item).some(value=>value.toLocaleLowerCase("vi").includes(relatedNeedle)))return false;
+    return true;
+  });
+  const viewReason=(item:(typeof displayVersions)[number])=>{
+    const reasons:string[]=[];
+    if(preset==="effective")reasons.push("Đang hiệu lực");
+    if(preset==="review_due")reasons.push("Sắp đến hạn rà soát");
+    if(preset==="missing_metadata")reasons.push("Thiếu metadata bắt buộc theo Class");
+    if(preset==="linked_process")reasons.push("Đã liên kết với Business Process");
+    if(relatedNeedle)reasons.push(...contextTerms(item).filter(value=>value.toLocaleLowerCase("vi").includes(relatedNeedle)).slice(0,2));
+    return reasons.length?reasons:["Khớp bộ lọc thư viện hiện tại"];
+  };
+  const groupLabel=(item:(typeof displayVersions)[number])=>{
+    if(group_by==="type")return (item.vocabulary_values as unknown as {label_vi:string}|null)?.label_vi||"Chưa phân loại";
+    if(group_by==="process"){const primary=(processLinksByVersion.get(item.id)||[]).find(link=>link.link_role==="primary");return primary?processLabelById.get(primary.process_id)||"Quy trình khác":"Chưa gắn quy trình";}
+    if(group_by==="status")return documentOptionLabel(statuses,item.status);
+    if(group_by==="owner")return availablePeople.find(person=>person.id===item.owner_id)?.label||"Chưa có chủ sở hữu";
+    return "Tất cả tài liệu";
+  };
+  if(group_by!=="none")displayVersions.sort((a,b)=>groupLabel(a).localeCompare(groupLabel(b),"vi")||a.title_vi.localeCompare(b.title_vi,"vi"));
+  const detailItem=detail?(versions||[]).find(item=>item.id===detail):null;
+  const now=requestNow;
   const readingItems=assignments.map(assignment=>({assignment,version:assignedVersions.get(assignment.object_id)})).filter(item=>item.version).filter(({assignment,version})=>{
     const acknowledged=Boolean(assignment.reading_acknowledgments?.length);
     const overdue=!acknowledged&&Boolean(assignment.due_at)&&new Date(assignment.due_at as string).getTime()<now;
@@ -145,6 +223,26 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
     ["Trạng thái", documentOptionLabel(statuses,previous?.status), documentOptionLabel(statuses,selected.status)],
   ] : [];
 
+  const detailDocument=detailItem?.documents as unknown as {document_code:string}|null;
+  const detailType=detailItem?.vocabulary_values as unknown as {label_vi:string}|null;
+  const detailPrimary=detailItem?(processLinksByVersion.get(detailItem.id)||[]).find(link=>link.link_role==="primary"):null;
+  const detailFiles=detailItem?((detailItem.document_files as unknown as {original_file_name:string}[])||[]):[];
+  const detailKnowledge=detailItem?knowledgeByDocument.get(detailItem.document_id)||[]:[];
+  const detailGroups=detailItem?buildDocumentMetadataGroups({
+    documentCode:detailDocument?.document_code,documentType:detailType?.label_vi,documentGroup:documentOptionLabel(documentGroups,detailItem.document_group),
+    version:"v"+detailItem.version_number,status:documentOptionLabel(statuses,detailItem.status),titleVi:detailItem.title_vi,titleEn:detailItem.title_en,
+    language:documentOptionLabel(documentLanguageOptions,detailItem.language),abstract:detailItem.document_abstract,keywords:detailItem.keywords,
+    changeSummary:detailItem.change_summary,owner:availablePeople.find(person=>person.id===detailItem.owner_id)?.label,
+    approver:availablePeople.find(person=>person.id===detailItem.designated_approver_id)?.label,issuingDepartment:detailItem.issuing_department,
+    accessLevel:documentOptionLabel(documentAccessOptions,detailItem.access_level),riskRating:documentOptionLabel(documentRiskOptions,detailItem.risk_rating),
+    legalReference:detailItem.legal_reference,retentionNote:detailItem.retention_note,
+    primaryProcess:detailPrimary?processLabelById.get(detailPrimary.process_id):null,applicability:applicabilityByVersion.get(detailItem.id),
+    applicabilityNote:detailItem.applicability_note,tags:tagsByVersion.get(detailItem.id),knowledgeAudience:detailKnowledge,
+    relatedObjects:contextTerms(detailItem),validFrom:documentDate(detailItem.valid_from),validUntil:documentDate(detailItem.valid_until),
+    reviewDue:documentDate(detailItem.review_due_at),files:detailFiles.map(file=>file.original_file_name),
+    createdAt:detailItem.created_at?new Date(detailItem.created_at).toLocaleString("vi-VN"):null,
+    updatedAt:detailItem.updated_at?new Date(detailItem.updated_at).toLocaleString("vi-VN"):null,
+  },detailItem.document_group):[];
   return <WorkspaceShell active="/documents" eyebrow="QUẢN LÝ TÀI LIỆU" title="Tài liệu" description="Tìm tài liệu áp dụng cho công việc và theo dõi các tài liệu bạn phải đọc." userName={profile.display_name} role={profile.role}>
     {(created || updated) && <div className="state-message" role="status"><strong>{created ? "Đã tạo bản nháp tài liệu." : "Đã cập nhật thông tin tài liệu."}</strong><span>Thông tin đã lưu trong Supabase.</span></div>}
     {canEdit && <DocumentIntake key={editingDocument?.id||"new"} processes={availableProcesses} people={availablePeople} approvers={availableApprovers} types={availableTypes} businessRoles={businessRoles} canManageKnowledge={profile.role==="admin"} selectedKnowledge={editingDocument?selectedByDocument[editingDocument.document_id]||{}:{}} scopeOptions={availableScopeOptions} tags={availableTags} existing={editingDocument} primaryProcessId={editingDocument?primaryProcessId:null} selectedScopes={editingDocument?currentScope:{}} selectedTags={editingDocument?currentTags:[]}/>}
@@ -159,7 +257,15 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
         <div><p className="section-kicker">THƯ VIỆN TÀI LIỆU</p><h2 id="document-library-filter-title">Tìm, lọc và sắp xếp</h2></div>
         <Link className="text-button" href="/documents" scroll={false}>Xóa bộ lọc</Link>
       </div>
+      <nav className="document-view-presets" aria-label="View tài liệu">
+        {[["all","Tất cả"],["effective","Đang hiệu lực"],["review_due","Sắp rà soát"],["missing_metadata","Thiếu metadata"],["linked_process","Đã gắn quy trình"]].map(([value,label])=><Link key={value} className={preset===value?"active":""} href={"/documents?preset="+value}>{label}</Link>)}
+      </nav>
       <Form action="/documents" scroll={false} className="document-filter-form">
+        <input type="hidden" name="preset" value={preset}/>
+        <label className="document-filter-search">Tìm qua đối tượng liên quan
+          <input name="related_q" defaultValue={related_q} placeholder="Quy trình, chức danh, phạm vi, tag…"/>
+        </label>
+        <label>Nhóm View theo<select name="group_by" defaultValue={group_by}><option value="none">Không nhóm</option><option value="type">Loại tài liệu</option><option value="process">Business Process</option><option value="status">Trạng thái</option><option value="owner">Chủ sở hữu</option></select></label>
         <label className="document-filter-search">Tìm kiếm
           <input name="q" defaultValue={q} placeholder="Tên, tóm tắt, từ khóa, đơn vị ban hành…" />
         </label>
@@ -180,16 +286,17 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
         id:item.id,label:item.title_vi+" · v"+item.version_number
       }))}/>}
     
+    {detailItem ? <section className="data-panel document-metadata-detail" id="document-metadata-detail"><div className="data-panel-heading"><div><p className="section-kicker">METADATA CARD</p><h2>{detailItem.title_vi}</h2><p>Hiển thị toàn bộ property áp dụng theo Class; trường bắt buộc còn thiếu được đánh dấu rõ.</p></div><Link className="text-button" href="/documents" scroll={false}>Đóng chi tiết</Link></div><MetadataCard objectType="Document" className={detailType?.label_vi||"Chưa phân loại"} groups={detailGroups} testId="document-metadata-card"/></section> : null}
     {previewFile ? <section className="data-panel document-preview-panel"><div className="data-panel-heading"><div><p className="section-kicker">XEM TÀI LIỆU</p><h2>{previewFile.original_file_name}</h2></div><Link className="text-button" href="/documents" scroll={false}>Đóng preview</Link></div>{previewFile.mime_type === "application/pdf" ? <iframe title={`Preview ${previewFile.original_file_name}`} src={`/documents/files/${previewFile.id}`} /> : previewFile.mime_type.startsWith("image/") ? <img src={`/documents/files/${previewFile.id}`} alt={previewFile.original_file_name} /> : <div className="state-message"><strong>Tệp Word, Excel hoặc PowerPoint chưa hỗ trợ xem trực tiếp an toàn trên trình duyệt.</strong><a className="primary-button" href={`/documents/files/${previewFile.id}`}>Tải file</a></div>}</section> : null}
 
     {selected ? <section className="compare-panel"><div className="data-panel-heading"><div><p className="section-kicker">SO SÁNH PHIÊN BẢN</p><h2>{selected.title_vi}</h2></div><Link href="/documents" scroll={false}>Đóng so sánh</Link></div><div className="comparison-table" role="table" aria-label="So sánh thông tin tài liệu"><div className="comparison-row heading" role="row"><strong>Trường</strong><strong>{previous ? `v${previous.version_number}` : "Phiên bản trước"}</strong><strong>v{selected.version_number}</strong></div>{comparisonRows.map(([label, oldValue, newValue]) => <div className={`comparison-row${String(oldValue || "") !== String(newValue || "") ? " changed" : ""}`} role="row" key={label}><span>{label}</span><span>{oldValue || "—"}</span><span>{newValue || "—"}</span></div>)}</div></section> : null}
 
-    <section className="data-panel"><div className="data-panel-heading"><div><p className="section-kicker">DANH SÁCH TÀI LIỆU</p><h2>{versions?.length || 0} phiên bản</h2></div><span className="count-chip">25 MB / file</span></div>{error ? <div className="state-message error-state"><strong>Không thể tải tài liệu</strong><span>{error.message}</span></div> : !versions?.length ? <div className="state-message"><strong>Chưa có tài liệu</strong><span>Người có quyền biên tập có thể tạo bản nháp và tải tài liệu lên kho lưu trữ nội bộ.</span></div> : <div className="document-grid">{versions.map((item) => { const document = item.documents as unknown as { document_code: string } | null; const docType = item.vocabulary_values as unknown as {label_vi:string}|null; const itemFiles = (item.document_files as unknown as { id: string; original_file_name: string; mime_type: string; size_bytes: number }[]) || []; return <article className="document-card" key={item.id}><div className="document-icon">{itemFiles[0]?.mime_type.includes("pdf") ? "PDF" : itemFiles[0] ? "FILE" : "META"}</div><div><span className="mono-code">{document?.document_code || "—"} · v{item.version_number}</span><h3>{item.title_vi}</h3><p>{item.document_abstract || "Chưa có tóm tắt."}</p><div className="document-card-metadata">{docType?.label_vi&&<span>Loại: {docType.label_vi}</span>}<span>Nhóm: {documentOptionLabel(documentGroups,item.document_group)}</span><span>Ngôn ngữ: {documentOptionLabel(documentLanguageOptions,item.language)}</span><span>Truy cập: {documentOptionLabel(documentAccessOptions,item.access_level)}</span>{item.risk_rating&&<span>Rủi ro: {documentOptionLabel(documentRiskOptions,item.risk_rating)}</span>}{item.owner_id&&<span>Chủ sở hữu: {availablePeople.find(person=>person.id===item.owner_id)?.label||"—"}</span>}{item.issuing_department&&<span>Ban hành: {item.issuing_department}</span>}{item.valid_from&&<span>Hiệu lực: {documentDate(item.valid_from)}</span>}{item.valid_until&&<span>Hết hiệu lực: {documentDate(item.valid_until)}</span>}{item.keywords&&<span>Từ khóa: {item.keywords}</span>}
+    <section className="data-panel"><div className="data-panel-heading"><div><p className="section-kicker">DANH SÁCH TÀI LIỆU</p><h2>{displayVersions.length} phiên bản</h2></div><span className="count-chip">25 MB / file</span></div>{error ? <div className="state-message error-state"><strong>Không thể tải tài liệu</strong><span>{error.message}</span></div> : !displayVersions.length ? <div className="state-message"><strong>Chưa có tài liệu</strong><span>Người có quyền biên tập có thể tạo bản nháp và tải tài liệu lên kho lưu trữ nội bộ.</span></div> : <div className="document-grid">{displayVersions.map((item) => { const document = item.documents as unknown as { document_code: string } | null; const docType = item.vocabulary_values as unknown as {label_vi:string}|null; const itemFiles = (item.document_files as unknown as { id: string; original_file_name: string; mime_type: string; size_bytes: number }[]) || []; return <article className="document-card" key={item.id}><div className="document-icon">{itemFiles[0]?.mime_type.includes("pdf") ? "PDF" : itemFiles[0] ? "FILE" : "META"}</div><div><span className="mono-code">{document?.document_code || "—"} · v{item.version_number}</span><h3>{item.title_vi}</h3><p>{item.document_abstract || "Chưa có tóm tắt."}</p><div className="document-view-reason"><strong>Vì sao xuất hiện:</strong>{viewReason(item).map(reason=><span key={reason}>{reason}</span>)}</div><div className="document-card-metadata"><span>View: {groupLabel(item)}</span>{docType?.label_vi&&<span>Loại: {docType.label_vi}</span>}<span>Nhóm: {documentOptionLabel(documentGroups,item.document_group)}</span><span>Ngôn ngữ: {documentOptionLabel(documentLanguageOptions,item.language)}</span><span>Truy cập: {documentOptionLabel(documentAccessOptions,item.access_level)}</span>{item.risk_rating&&<span>Rủi ro: {documentOptionLabel(documentRiskOptions,item.risk_rating)}</span>}{item.owner_id&&<span>Chủ sở hữu: {availablePeople.find(person=>person.id===item.owner_id)?.label||"—"}</span>}{item.issuing_department&&<span>Ban hành: {item.issuing_department}</span>}{item.valid_from&&<span>Hiệu lực: {documentDate(item.valid_from)}</span>}{item.valid_until&&<span>Hết hiệu lực: {documentDate(item.valid_until)}</span>}{item.keywords&&<span>Từ khóa: {item.keywords}</span>}
               {(["must","should","none"] as const).map(level=>{
                 const labels={must:"Phải biết",should:"Nên biết",none:"Không áp dụng"};
                 const members=Object.entries(selectedByDocument[item.document_id]||{}).filter(([,entry])=>entry===level).map(([roleId])=>roleNames.get(roleId)).filter(Boolean);
                 return members.length?<span key={level}>{labels[level]}: {members.join(", ")}</span>:null;
               })}
-              </div><footer><span className="status-badge">{documentOptionLabel(statuses,item.status)}</span><span>{item.review_due_at ? `Rà soát: ${documentDate(item.review_due_at)}` : "Chưa đặt ngày rà soát"}</span>{itemFiles.map((file) => (file.mime_type === "application/pdf" || file.mime_type.startsWith("image/") ? <Link key={file.id} href={`/documents?preview=${file.id}`} scroll={false}>Xem {file.original_file_name}</Link> : <a key={file.id} href={`/documents/files/${file.id}`}>Tải {file.original_file_name}</a>))}<Link href={`/documents?compare=${item.id}`} scroll={false}>So sánh thông tin</Link>{canEdit && ["draft","rejected"].includes(item.status) && <Link href={`/documents?edit=${item.id}#document-edit`}>Sửa thông tin</Link>}</footer>{canEdit ? <form className="document-lifecycle-form" action={updateDocumentLifecycle}><input type="hidden" name="document_version_id" value={item.id}/><select name="status" defaultValue={item.status} aria-label={`Trạng thái ${item.title_vi}`}>{statuses.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}</select><button type="submit" className="text-button">Cập nhật</button></form> : null}</div></article>})}</div>}</section>
+              </div><footer><span className="status-badge">{documentOptionLabel(statuses,item.status)}</span><span>{item.review_due_at ? `Rà soát: ${documentDate(item.review_due_at)}` : "Chưa đặt ngày rà soát"}</span>{itemFiles.map((file) => (file.mime_type === "application/pdf" || file.mime_type.startsWith("image/") ? <Link key={file.id} href={`/documents?preview=${file.id}`} scroll={false}>Xem {file.original_file_name}</Link> : <a key={file.id} href={`/documents/files/${file.id}`}>Tải {file.original_file_name}</a>))}<Link href={`/documents?detail=${item.id}#document-metadata-detail`} scroll={false}>Xem toàn bộ metadata</Link><Link href={`/documents?compare=${item.id}`} scroll={false}>So sánh thông tin</Link>{canEdit && ["draft","rejected"].includes(item.status) && <Link href={`/documents?edit=${item.id}#document-edit`}>Sửa thông tin</Link>}</footer>{canEdit ? <form className="document-lifecycle-form" action={updateDocumentLifecycle}><input type="hidden" name="document_version_id" value={item.id}/><select name="status" defaultValue={item.status} aria-label={`Trạng thái ${item.title_vi}`}>{statuses.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}</select><button type="submit" className="text-button">Cập nhật</button></form> : null}</div></article>})}</div>}</section>
   </WorkspaceShell>;
 }

@@ -252,3 +252,10 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Supabase controlled-type label migration is **already applied** and its label changes can be observed via the existing production code because type labels are read from live data.
 - **The latest UI/CSS changes are NOT yet on Production.** Vercel returned HTTP 402 `api-deployments-free-per-day` (>100 deployments/day) when a new preview build was requested. The main commit shows a failed Vercel status pointing to a build-rate-limit upgrade page. At the check, Production is still running the previous main commit `0c2a11ca2ce696943369c1bd21bb77b841a1b197`.
 - Production publication needs the Vercel account owner to resolve/reset the deployment quota and trigger or retry the blocked main commit. Do not report feature publication until Vercel Production identifies commit `ad9ee020...` as READY and its domain alias targets that deployment. Latest app build and authenticated browser QA remain pending.
+
+## Metadata-driven discovery increment — 2026-10-22
+
+- Process and Document detail now share one property-card renderer with Object Type, Class, grouped properties, origin, required state, explicit missing values, and completeness.
+- Document Class rules are version-controlled in application code; no custom metadata-field creation or database migration was introduced.
+- Document Views cover effective, review-due, missing-metadata, and process-linked records. Indirect discovery uses only RLS-visible process, applicability, tag, and role-knowledge rows and explains why each result appears.
+- TypeScript and authenticated browser verification must be recorded before this increment is marked delivered.

@@ -433,3 +433,12 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [ ] DOC-COPY-DEPLOY-001 — Remove or resolve Vercel deployment quota blocker (HTTP 402 `api-deployments-free-per-day`, CI context Vercel=FAILURE due to `build-rate-limit`). Trigger/retry production build of main commit `ad9ee020...` and verify READY plus alias.
 - [ ] DOC-COPY-DEPLOY-002 — Verify Next.js build/TypeScript for the final main commit; earlier READY previews covered only earlier intermediate commits.
 - [ ] DOC-COPY-QA-004 — Finish signed-in Production UI/visual workflows once deployment is actually READY.
+
+## 2026-10-22 — Metadata-driven Views and shared property card
+
+- [x] META-VIEW-001 — Add governed Document Views for effective, review-due, missing-metadata, and process-linked documents.
+- [x] META-VIEW-002 — Add result grouping by type, primary process, status, and owner.
+- [x] META-VIEW-003 — Add indirect search through RLS-visible process, applicability, tag, and role-knowledge context with a visible result reason.
+- [x] META-CLASS-001 — Define version-controlled, Class-specific Document required-property rules without enabling custom metadata fields.
+- [x] META-CARD-001 — Use a shared grouped metadata-card renderer for Process and Document while retaining object-specific schemas.
+- [ ] QA-META-VIEW-001 — Verify authenticated View switching, indirect search, explanation chips, missing-property state, keyboard interaction, and 1280/1024 layouts on Vercel Preview and Production.
