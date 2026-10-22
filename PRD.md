@@ -649,7 +649,8 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - “Cách đọc quan hệ” uses a horizontal, wrapping layout so the network keeps the available width.
 - Relationship statistics and network node text use compact responsive sizes; long labels are truncated instead of forcing the laptop layout wider.
 - At laptop widths, the relationship workspace uses one full-width column; at narrow widths, inbound/outbound cards use two columns and the center object moves above them.
-- The Finding evidence matrix keeps only its header row sticky vertically. No identification or issue-detail column is pinned horizontally, so all source columns remain reachable when users scroll across the matrix. “Điểm quyết định” and adjacent narrative columns use compact widths at the supported 1024 px desktop size.
+- The Finding evidence matrix uses one compact “Quy trình / tài liệu liên quan” column instead of one horizontal column per source. The adjacent “Nội dung đối chiếu” column groups each cited source with its exact conflict/overlap excerpt, preserving missing-source indicators and all stored evidence.
+- “Điểm quyết định” and “Ý kiến Owner” default to narrow widths. Every matrix column exposes a mouse/keyboard resize handle for temporary view customization; only the single header row is vertically sticky and remains compact at the supported 1024 px desktop size.
 
 
 ## 29. Relationship network lines — 2026-10-20

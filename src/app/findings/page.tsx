@@ -4,7 +4,7 @@ import WorkspaceShell from "@/components/workspace-shell";
 import { createDocumentFinding } from "@/app/finding-actions";
 import { requireActiveAccount } from "@/lib/auth";
 import IssueClassifier,{type IssueTaxonomyItem} from "@/components/issue-classifier";
-import FindingIssueMatrix,{type MatrixDocument,type MatrixEvidence,type MatrixFinding} from "@/components/finding-issue-matrix";
+import FindingIssueMatrix,{type MatrixDocument,type MatrixEvidence,type MatrixFinding,type MatrixProcess} from "@/components/finding-issue-matrix";
 
 export const instant = false;
 
@@ -43,13 +43,13 @@ export default async function FindingsPage({searchParams}:{
       .order("updated_at",{ascending:false}).limit(200),
     supabase.from("issue_taxonomy").select("code,group_code,group_label_vi,type_label_vi,explanation_vi,decision_order,decision_question_vi,minimum_evidence_vi").eq("is_active",true).order("decision_order"),
     supabase.from("profiles").select("id,display_name,role").eq("is_active",true).order("display_name"),
-    canWrite?supabase.from("process_versions").select("id,name_vi,level_type,enterprise_processes(process_code)").order("updated_at",{ascending:false}).limit(200):Promise.resolve({data:[],error:null})
+    supabase.from("process_versions").select("id,name_vi,level_type,enterprise_processes(process_code)").order("updated_at",{ascending:false}).limit(200)
   ]);
   const findings=(findingsResult.data||[]);
   const findingIds=findings.map(x=>x.id);
   const [linksResult,actionsResult,sourceEvidenceResult]=await Promise.all([
     findingIds.length?supabase.from("finding_links").select("id,finding_id,object_type,object_id,link_role,evidence_excerpt")
-      .in("finding_id",findingIds).eq("object_type","document_version").eq("link_role","subject"):
+      .in("finding_id",findingIds).eq("link_role","subject"):
       Promise.resolve({data:[],error:null}),
     findingIds.length?supabase.from("finding_actions").select("id,finding_id,status,progress_percent,due_at,assignee_id")
       .in("finding_id",findingIds):Promise.resolve({data:[],error:null}),
@@ -83,6 +83,7 @@ export default async function FindingsPage({searchParams}:{
   const decisionPending=active.filter(f=>f.action_decision==="pending").length;
   const createDocs=(allDocuments.data||[]) as unknown as DocumentRow[];
   const processes=(processResult.data||[]) as unknown as ProcessRow[];
+  const processMap=new Map(processes.map(process=>[process.id,process]));
   const sourceTitles=[
     "Thông báo giảm phí trả góp VNPAY","Quy trình bán hàng trả góp","Chính sách bán hàng trả góp",
     "Hướng dẫn thao tác trên phần mềm trả góp","Biểu mẫu F5 thông báo thay đổi phí chuyển đổi trả góp",
@@ -118,7 +119,7 @@ export default async function FindingsPage({searchParams}:{
     const evidence:MatrixEvidence[]=sourceEvidence.filter(item=>item.finding_id===f.id).map(item=>({
       documentId:sourceByRef.get(item.source_ref)?.document_id||null,ref:item.source_ref,evidence:item.evidence_excerpt
     }));
-    for(const link of links.filter(link=>link.finding_id===f.id)){
+    for(const link of links.filter(link=>link.finding_id===f.id&&link.object_type==="document_version")){
       const doc=docMap.get(link.object_id),ref=doc?refFromDoc(doc)||0:0;
       if(ref>0&&!evidence.some(item=>item.ref===ref))evidence.push({documentId:doc?.document_id||null,ref,evidence:link.evidence_excerpt});
     }
@@ -126,6 +127,10 @@ export default async function FindingsPage({searchParams}:{
     for(const match of referencedText.matchAll(/\[(\d{1,2})\]/g)){
       const ref=Number(match[1]);if(ref>=1&&ref<=14&&!evidence.some(item=>item.ref===ref))evidence.push({documentId:sourceByRef.get(ref)?.document_id||null,ref,evidence:null});
     }
+    const relatedProcesses:MatrixProcess[]=links.filter(link=>link.finding_id===f.id&&link.object_type==="process_version")
+      .map(link=>processMap.get(link.object_id)).filter((process):process is ProcessRow=>Boolean(process))
+      .map(process=>({id:process.id,code:process.enterprise_processes?.process_code||"PROC",
+        name:process.name_vi,level:process.level_type}));
     const excelId=f.title.match(/^\[([^\]]+)\]/)?.[1]||f.finding_code;
     return {id:f.id,code:excelId,title:f.title.replace(/^\[[^\]]+\]\s*/,""),description:f.description,impact:f.impact_summary,
       issueCode:f.primary_issue_code,issueType:issueType?.type_label_vi||"Chưa phân loại chuẩn hóa",
@@ -133,7 +138,7 @@ export default async function FindingsPage({searchParams}:{
       decisionPoint:f.decision_point,proposedAction:f.proposed_action,ownerQuestion:f.owner_question,
       ownerFeedback:f.process_owner_feedback,evidenceStatus:f.evidence_status,status:f.status,statusLabel:issueStatuses[f.status]||f.status,
       severity:f.severity,severityLabel:severityLabels[f.severity]||f.severity,assignee:peopleMap.get(f.assignee_id||"")||"Chưa giao",
-      dueAt:f.due_at,actionSummary,actionProgress:progress,evidence};
+      dueAt:f.due_at,actionSummary,actionProgress:progress,evidence,relatedProcesses};
   });
 
   return <WorkspaceShell active="/findings" eyebrow="06 · DOCUMENT FINDINGS & ACTIONS"
@@ -173,7 +178,7 @@ export default async function FindingsPage({searchParams}:{
     </details>}
 
     <div className="finding-view-row">
-      <div><strong>Ma trận issue theo nguồn tài liệu</strong><p>Giữ cách đọc của file Excel: thông tin issue ở bên trái, 14 nguồn đối chiếu theo chiều ngang; không ẩn issue chỉ có một nguồn hoặc đang thiếu file.</p></div>
+      <div><strong>Ma trận issue và nội dung đối chiếu</strong><p>Mỗi finding gom quy trình, tài liệu liên quan và các trích dẫn mâu thuẫn vào hai cột có thể thay đổi kích thước; không ẩn issue chỉ có một nguồn hoặc đang thiếu file.</p></div>
     </div>
     <Form action="/findings" scroll={false} className="catalog-toolbar finding-filter-toolbar">
       <select name="status" defaultValue={status} aria-label="Trạng thái finding"><option value="all">Tất cả trạng thái</option><option value="open">Đang mở</option>{Object.entries(issueStatuses).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select>

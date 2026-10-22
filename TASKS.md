@@ -498,3 +498,9 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 
 - [x] FIND-MATRIX-006 — Remove horizontal pinning from the five leading headers so scrolling exposes every evidence-source column.
 - [x] FIND-MATRIX-007 — Compact Decision Point, issue, action and Owner columns and reduce the sticky header height for laptop screens.
+
+## 2026-10-23 — Finding evidence consolidation
+
+- [x] FIND-MATRIX-008 — Replace 14 horizontal source columns with one related-process/document column and one source-attributed evidence-content column.
+- [x] FIND-MATRIX-009 — Reduce Decision Point and Owner-comment defaults, compact the header, and add accessible per-column resizing for the current view.
+- [x] FIND-MATRIX-010 — Keep all 35 findings and 113 stored evidence excerpts discoverable through the consolidated layout and local search.
