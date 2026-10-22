@@ -294,3 +294,8 @@ PRs #60 and #61 add the governed Issue.xlsx taxonomy, a dependent classifier and
 - Production routes /documents, /process-map, /findings and /notifications were exercised with the approved Admin account at an explicit 1024×768 viewport. Data counts were 12, 11, 35/14 and 22 respectively; no application error state or browser console warning appeared.
 - The only new visual defect was a 25 px Document-page overflow caused by the native file input's intrinsic width in the two-column uploader. The uploader now uses shrinkable grid tracks and constrains the file input to its column.
 - Remaining external decisions are unchanged: Process Owner validation, source files 13–14, additional evidenced processes for the 20–30 target, an approved Editor identity, and data-policy approval for AI/deferred scope.
+
+## Finding matrix layout QA — 2026-10-23
+
+- The five leading Finding headers no longer pin horizontally; only the header row remains vertically sticky. Decision Point is 170 px and the adjacent narrative/Owner columns are compact.
+- Authenticated Vercel Preview QA passed at 1024 px and 1280 px with 35 rows and 14 source columns. At 1024 px, scrolling the matrix 1,400 px moved all leading headers out of view and exposed source columns [1]–[7]; page-level overflow and console warnings/errors were absent.

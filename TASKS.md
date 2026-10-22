@@ -493,3 +493,8 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DOC-RESP-001 — Constrain the native file input and uploader grid with minmax(0,1fr)/min-width:0 so the Document page no longer inherits the input's 230 px intrinsic overflow at laptop width.
 - [ ] BLOCKED REAL-DATA-007 / FIND-MATRIX-QA-001 — Process Owner must validate APQC proposals, effective dates, missing metadata and 113 evidence cells; source binaries 13–14 are still not supplied.
 - [ ] BLOCKED QA-EDITOR-001 — Editor browser/RLS behavior needs an approved Editor account or authorization to change the six-user role mix.
+
+## 2026-10-23 — Finding matrix layout
+
+- [x] FIND-MATRIX-006 — Remove horizontal pinning from the five leading headers so scrolling exposes every evidence-source column.
+- [x] FIND-MATRIX-007 — Compact Decision Point, issue, action and Owner columns and reduce the sticky header height for laptop screens.
