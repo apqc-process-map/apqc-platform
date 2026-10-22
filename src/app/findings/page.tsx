@@ -47,22 +47,25 @@ export default async function FindingsPage({searchParams}:{
   ]);
   const findings=(findingsResult.data||[]);
   const findingIds=findings.map(x=>x.id);
-  const [linksResult,actionsResult,sourceEvidenceResult]=await Promise.all([
+  const [documentLinksResult,processLinksResult,actionsResult,sourceEvidenceResult]=await Promise.all([
     findingIds.length?supabase.from("finding_links").select("id,finding_id,object_type,object_id,link_role,evidence_excerpt")
-      .in("finding_id",findingIds).eq("link_role","subject"):
+      .in("finding_id",findingIds).eq("object_type","document_version").eq("link_role","subject"):
+      Promise.resolve({data:[],error:null}),
+    findingIds.length?supabase.from("finding_links").select("id,finding_id,object_type,object_id,link_role,evidence_excerpt")
+      .in("finding_id",findingIds).eq("object_type","process_version").eq("link_role","subject"):
       Promise.resolve({data:[],error:null}),
     findingIds.length?supabase.from("finding_actions").select("id,finding_id,status,progress_percent,due_at,assignee_id")
       .in("finding_id",findingIds):Promise.resolve({data:[],error:null}),
     findingIds.length?supabase.from("finding_source_evidence").select("finding_id,source_ref,evidence_excerpt")
       .in("finding_id",findingIds):Promise.resolve({data:[],error:null})
   ]);
-  const links=(linksResult.data||[]) as FindingLink[];
+  const links=[...((documentLinksResult.data||[]) as FindingLink[]),...((processLinksResult.data||[]) as FindingLink[])];
   const actions=(actionsResult.data||[]) as ActionRow[];
   const sourceEvidence=(sourceEvidenceResult.data||[]) as SourceEvidenceRow[];
   const docMap=new Map(((allDocuments.data||[]) as unknown as DocumentRow[]).map(doc=>[doc.id,doc]));
   // The intake already loads recent versions; reuse them and fetch only missing
   // older linked versions, avoiding a third sequential DB request for normal cases.
-  const missingDocs=[...new Set(links.map(l=>l.object_id))].filter(id=>!docMap.has(id));
+  const missingDocs=[...new Set(links.filter(link=>link.object_type==="document_version").map(link=>link.object_id))].filter(id=>!docMap.has(id));
   if(missingDocs.length){
     const moreDocs=await supabase.from("document_versions")
       .select("id,document_id,title_vi,version_number,issuing_department,valid_from,vocabulary_values(label_vi),documents(document_code)").in("id",missingDocs);
@@ -189,6 +192,6 @@ export default async function FindingsPage({searchParams}:{
     </Form>
     {findingsResult.error?<div className="state-message error-state"><strong>Không thể tải findings</strong><span>{findingsResult.error.message}</span></div>:
       <FindingIssueMatrix findings={matrixFindings} documents={matrixDocuments}/>}
-    {(linksResult.error||actionsResult.error||sourceEvidenceResult.error)&&<p className="state-message error-state">Không thể tải đầy đủ liên kết tài liệu hoặc action. Vui lòng thử lại.</p>}
+    {(documentLinksResult.error||processLinksResult.error||actionsResult.error||sourceEvidenceResult.error)&&<p className="state-message error-state">Không thể tải đầy đủ liên kết tài liệu hoặc action. Vui lòng thử lại.</p>}
   </WorkspaceShell>;
 }
