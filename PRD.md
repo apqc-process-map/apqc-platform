@@ -33,7 +33,7 @@ The product is process-first. APQC provides a stable reference taxonomy and metr
 
 ## 4. Users and permissions
 
-The MVP has six demo accounts: two per system role.
+The current MVP has six active demo accounts: **three Admin and three Viewer**. No Editor account is currently provisioned; Editor-role end-to-end acceptance remains outstanding.
 
 ### Viewer
 
@@ -84,14 +84,15 @@ Authorization must be enforced by Supabase RLS. UI hiding is not sufficient.
 
 Primary workspace navigation is numbered and appears in this order:
 
-1. **01. Home** — role-specific dashboard.
-2. **02. Document** — private document library, versions, upload, and metadata.
-3. **03. Process Map** — enterprise landscape, layered hierarchy, scope list, and relationship entry points.
-4. **04. Relationship** — cross-process/context network separate from the hierarchy.
-5. **05. Finding** — issue workflow, decisions, SLA, and collaboration.
-6. **06. Catalog** — searchable and sortable enterprise processes and APQC references.
-7. **07. Governance** — completeness, reviews, validity, acknowledgment, and APQC coverage.
-8. **08. Action Log** — personal in-app action history generated from notification events.
+1. **01. Home** (`/`) — role-specific dashboard.
+2. **02. Document** (`/documents`) — private document library, versions, upload, metadata, and reading assignments.
+3. **03. Process Map** (`/process-map`) — enterprise landscape, layered hierarchy, and APQC reference view.
+4. **04. Relationship** (`/relationships`) — governed cross-object relationship network.
+5. **05. Vai trò của tôi** (`/role-knowledge`) — required/reference knowledge linked to business roles.
+6. **06. Finding & Action** (`/findings`) — cross-document duplication/overlap/conflict issues and corrective actions.
+7. **07. Catalog** (`/catalog`) — enterprise processes and APQC reference search.
+8. **08. Governance** (`/governance`) — completeness, reviews, validity, acknowledgment, and APQC coverage.
+9. **09. Action Log** (`/notifications`) — in-app action history and notifications.
 
 The Action Log keeps the existing `/notifications` route, notification records, read/unread state, deep links, and RLS. Review and Admin capabilities remain permission-aware actions within the relevant workspaces rather than separate top-level tabs in the current MVP.
 
@@ -273,7 +274,7 @@ Header always shows process code, name, status, version, owner, and next review 
 
 - Stable ID and document code.
 - Vietnamese title and optional English title.
-- Controlled document group/type.
+- Controlled document type with a derived document group (one type maps to its canonical group).
 - Version and lifecycle status.
 - Linked process and process version.
 - Owner, author, approver, language, access level, and readers.
@@ -285,9 +286,10 @@ Header always shows process code, name, status, version, owner, and next review 
 ### Initial document metadata configuration
 
 - A new draft needs either a supported file or a manually entered Vietnamese title. The system creates the document code, initial draft version, creator, and file fields automatically; it never publishes the draft automatically.
-- **Thông tin cơ bản** configures Vietnamese/English title, controlled document type/group, language, abstract, and keywords. The initial controlled taxonomy contains 23 document types in seven groups. When a type is selected, its canonical group takes precedence over a manually chosen group.
+- **Thông tin cơ bản** configures Vietnamese/English title, controlled Loại tài liệu, language, abstract, and keywords. The taxonomy contains 23 types in seven groups. Nhóm tài liệu is derived automatically/read-only from the selected type: users do not independently select a group. An existing untyped draft retains its saved legacy group on edit; new drafts without a type use the group other.
 - **Phân loại & phạm vi áp dụng** configures an optional primary process link, applicability note, controlled legal entity/department/location/channel/product-service/employee-audience values, and governance tags.
 - **Trách nhiệm & quyền truy cập** configures document owner, issuing department, access level, and a designated approver. The designated approver is planning metadata only; approval still follows the governed review workflow and four-eyes rule.
+- **Đối tượng cần biết** lets Admin select multiple existing active business roles in the mutually exclusive **Phải biết**, **Nên biết / tham chiếu**, and **Không áp dụng** groups. Roles left unselected are **Chưa xác định**, which must not be treated as Không áp dụng. Editor can view the metadata but cannot change this classification.
 - **Hiệu lực, kiểm soát & lưu trữ** configures validity/review dates, risk rating, legal reference, retention note, and change summary. These fields are optional during initial draft creation and are completed before the relevant lifecycle gate.
 
 ### Nice-to-have metadata
@@ -331,22 +333,26 @@ Admin manages controlled vocabulary values. The MVP does not include custom-fiel
 
 ### Document taxonomy
 
-- Governance: Policy, Regulation, Standard, Decision, Delegation Matrix.
-- Execution: Procedure, Work Instruction, Form/Template, Checklist.
-- Communication: Announcement, Guidance, Training Material.
-- Evidence: Meeting Minutes, Audit/Assessment Report, Incident Record, RCA Report.
-- Planning/Project: Project Charter, Business Case, Plan.
-- External/Legal: Law/Legal Basis, Contract, External Reference.
-- Other.
+The controlled vocabulary retains **23 stable type codes and IDs** assigned to seven groups. The following are the approved Vietnamese display names (2026-10-21):
 
-Each document has one primary type and optional tags.
+- **Quản trị:** Chính sách; Quy định; Tiêu chuẩn; Quyết định; Ma trận phân quyền.
+- **Vận hành:** Quy trình; Hướng dẫn công việc; Biểu mẫu; Bảng kiểm.
+- **Truyền thông & đào tạo:** Thông báo; Hướng dẫn sử dụng; Tài liệu đào tạo.
+- **Hồ sơ & báo cáo:** Biên bản họp; Báo cáo đánh giá; Biên bản sự cố; Báo cáo phân tích nguyên nhân gốc rễ.
+- **Kế hoạch & dự án:** Văn bản khởi tạo dự án; Đề án kinh doanh; Kế hoạch.
+- **Tài liệu bên ngoài:** Văn bản pháp luật; Hợp đồng; Tài liệu tham khảo ngoài doanh nghiệp.
+- **Khác:** Tài liệu khác.
+
+The 2026-10-21 label normalization is **display-only**: it does not rewrite type codes, type IDs, group codes, version links, or storage paths. In particular, the redundant 'Biểu mẫu / mẫu biểu' has become 'Biểu mẫu'; 'Danh sách kiểm tra' is 'Bảng kiểm'.
+
+Each document has at most one primary type and optional tags. Group is derived from the selected type and displayed separately beneath a distinct heading/helper; an existing draft without a type retains its stored historical group. Do not coerce untyped historical documents into a guessed type.
 
 ### Library management
 
 - Search covers Vietnamese/English title, abstract, keywords, and issuing department.
 - Filter by lifecycle status, controlled document type, document group, language, access level, risk rating, and owner.
 - Sort by latest/oldest update, title, nearest review due date, and latest validity start date.
-- Library cards show the governed metadata needed for quick triage: code/version, type/group, language, access level, risk, owner, issuing department, validity, review due date, keywords, files, and lifecycle status.
+- Library cards show the governed metadata needed for quick triage: code/version, type/group, language, access level, risk, owner, issuing department, validity, review due date, keywords, files, lifecycle status, and classified knowledge roles when present.
 - Filters are URL-backed so the result set can be refreshed or shared without introducing saved views in the MVP.
 
 ### Lifecycle
@@ -387,21 +393,20 @@ Alternative terminal/intermediate states: `Rejected`, `Cancelled`.
 - Highlight APQC mapping, ownership, applicability, reader, relationship snapshot, and attachment changes.
 - Do not diff the internal contents of PDF/DOCX/XLSX/PPTX in the MVP.
 
-## 15. Knowledge audience and acknowledgment
+## 15. Knowledge audience, authorization, and acknowledgment
 
-MVP audience is based on the three system roles, not organizational-group access.
+**Knowledge requirement** applies to business functions/positions stored in business_roles, **not** to login/system roles (viewer/editor/admin). It targets the stable document identity (documents.id), not a document version.
 
-- `Must know`: notification plus required acknowledgment.
-- `Should know`: notification without acknowledgment requirement.
-- `Restricted`: unavailable to the role.
+- **Phải biết / Must know** — required for the business role to carry out its responsibilities.
+- **Nên biết / Should know** — useful information for collaboration, reference or exceptional tasks.
+- **Không áp dụng / Not applicable** — explicitly evaluated as outside the scope of the business role.
+- **Chưa xác định / Unclassified** — no verified mapping. This must not be equated with Không áp dụng.
 
-Acknowledgment:
+Admin manages three multi-select lists of active business roles in Tab 02. Each role belongs to at most one knowledge group per document. Reclassification rejects an obsolete verified governed relationship and verifies the new mapping; previously stored rows are not physically deleted. The atomic function set_document_knowledge_audience(uuid, jsonb) checks Admin authorization, existing active roles, and that the document has an editable draft/rejected version. Existing must/should relationship types are reused, and role_not_applicable_document is added.
 
-- User opens the exact effective version and selects “Tôi đã đọc và hiểu”.
-- Store user, version, and timestamp.
-- New versions require new acknowledgment.
-- Dashboard shows completion and overdue acknowledgment.
-- No quiz or electronic signature in the MVP.
+**Keep knowledge scope separate from authorization:** this classification does not grant or deny document/file access; Supabase RLS, private Storage, and per-document access levels still decide visibility. Changing it does not automatically notify an individual, create a reading assignment, or force acknowledgment.
+
+**Individual reading workflow:** reading_assignments assigns a specific document version to a specific profile with a required flag; reading_acknowledgments captures a recipient's confirmation timestamp. A new version requires its own reading assignment/confirmation as relevant. No automatic business-role-to-individual cascade is currently implemented. No quiz or electronic signature is in the MVP.
 
 ## 16. Search and catalog
 
@@ -428,13 +433,15 @@ Catalog supports filter and sort over governed metadata. Saved views, bookmarks,
 
 ### Finding types
 
-- Exact duplicate.
-- Semantic duplicate.
-- Scope overlap.
-- Potential conflict.
-- Version conflict.
-- Supersession candidate.
-- Other.
+- Exact duplicate (`exact_duplicate`).
+- Semantic duplicate (`semantic_duplicate`).
+- Scope overlap (`scope_overlap`).
+- Content/condition conflict (`potential_conflict`).
+- Cross-document version conflict (`version_conflict`).
+- Effective-date conflict (`effective_date_conflict`).
+- Document-relationship conflict (`relationship_conflict`).
+- Supersession candidate (`supersession_candidate`).
+- Other **cross-document** issue (`other`; still requires 2 distinct documents).
 
 AI detection is deferred. Seed or manually enter findings for the MVP demo.
 
@@ -456,7 +463,7 @@ AI detection is deferred. Seed or manually enter findings for the MVP demo.
 - Editor can create, assign, work, and move to `Resolved`.
 - Admin validates and moves to `Closed`.
 - Admin alone reopens a closed finding.
-- Viewer participants can comment and react.
+- Viewer comment/reaction capability applies only where the finding is visible under RLS. The cross-document tab 06 and its action/evidence records currently require Editor/Admin; legacy generic findings retain their prior Viewer visibility.
 
 ### Collaboration
 
@@ -476,6 +483,30 @@ AI detection is deferred. Seed or manually enter findings for the MVP demo.
 - Low: 30 days.
 
 Admin can adjust defaults; an individual due date can override the default.
+
+
+### Document cross-reference findings (06 · Finding & Action)
+
+The 06 workspace is exclusively the **cross-document conflict and overlap register**. Existing generic/single-document findings are retained in the database for historical integrity but are not listed on tab 06, even using URL filters.
+
+- Manual classification: exact duplication, semantic duplication, scope overlap, content/condition conflict, conflicting versions or effective dates, contradictory inter-document relationships, supersession candidate and other document issue.
+- Every finding on tab 06 must compare **at least two distinct document identities**, each linked to a concrete document version. Two versions of the same document do not qualify. There is no one-document exception, including the "other" type.
+- Record precise evidence/clauses for each linked document version, impact on operations, severity, owner, due date and lifecycle stage. Never infer a confirmed conflict solely because two documents share a title or process.
+- Decide explicitly whether correction is required, with a reason when no action is necessary. Action-required findings can contain multiple separately assigned corrective actions.
+- Each corrective action records title, outcome, assignee, deadline, status (to do / in progress / blocked / done / cancelled), progress percentage, last update, and completion evidence. Blocked actions need an explanation; completed actions need a result/evidence.
+- A document finding can be resolved only after the action decision has been recorded **and** at least two different `documents.id` values are linked through `finding_links(object_type=document_version, link_role=subject)`. If action is required, at least one non-cancelled action must exist and all active actions must be completed; the existing Admin role gate still controls final closure.
+- Duplicate/conflict analysis is **manual** in this milestone; extraction, file full-text indexing and AI detection remain deferred and must not be represented as live features.
+- For now document findings and their links/events/actions are restricted to Editor/Admin; Viewer can still see existing generic findings. A finer-grained document-owner/participant release for Viewer requires separate security design.
+
+### Implemented tab 06 behavior and demonstration dataset (2026-10-21)
+
+- Default and filtered tab 06 lists show **only** `finding_domain=document` records linking at least two **different** stable document identities. Old generic or single-document findings remain stored for historical purposes, but do not appear on tab 06; changing query parameters must not reveal them.
+- Form submission validates 2–20 referenced versions, **with at least two different underlying document IDs**. Selecting v1 and v2 of the same document is insufficient for every type, including `other`. The database prevents a document finding from moving to `resolved` / `closed` without this evidence; it does not yet provide an atomic guarantee during the two-step initial creation.
+- Each evidence row references a precise document **version**; the stable document code, title, version number, validity dates and excerpt are displayed to authorized readers. The related enterprise-process codes are context rather than proof of conflict.
+- The action decision is `pending`, `required`, or `not_required` (the last requires a rationale). `finding_actions` tracks assignee, deadline, `todo | in_progress | blocked | done | cancelled`, 0–100% progress, last update, and evidence of completion. Action creation and subsequent progress changes append `finding_events` history.
+- Data currently seeded for illustration: **8** clearly labeled `[DEMO 06/F01..F08]` findings, **16** `DEMO-FND-DOC-xx` metadata-only **draft** documents, **16** version-level evidence excerpts and **10** example corrective actions, linked to the existing ten `PROC-000011..PROC-000020` enterprise processes. The eight demos each compare **two separate documents**; they span open, triage, in-progress, pending-decision, resolved and closed states, including a no-action decision.
+- The demo clauses, impacts, statuses and dates are **hypothetical**, not conclusions from reviewing actual files; **no binary source documents were analyzed or uploaded** for this seed. Seeding is idempotent; cleanup is opt-in via `scripts/delete-demo-document-findings.sql`, never automatic.
+- Verification: Supabase queries confirmed all eight demos have two distinct document identities. Transactional (rolled-back) testing denied closure using only two versions of one document and allowed it after adding a separate document. Vercel production build for commit `eca17a0` reached READY. Authenticated end-to-end browser testing of the entire issue/action workflow remains pending.
 
 ## 19. Dashboards
 
@@ -648,7 +679,7 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 
 - Relationship provides a “Tài liệu trung tâm” selector so users can inspect all direct inbound/outbound links for a chosen document and drill down by clicking related nodes.
 - A dedicated “Vai trò của tôi” navigation tab provides a Role Knowledge Profile for a selected business role.
-- Role knowledge is modeled through controlled object relationships from business role to document, using “Bắt buộc phải biết” and “Nên biết / tham chiếu”.
+- Role knowledge is modeled through controlled object relationships from business role to document, using “Bắt buộc phải biết”, “Nên biết / tham chiếu”, and (since 2026-10-21) “Không áp dụng”. Unselected roles remain “Chưa xác định”.
 - Knowledge scope is not authorization. Document access remains enforced by Supabase RLS and private Storage policies.
 - Role knowledge counts include every visible relationship assignment. When RLS hides the target document metadata, the UI keeps a neutral “Bị giới hạn” placeholder instead of dropping the requirement or exposing protected details.
 - Demo mappings are tagged in descriptions and can be removed without affecting real documents or roles.
@@ -721,13 +752,13 @@ The Relationship form must expose:
 Relationship version history, soft deletion, custom metadata-field creation, bulk import, and approval comments remain deferred. These items must not be inferred from the MVP form.
 
 
-## 37. Layered Process metadata card — 2026-10-21
+## 39. Layered Process metadata card — 2026-10-21
 
-### 37.1 Selection behavior
+### 39.1 Selection behavior
 
 Selecting any enterprise process block in Process Map must refresh the right-hand Process Detail panel without navigating away from the L0–L4 canvas. The selected object is a **Business Process**, not a Document. Documents may reference a process through controlled relationships, but document metadata remains in the Document module.
 
-### 37.2 M-Files-inspired metadata model
+### 39.2 M-Files-inspired metadata model
 
 The Process Detail panel follows the useful M-Files metadata-card pattern without claiming to reproduce the M-Files product or physical schema:
 
@@ -740,7 +771,7 @@ The Process Detail panel follows the useful M-Files metadata-card pattern withou
 
 The card groups properties into six visible sections: classification and hierarchy; identity and governance; five-part Executive Summary; business content and flow; lookups and relationships; lifecycle and audit.
 
-### 37.3 Missing-field visibility
+### 39.3 Missing-field visibility
 
 - Every governed field remains visible after a process is selected, including fields with no value.
 - An empty property uses an explicit `Thiếu dữ liệu` state with a warning-colored row; empty fields must not disappear or silently inherit a different field's value.
@@ -748,6 +779,21 @@ The card groups properties into six visible sections: classification and hierarc
 - System-managed properties are labelled `System` so users can distinguish audit/workflow values from business metadata they may edit.
 - The existing Admin edit action remains the write entry point. Viewer remains read-only; the card does not bypass RLS or introduce custom metadata-field creation.
 
-### 37.4 Performance and accessibility
+### 39.4 Performance and accessibility
 
 The page reads the selected process metadata, controlled lookups, and audit relations in the existing authenticated server request. Missing states use text and icons in addition to color. The right panel remains independently scrollable on wide desktop layouts and stacks below the canvas at constrained laptop widths.
+## 37. Document classification and knowledge audience — 2026-10-21
+
+- **Tab 02 Document:** One editable controlled document type; its group is derived and displayed read-only. Existing untyped draft group values are preserved. Admin can multi-select existing business roles into three mutually exclusive groups; no selection means unclassified.
+- **Tab 05 Vai trò của tôi:** Displays three confirmed role-to-document knowledge groups with pre-existing restricted-document placeholders under RLS. This is not a document-access or individual-reading policy.
+- **Data/security:** Migration 20261021000034_document_knowledge_audience.sql adds the Not Applicable relationship type and an Admin-only, security-invoker, atomic classification function. Reclassified older mappings are set to rejected, not deleted. This does not amount to a full immutable relationship audit history.
+- **Deployment evidence:** GitHub PR #50 (https://github.com/apqc-process-map/apqc-platform/pull/50) merged to main. Vercel Production for merge commit 9868f9726f604aa2d7000a88e59f8b760ead0ece reached READY on 2026-10-21. Rolled-back Admin insertion/reclassification and Viewer-denial database tests passed. Existing 20 document versions and six confirmed must/should mappings were retained.
+- **Pending verification:** Authenticated browser E2E for create/edit/reopen, multi-selection, changes/removal to unclassified, Tab 05 and Document card synchronization, plus Editor read-only behavior. Next.js/TypeScript build success does not replace runtime E2E.
+
+## 38. Tab 02 content consistency and usability — 2026-10-21
+
+- Standardize the Vietnamese copy across metadata intake, direct file upload, reading queue, filters, document cards, metadata comparison, and lifecycle selections. Persist enum codes unchanged, show localized names through a single presentation mapping.
+- The derived-group control is explicitly non-editable, with a separate caption, value field, and contextual helper; a blank type shows 'Chưa phân loại' for new drafts and preserves old group values on existing untyped records.
+- Document filters include readable names for all seven groups and all lifecycle statuses; group queries are case-insensitive to include legacy `Governance`/`Execution` values. Cards display language, group, access, risk, and dates with Vietnamese labels and DD/MM/YYYY dates.
+- Migration `20261021000035_normalize_document_type_labels.sql` updates nine Vietnamese vocabulary labels in place (stable IDs and codes, no version rewrite). Scope and knowledge-audience rules from section 37 are unchanged.
+- Validate the Next.js Preview TypeScript build and Production deployment; full authenticated visual/browser create-edit-filter-save smoke QA is a separate check.

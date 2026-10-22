@@ -113,18 +113,23 @@ Exit: Viewer can trace inputs/outputs and related context; Editor can propose an
 - Add review threads, mentions, rejection reason, and four-eyes approval.
 - Add scheduled/effective/superseded lifecycle behavior.
 - Add metadata version comparison.
+- Offer one controlled document type with an automatically derived group; preserve group values on untyped legacy drafts.
+- Let Admin multi-select business roles by required/reference/not-applicable knowledge groups, leaving unselected roles unclassified. Surface them in Tab 05.
+- Keep knowledge classification separate from document access and individual reading/acknowledgment workflows.
 - Add reading assignments and acknowledgment.
 
 Exit: the document/process authoring, approval, effective publication, and acknowledgment path works end-to-end.
 
-### Phase 7 — Findings & Actions
+### Phase 7 — Cross-document Findings & Corrective Actions
 
-- Add finding schema, workflow, participants, reactions, comments, decisions, and timeline.
-- Seed representative duplicate/overlap/conflict/supersession findings.
-- Add SLA calculation and notifications.
-- Link findings to process/document versions and resolution evidence.
+- Preserve the existing generic finding schema/workflow and history without surfacing generic findings on tab 06.
+- Build the `/findings` register around **cross-document** overlap, duplication, inconsistent clauses, conflicting validity/version, relationship conflict, and supersession cases.
+- Require at least two **distinct stable document IDs** (linked by specific version and excerpt) for every issue type, including Other. Server creation rejects invalid selections; database resolution/closure rejects insufficient evidence.
+- Record operational impact and an explicit action decision (`pending / required / not_required` with a mandatory no-action rationale).
+- Track multiple corrective actions per issue with owner, deadline, status, percentage, blockers, completion evidence and a durable event timeline. Retain the finding's existing assignment, comment and closure workflows and SLA calculation.
+- Seed 8 clearly labeled *fictional* cross-document findings linking 16 draft metadata-only DEMO documents to the 10 enterprise processes; 10 action fixtures exercise varied progress and outcomes. Never present seed content as extracted or verified real evidence.
 
-Exit: a seeded conflict can be assigned, discussed, resolved, validated, closed, and reopened by the correct roles.
+Exit: a cross-document finding can be created with two distinct documents, triaged and actioned (or explicitly dispositioned without action), updated by an authorized worker, and resolved/closed only after the database gates pass. **Status (2026-10-21):** implementation, Supabase transactional gate tests and production build completed; full signed-in browser/Editor-role E2E validation still pending.
 
 ### Phase 8 — Dashboards and Action Log
 
@@ -219,3 +224,31 @@ The remaining work is limited to:
 4. AI analysis and deferred backlog, blocked by data policy or explicit non-MVP scope.
 
 Do not mark these blockers complete using fabricated data, invented browser evidence, or an unauthorized role/account change.
+
+
+### Phase 10 — Render reliability & performance hardening (2026-10-21)
+
+- Fix Next 16 Cache Components PPR/auth dynamic boundaries and replace per-request remote `getUser()` with signed JWT `getClaims()` (without bypassing role and RLS checks).
+- Move all GET filters and internal navigation to soft transitions. Use intent-driven sidebar prefetch and preserve file-download semantics.
+- Cut dependent Supabase query waves; avoid cross-user cached private data. Co-locate server functions with Supabase in Sydney and validate against Vietnam clients.
+- Show accessible route-level skeleton while server content streams.
+- Verification gates: Preview build/TypeScript; Admin/Viewer/Editor auth and CRUD E2E; route P75 TTFB <800 ms, navigation content visible <1s, LCP <2.5s, INP <200ms (targets, **not measured achievements**); zero prerender/fetch cancellation runtime errors after release.
+
+### Phase 11 — Document knowledge audience and taxonomy cleanup (2026-10-21)
+
+- [DONE] Make Nhóm tài liệu read-only and automatically derive it from the selected Loại tài liệu (23 controlled types, 7 groups); keep legacy untyped group data.
+- [DONE] Offer three exclusive multi-select groups of existing active business roles: Phải biết, Nên biết / tham chiếu, Không áp dụng. Unselected roles remain Chưa xác định.
+- [DONE] Reuse two existing controlled knowledge links; add role_not_applicable_document via migration 20261021000034_document_knowledge_audience.sql.
+- [DONE] Add Admin-only atomic classification with Security Invoker; old reclassified links become rejected, not deleted. Leave Storage/RLS access controls and individual reading assignments unchanged.
+- [DONE] Display knowledge metadata in Document cards and Tab 05; PR #50 merged; Vercel Production commit 9868f9726f604aa2d7000a88e59f8b760ead0ece READY.
+- [VERIFIED] Rollback-only SQL Admin insert/reclassification and Viewer-denial tests passed; 20 versions and six original knowledge mappings preserved. Next.js/TypeScript Preview build passed.
+- [PENDING] Authenticated browser acceptance for create/edit/reopen, exclusivity, returning to unclassified, Tab 05 and document-card synchronization, and Editor read-only behavior. Build and SQL tests do not replace end-to-end testing.
+
+### Phase 12 — Tab 02 content and terminology review (2026-10-21)
+
+- [DONE] Audit all 23 document type names against the seven canonical groups; simplify nine confusing/duplicative labels without changing taxonomy IDs or codes.
+- [DONE] Separate the derived-group caption, read-only group value and help text visually on desktop and mobile; clarify blank-type and historical-group behavior.
+- [DONE] Consolidate Vietnamese presentation labels for group, status, language, access level, risk and date format; align create/edit, document filters, cards, comparison and file-uploader copy.
+- [DONE] Make the Document group filter case-insensitive to preserve visibility of legacy `Execution`/`Governance` values.
+- [DONE] Apply controlled-vocabulary label migration `20261021000035_normalize_document_type_labels.sql` without rewriting any business document/version relation.
+- [PENDING] Authenticated browser visual QA and end-to-end user testing for create/edit, type-to-group, group filtering, upload, card data, and lifecycle flows, beyond successful compilation/production build.

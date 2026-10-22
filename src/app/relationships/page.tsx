@@ -1,3 +1,6 @@
+import { noteSlowPage } from "@/lib/page-perf";
+import Form from "next/form";
+import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { requireActiveAccount } from "@/lib/auth";
 import RelationshipMetadataForm, {
@@ -38,6 +41,8 @@ export default async function RelationshipsPage({
 }) {
   const { group = "all", status = "all", focus = "", edit = "", manage = "", saved = "" } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
+  // Safe, post-response timing with no user or document identifiers.
+  noteSlowPage("/relationships", performance.now());
 
   const [
     typeResult,
@@ -49,6 +54,7 @@ export default async function RelationshipsPage({
     roleResult,
     objectResult,
     findingResult,
+    relationshipResult,
   ] = await Promise.all([
     supabase.from("relationship_types").select("id,code,group_code,label_vi,inverse_label_vi,is_directed,allowed_source_types,allowed_target_types").eq("is_active", true).order("group_code"),
     supabase.from("processes").select("id,process_code,process_versions(name_vi,version_number)").is("archived_at", null),
@@ -59,14 +65,12 @@ export default async function RelationshipsPage({
     supabase.from("business_roles").select("id,code,name").eq("is_active", true),
     supabase.from("business_objects").select("id,code,name").eq("is_active", true),
     supabase.from("findings").select("id,finding_code,title"),
+    supabase.from("object_relationships")
+      .select("id,source_type,source_id,target_type,target_id,relationship_type_id,label,description,evidence_text,status,valid_from,valid_until,created_by,updated_at,relationship_types(code,group_code,label_vi,inverse_label_vi,is_directed)")
+      .order("updated_at", { ascending: false }).limit(200),
   ]);
 
   const types = (typeResult.data || []) as RelationshipTypeRow[];
-  const relationshipResult = await supabase
-    .from("object_relationships")
-    .select("id,source_type,source_id,target_type,target_id,relationship_type_id,label,description,evidence_text,status,valid_from,valid_until,created_by,updated_at,relationship_types(code,group_code,label_vi,inverse_label_vi,is_directed)")
-    .order("updated_at", { ascending: false })
-    .limit(200);
   const allRelationships = relationshipResult.data || [];
   const relationships = allRelationships.filter((item) => {
     const relationshipType = item.relationship_types as unknown as { group_code: string } | null;
@@ -167,11 +171,11 @@ export default async function RelationshipsPage({
 
   return <WorkspaceShell active="/relationships" eyebrow="MẠNG LƯỚI LIÊN KẾT" title="Quan hệ" description="Xem một đối tượng cung cấp, phụ thuộc, quản lý hoặc liên quan tới đối tượng nào." userName={profile.display_name} role={profile.role}>
     <div className="relationship-summary compact"><article><span>Loại quan hệ</span><strong>{types.length}</strong></article><article><span>Đang hiển thị</span><strong>{relationships.length}</strong></article><article><span>Phạm vi</span><strong>Liên kết trực tiếp</strong></article></div>
-    <form className="catalog-toolbar compact relationship-filter"><select name="focus" defaultValue={focus} aria-label="Tài liệu trung tâm"><option value="">Tất cả tài liệu</option>{[...documentFocusOptions].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><select name="group" defaultValue={group} aria-label="Nhóm quan hệ"><option value="all">Tất cả nhóm</option>{groups.map((item) => <option key={item} value={item}>{item}</option>)}</select><select name="status" defaultValue={status} aria-label="Trạng thái"><option value="all">Tất cả trạng thái</option><option value="proposed">Đề xuất</option><option value="verified">Đã xác minh</option><option value="rejected">Từ chối</option></select><button type="submit">Áp dụng</button></form>
+    <Form action="/relationships" scroll={false} className="catalog-toolbar compact relationship-filter"><select name="focus" defaultValue={focus} aria-label="Tài liệu trung tâm"><option value="">Tất cả tài liệu</option>{[...documentFocusOptions].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><select name="group" defaultValue={group} aria-label="Nhóm quan hệ"><option value="all">Tất cả nhóm</option>{groups.map((item) => <option key={item} value={item}>{item}</option>)}</select><select name="status" defaultValue={status} aria-label="Trạng thái"><option value="all">Tất cả trạng thái</option><option value="proposed">Đề xuất</option><option value="verified">Đã xác minh</option><option value="rejected">Từ chối</option></select><button type="submit">Áp dụng</button></Form>
 
     <div className="relationship-management-bar">
       <span>{canManage ? "Tạo hoặc cập nhật metadata quan hệ theo danh mục chuẩn." : "Viewer có quyền xem; Editor hoặc Admin quản lý metadata quan hệ."}</span>
-      {canManage ? <a className="primary-button" href="/relationships?manage=new#relationship-metadata">Tạo quan hệ</a> : null}
+      {canManage ? <Link className="primary-button" href="/relationships?manage=new#relationship-metadata">Tạo quan hệ</Link> : null}
     </div>
     {saved ? <div className="success-banner" role="status">{saved === "created" ? "Đã tạo quan hệ." : "Đã cập nhật metadata quan hệ."}</div> : null}
     {edit && !canEditSelected ? <div className="state-message error-state"><strong>Không thể chỉnh sửa</strong><span>Quan hệ không tồn tại hoặc tài khoản không có quyền sửa bản ghi này.</span></div> : null}
@@ -186,7 +190,7 @@ export default async function RelationshipsPage({
       if (!item) return null;
       const mayEdit = profile.role === "admin" || (profile.role === "editor" && relationship.created_by === profile.id && ["proposed", "rejected"].includes(relationship.status));
       const validity = [relationship.valid_from ? "Từ " + displayDate(relationship.valid_from) : "", relationship.valid_until ? "đến " + displayDate(relationship.valid_until) : ""].filter(Boolean).join(" ");
-      return <article key={item.id}><span className="object-pill">{item.sourceType}</span><div className="relationship-record-copy"><strong><span className="relationship-inline-code">{item.sourceCode || "—"}</span>{item.sourceLabel} → <span className="relationship-inline-code">{item.targetCode || "—"}</span>{item.targetLabel}</strong><small>{item.typeLabel}{item.directed ? ` · Chiều ngược: ${item.inverseLabel}` : " · Hai chiều"}</small>{relationship.description ? <p>{relationship.description}</p> : null}<span className="relationship-record-meta">{validity || "Không giới hạn hiệu lực"}{relationship.evidence_text ? " · Có bằng chứng" : " · Chưa có bằng chứng"}</span></div><span className="object-pill target">{item.targetType}</span><span className="status-badge">{item.status}</span>{mayEdit ? <a className="relationship-edit-link" href={`/relationships?edit=${item.id}#relationship-metadata`}>Sửa</a> : null}</article>;
+      return <article key={item.id}><span className="object-pill">{item.sourceType}</span><div className="relationship-record-copy"><strong><span className="relationship-inline-code">{item.sourceCode || "—"}</span>{item.sourceLabel} → <span className="relationship-inline-code">{item.targetCode || "—"}</span>{item.targetLabel}</strong><small>{item.typeLabel}{item.directed ? ` · Chiều ngược: ${item.inverseLabel}` : " · Hai chiều"}</small>{relationship.description ? <p>{relationship.description}</p> : null}<span className="relationship-record-meta">{validity || "Không giới hạn hiệu lực"}{relationship.evidence_text ? " · Có bằng chứng" : " · Chưa có bằng chứng"}</span></div><span className="object-pill target">{item.targetType}</span><span className="status-badge">{item.status}</span>{mayEdit ? <Link className="relationship-edit-link" href={`/relationships?edit=${item.id}#relationship-metadata`}>Sửa</Link> : null}</article>;
     })}</div></section> : null}
   </WorkspaceShell>;
 }

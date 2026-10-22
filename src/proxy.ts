@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const protectedRoutes = ["/catalog", "/documents", "/relationships", "/findings", "/governance", "/notifications"];
+const protectedRoutes = ["/catalog", "/documents", "/relationships", "/findings", "/governance", "/notifications", "/process-map", "/role-knowledge"];
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -14,22 +14,34 @@ export async function proxy(request: NextRequest) {
         values.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
         values.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+        // @supabase/ssr 0.7 does not forward token-refresh cache headers.
+        // A refreshed Set-Cookie must never enter shared CDN/ISR caches.
+        response.headers.set("Cache-Control", "private, no-store");
       },
     },
   });
-  const { data: { user } } = await supabase.auth.getUser();
+  // getClaims validates the signed JWT locally with the cached JWKS (ES256),
+  // avoiding an Auth HTTP round-trip for every navigation and prefetch.
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
   const needsAuth = protectedRoutes.some((route) => request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + "/"));
-  if (needsAuth && !user) {
+  function secureRedirect(destination: URL) {
+    const redirected = NextResponse.redirect(destination);
+    response.cookies.getAll().forEach(cookie => redirected.cookies.set(cookie));
+    redirected.headers.set("Cache-Control", "private, no-store");
+    return redirected;
+  }
+  if (needsAuth && !claims) {
     const login = request.nextUrl.clone();
     login.pathname = "/login";
     login.searchParams.set("error", "required");
-    return NextResponse.redirect(login);
+    return secureRedirect(login);
   }
-  if (request.nextUrl.pathname === "/login" && user) {
+  if (request.nextUrl.pathname === "/login" && claims) {
     const home = request.nextUrl.clone();
     home.pathname = "/";
     home.search = "";
-    return NextResponse.redirect(home);
+    return secureRedirect(home);
   }
   return response;
 }

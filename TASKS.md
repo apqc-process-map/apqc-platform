@@ -77,6 +77,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE DOC-001 Create document, version, file, and process-link migrations.
 - [x] DONE DOC-002 Seed controlled document taxonomy.
 - [x] DONE DOC-014 Configure PRD-aligned document intake metadata plus library filters and sorting.
+- [x] DONE DOC-015 Display Nhóm tài liệu read-only, derived from Loại tài liệu; preserve legacy unclassified draft groups.
+- [x] DONE DOC-016 Add exclusive multi-selection of active business roles in Phải biết, Nên biết / tham chiếu, Không áp dụng; unselected = Chưa xác định.
+- [x] DONE DOC-017 Persist classifications with the governed Admin-only atomic `set_document_knowledge_audience` function without deleting prior relation rows.
+- [x] DONE DOC-018 Display verified business-role knowledge groups on Document cards and Tab 05 Role Knowledge.
 - [x] DONE DOC-003 Configure private Supabase Storage bucket and policies.
 - [x] DONE DOC-004 Validate upload MIME type, extension, size, and checksum before direct private Storage upload.
 - [x] DONE DOC-005 Add PDF/image preview and Office download.
@@ -355,3 +359,77 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] PROC-META-003 — Replace the partial right panel with six layered metadata sections that keep every property visible.
 - [x] PROC-META-004 — Add explicit missing-field rows, overall completion, per-section missing counts, and system-field labels.
 - [~] QA-PROC-META-001 — Authenticated Vercel Preview passed data loading, six-section rendering, process switching, long Executive Summary values, explicit missing states, keyboard dismissal, and desktop visual review. Production smoke test remains pending until PR merge; an explicit 1024 px browser run remains in the broader multi-viewport QA matrix.
+## 2026-10-21 — Document Findings & Action Tracker
+
+- [x] DONE FIND-012 Document-first 06 workspace, with manual overlap, duplication, version/effective-date and relationship conflict types and multiple version-linked evidence records.
+- [x] DONE FIND-013 Require explicit action decision with justification for no-action disposition.
+- [x] DONE FIND-014 Create action tracker with assignee, due date, status, progress, blockers, completion evidence and database closure guards.
+- [x] DONE FIND-015 Preserve legacy general finding records in the database **without** an all-findings/single-document switch on tab 06.
+- [~] PARTIAL QA-FIND-01 Preview TypeScript/build and transactional Supabase workflow tested; authenticated end-to-end browser interactions and attachment evidence input require user-session QA.
+- [ ] BLOCKED FIND-011 AI extraction, automatic duplicate and conflict detection requires policy approval and representative file samples; not launched.
+
+## 2026-10-21 — Cross-document-only findings scope
+
+- [x] DONE FIND-016 Restrict tab 06 to findings with at least two distinct documents; remove legacy/general findings view from this tab without deleting its records.
+- [x] DONE FIND-017 Enforce two distinct document identities in the create-finding action, for every issue type including Other.
+- [x] DONE FIND-018 Prevent closing a document finding without two different linked documents at the database gate.
+- [x] DONE DEMO-FIND-01 Verify and reuse **8 cross-document DEMO findings**, **16** draft metadata-only demo documents, **16** fictional version excerpts, and **10** actions mapped to the existing 10 enterprise processes; no duplicate seeding.
+- [x] DONE QA-FIND-02 Supabase rolled-back test: closure rejects v1/v2 of the same document, accepts evidence from two different documents; all eight seeded examples satisfy the rule.
+- [x] DONE QA-FIND-03 Vercel preview and production build/type-check passed for PR #46 (commit `eca17a0`).
+- [~] PARTIAL QA-FIND-04 Full authenticated browser create/edit/action-progress/close workflow and role-specific Editor QA remain outstanding; no real-file conflict detection has been tested.
+
+
+## 2026-10-21 — Loading and navigation performance
+
+- [x] PERF-001 — Inspect production Vercel errors, Next render mode, account lookup, Supabase gateway latency, Vercel/Supabase regions and repeated page fetches.
+- [x] PERF-002 — Use request-time boundary for authenticated RSC; replace network `getUser()` reads with validated `getClaims()` and preserve profile authorization.
+- [x] PERF-003 — Convert search/filter form GET navigations and internal preview/edit links to Next router transitions.
+- [x] PERF-004 — Replace nine-route eager sidebar prefetch with hover/focus prefetch; improve route loading fallback.
+- [x] PERF-005 — Parallelize Documents/Relationships independent data reads and reuse Finding document metadata.
+- [x] PERF-006 — Configure Sydney Vercel Functions region to match Supabase; preview region verified.
+- [ ] PERF-QA-001 — Validate login/logout/refresh, expired JWT refresh, Viewer/Admin/Editor route protection and RLS in authenticated browsers.
+- [ ] PERF-QA-002 — Compare before/after actual browser page transition P75, function TTFB, LCP, INP; check Vietnam client latency and consider alternative region if worse.
+- [ ] PERF-QA-003 — Observe the first 24h runtime PPR errors and navigation logs after Production; target zero `blocking-prerender-random` and `HANGING_PROMISE_REJECTION`.
+- [ ] PERF-QA-004 — Verify full user workflows across Documents/Findings/Relationships filter/create/edit/preview/refresh after soft-navigation changes.
+
+
+## 2026-10-21 — Performance follow-up verification
+
+- [x] PERF-007 — Preserve refreshed session cookies across redirect and add private/no-store headers for pinned SSR client.
+- [x] PERF-008 — Parallelize independent Finding detail queries and Role Knowledge relationship reads; prevent unbounded Finding event history reads.
+- [x] PERF-009 — Add nonblocking, PII-free server-side slow-route and auth latency instrumentation.
+- [ ] PERF-QA-005 — Exercise actual authenticated token-refresh, redirect, and protected-route flows; verify cookie updates and Cache-Control response headers.
+- [ ] PERF-QA-006 — Use new `apqc_slow_page` / `apqc_slow_auth` logs after real traffic to identify remaining slow routes; record P75 latency and compare pre/post request durations by a representative user session.
+- [ ] PERF-QA-007 — Browser smoke test Finding detail, role selection, 100-event history cap and existing action edit permissions.
+
+## 2026-10-21 — Tab 02 Document role knowledge release (PR #50)
+
+- [x] DOC-KNOW-001 — Confirm 23 controlled types in 7 groups, 3 active business roles, and 6 original confirmed Must/Should relationships before the change.
+- [x] DOC-KNOW-002 — Derive canonical group automatically; remove editable group control; retain saved legacy group for untyped documents.
+- [x] DOC-KNOW-003 — Three multi-select role lists with exclusive group membership, plus Chưa xác định as an unselected state.
+- [x] DOC-KNOW-004 — Apply migration `20261021000034_document_knowledge_audience.sql` and verify Admin-only save and new Not Applicable relationship type.
+- [x] DOC-KNOW-005 — Preview build/TypeScript READY; rollback-only Admin assignment and reclassification tests pass, Viewer mutation is denied; Production commit `9868f9726f604aa2d7000a88e59f8b760ead0ece` READY.
+- [x] DOC-KNOW-006 — Confirm 20 document versions and six original verified knowledge links remain; SQL tests leave no persistent test data.
+- [ ] DOC-KNOW-QA-001 — Authenticated Admin browser creation, editing, reopening, multi-selection and changing/removing classifications.
+- [ ] DOC-KNOW-QA-002 — Check Tab 05 and Document cards after actual role edits, including restricted document placeholders.
+- [ ] DOC-KNOW-QA-003 — Confirm Viewer cannot mutate; Editor sees the role groups read-only; knowledge classifications do not create user reading/notification assignments.
+- [ ] DOC-KNOW-QA-004 — Real signed-in Production browser smoke test; successful deployment/build alone does not prove E2E correctness.
+
+## 2026-10-21 — Tab 02 document terminology and presentation QA
+
+- [x] DOC-COPY-001 — Audit 23 controlled document type labels and seven groups; eliminate duplicate synonyms and unclear combined captions.
+- [x] DOC-COPY-002 — Apply in-place migration of nine `document_type` Vietnamese labels while preserving UUID/code/group mappings and existing version links.
+- [x] DOC-COPY-003 — Fix read-only derived group display spacing/line breaks for all viewports; clarify the no-type state.
+- [x] DOC-COPY-004 — Centralize Vietnamese group/lifecycle/access/risk/language label mapping and date formatting; use in Document filters, cards and version comparison.
+- [x] DOC-COPY-005 — Translate file upload form and remaining mixed-language metadata captions; keep independent scope/audience/access semantics distinct.
+- [x] DOC-COPY-006 — Fix case-sensitive group filtering to include existing mixed-case `document_group` codes.
+- [ ] DOC-COPY-QA-001 — Authenticated browser test: create, select all groups/types, change type, save/reopen, check group display/spacing on desktop/mobile.
+- [ ] DOC-COPY-QA-002 — Cross-check card and filter results, all lifecycle labels, document comparisons, and file attachment upload on Vercel Production.
+- [ ] DOC-COPY-QA-003 — Check keyboard/focus/contrast and narrow layouts; run Admin and Viewer sessions (and Editor when an account is available).
+
+### 2026-10-21 — Deployment blocked by Vercel daily quota
+
+- [x] DOC-COPY-007 — GitHub PR #52 merged into main, commit `ad9ee0207ee9d46fc6b687e632e971b27a7d691e`; Supabase 23 types / 7 groups / 20 versions / 0 broken type links verified.
+- [ ] DOC-COPY-DEPLOY-001 — Remove or resolve Vercel deployment quota blocker (HTTP 402 `api-deployments-free-per-day`, CI context Vercel=FAILURE due to `build-rate-limit`). Trigger/retry production build of main commit `ad9ee020...` and verify READY plus alias.
+- [ ] DOC-COPY-DEPLOY-002 — Verify Next.js build/TypeScript for the final main commit; earlier READY previews covered only earlier intermediate commits.
+- [ ] DOC-COPY-QA-004 — Finish signed-in Production UI/visual workflows once deployment is actually READY.

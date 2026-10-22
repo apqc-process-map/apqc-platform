@@ -12,8 +12,8 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 ## Verified data
 
 - APQC import: 2,017 elements, 3,284 metrics, 13 categories, levels 1–5, no missing parents, duplicate PCF IDs, or orphan metrics.
-- Demo sandbox: 10 disposable enterprise processes with complete Executive Summary metadata, 10 applicability-covered versions, 6 controlled tags/15 process tag assignments, 38 verified relationships (including 6 role-to-document knowledge mappings), 5 typed findings, 3 documents with metadata/tags, and existing workflow fixtures.
-- Documents: 3 disposable documents with 4 versions covering draft, in-review, and effective states; every version has a process link and 2 document reading assignments exist.
+- Base demo sandbox: 10 disposable enterprise processes with Executive Summary metadata, 10 applicability-covered versions, 6 controlled tags/15 process tag assignments, and 38 verified relationships (including 6 role-to-document knowledge mappings). The preexisting finding/document fixture counts below predate the tab 06 seed.
+- Existing original documents: 3 disposable documents / 4 versions covering draft, in-review and effective states. In addition, the 2026-10-21 finding demo contributes **16 separate metadata-only draft documents/versions**, yielding **19 document identities and 20 versions** at the seed snapshot; 2 original reading assignments remain.
 - Six active Auth accounts use the approved mix of three Admin and three Viewer. Credentials are not stored in Git. There is no Editor account.
 - Licensed APQC source files and private documents remain outside Git.
 
@@ -23,10 +23,11 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - APQC catalog search/detail, hierarchy, descriptions, metrics, and attribution.
 - Data-driven Process Map with breadcrumbs, URL-persisted selection, scoped descendants, search, card/table views, APQC reference handoff, and persistent detail.
 - Centered relationship network with governed object codes, controlled labels placed on Source → Target connectors, direct inbound/outbound lanes, optional neighbor expansion, document-center filtering, table, and collapsed legend. Admin/Editor now have a governed create/edit metadata form; Viewer remains read-only.
-- Dedicated “Vai trò của tôi” view groups assigned documents into “Bắt buộc phải biết” and “Nên biết / tham chiếu”; restricted document metadata stays hidden behind RLS while the knowledge requirement remains visible.
+- Dedicated “Vai trò của tôi” view groups verified business-role-to-document mappings into “Bắt buộc phải biết”, “Nên biết / tham chiếu”, and “Không áp dụng”; restricted document metadata stays hidden behind RLS while the requirement remains visible. Unselected roles remain unclassified.
 - RLS-gated direct authenticated-browser upload to private Storage with a 25 MB client-side MIME/extension guard, SHA-256 checksum, file metadata, and cleanup if metadata recording fails.
+- Tab 02 Document intake uses a single Loại tài liệu with automatically derived Nhóm tài liệu and Admin-managed multi-selection of active business roles in three exclusive knowledge groups. This is not access authorization and does not automatically assign individual reading tasks.
 - Signed private file route, PDF/image preview, Office download, role-gated lifecycle action, field-level version comparison, and disposable document fixtures.
-- Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, and evidence links.
+- Finding workflow with explicit role transitions, assignment, resolution checks, participants/watchers, reactions, comments, readable event timeline, SLA defaults, and evidence links. Tab 06 now restricts its listing and creation to **2+ distinct-document** overlap/conflict findings, with evidence excerpts, action decisions, an individual corrective-action tracker and progress history.
 - Action Log (backed by notification events) with per-item/bulk read actions, live finding/assignment/review/reading triggers, and a daily due-date scheduler.
 - Governance and finding summary views.
 
@@ -39,6 +40,8 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Migration `20261019000013_notification_security_hardening.sql` removed public/authenticated execution from privileged notification functions and fixed the mutable `search_path`.
 - Migration `20261019000013_harden_demo_tag_policies.sql` separates tag write policies from read policies and adds the `object_tags.assigned_by` index; the tag-specific performance warning is cleared.
 - Relationship migrations `20261021000023`–`20261021000026` enforce active endpoints, controlled source/target types, unique non-self links, valid dates/lengths, evidence before verification, audit stamping, and consolidated Editor/Admin write RLS.
+- Document-finding migrations `20261021000027`–`20261021000029` implement action decisions, tracker, action-event history and restricted RLS; `20261021000033` blocks `resolved/closed` states without evidence from two distinct `documents.id` identities.
+- Applied migration `20261021000034_document_knowledge_audience.sql`: third Not Applicable knowledge relation and Admin-only atomic `SECURITY INVOKER` function. SQL role simulation denied Viewer writes; existing document/Storage RLS is unchanged.
 - Supabase Security Advisor now reports only the account-level warning that leaked-password protection is disabled. Coordinate enabling it with replacement of the shared demo password.
 
 ## Verification
@@ -186,3 +189,66 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - No database migration, new dependency, custom metadata-field creation, or authorization change is required.
 - Authenticated Vercel Preview QA passed for all six metadata sections, 45 visible properties, process switching, long values, explicit missing states, and Escape-dismissible previews. A PostgREST self-relationship schema-cache error was removed by resolving supersedes_version_id from the already-authorized version result set instead of requesting an unavailable embedded self-join.
 - Local ESLint, TypeScript, and production build verification passed. Authenticated Vercel Preview QA passed; production smoke testing remains pending until PR merge.
+## 2026-10-21 — Cross-document Finding & Action (current scope)
+
+- **Tab 06 is exclusively a multi-document comparison register** for duplicate/semantic overlap, applicability overlap, contradictory conditions, version/effective-date differences, relationship conflicts and supersession candidates. Every displayed issue must link at least two different `documents.id` values using concrete `document_version` subject references. An alternate two-version pairing within one document does **not** qualify; no single-document exception is allowed, even for Other.
+- The prior all-findings/single-document option is **not** present on tab 06; historical `finding_domain=general` rows remain in the database for continuity. Server-side creation validates 2–20 version selections with at least two independent document identities. An additional Supabase trigger forbids resolving/closing findings lacking cross-document evidence.
+- Per-version evidence includes an illustrative clause excerpt; case details include operational impact, severity, issue owner/deadline and explicit action decision (`pending`, `required`, `not_required` with a reason). Each required action tracks assignee, deadline, state, percent complete, blockers and outcome evidence; creation/progress updates append finding timeline events.
+- QA verified in a rolled-back database transaction: closing an issue with only two versions of one document was rejected; adding a second document allowed closure. Preview and production builds for PR #46 (production `eca17a0`) passed. Authenticated full-browser issue/action E2E and Editor-role matrix remain pending.
+- Document conflict inference/AI, full-text analysis and OCR are **not** implemented.
+
+## 2026-10-21 — Seeded document Finding & Action DEMO
+
+- Live Supabase seeded with **8** `[DEMO 06/F01..F08]` cross-document findings, each linking **2 distinct** `DEMO-FND-DOC-01..16` draft metadata-only document identities (16 total), 10 corrective actions and 16 fictional per-version excerpts. These demos relate to all 10 existing `PROC-000011..PROC-000020` enterprise processes.
+- No actual document content was reviewed or uploaded: all contradictory clauses, dates and business impacts are explicitly illustrative and should never be treated as verified findings.
+- Scenario diversity: exact/semantic duplication, scope overlap, payment conflict, effective-date conflict, KPI-version issue, approval-relationship uncertainty and supersession decision.
+- Covers new / triage / in progress / pending decision / resolved / closed findings; action pending / in progress / blocked / done, varied progress %, owner and due date.
+- Script `supabase/migrations/20261021000030_seed_document_findings_demo.sql` is idempotent for tagged records. Follow-up migrations `31` and `32` complete and clean up process evidence. Opt-in guarded cleanup available at `scripts/delete-demo-document-findings.sql`.
+- Verified in Supabase: 16 draft documents, 8 document findings, 10 actions, 16 document evidence references, 16 process evidence references, 3 finished actions, one blocked, one overdue; none of the preexisting non-document findings modified. DEMO-triggered notifications were cleared.
+- Viewer RLS returns zero document findings and actions; authenticated Admin role simulation reads all eight and ten actions. No Vercel application code changes needed; the live tab consumes Supabase data.
+
+
+## 2026-10-21 — Load/reload responsiveness and render stability
+
+- Investigated **Next.js 16.4.1 + Cache Components/PPR** production errors: recurring `Math.random()` blocking-prerender and `HANGING_PROMISE_REJECTION` for routes including Home, Findings, Governance, Process Map and Action Log. Production runtime errors are established; a successful build alone does **not** prove user-session runtime recovery.
+- Supabase gateway baseline (recent 24-hour sample, uncorrelated across users): `/auth/v1/user` 582 requests, avg 244 ms, P95 386 ms; `/rest/v1/profiles` avg 621 ms, P95 1,044 ms; `findings` avg 554 ms, `document_versions` avg 529 ms. These are service timings, **not whole-page TTFB or Core Web Vitals**.
+- Auth route is now guarded by request-time `await connection()` *before* the Supabase client accesses cookies/crypto. Server identity uses validated `getClaims()` and request-scoped `React.cache`; Proxy also uses `getClaims()` (not unverified `getSession()`). Existing active-profile DB/RLS checks remain intact. Proxy protects Process Map and Role Knowledge as well.
+- GET search/filter forms in Documents, Findings, Catalog, Relationships and Role Knowledge now use Next `<Form action="/..." scroll={false}>` client navigation instead of native full reload; internal preview/edit/compare/action links use Next `<Link>`. File downloads remain native HTTP.
+- Sidebar prefetch is now **intent-based** on pointer-enter/keyboard focus, rather than eager prefetch of nine protected routes. A route-level accessible skeleton replaces the blocking spinner with a reduced-motion fallback.
+- Documents initially fetches its version list and independent metadata/reading lists concurrently. Relationships fetches the relationship graph with its independent catalogs, not after them. Findings reuses its initial document-version metadata for linked evidence and fetches only missing older versions.
+- Added `vercel.json` `regions=["syd1"]` to co-locate Server Functions with the Supabase project in Sydney `ap-southeast-2`, confirmed on Vercel Preview deployment. The tradeoff for Vietnamese clients must be assessed with production latency data.
+- Preview TypeScript/Next build succeeded. **Outstanding**: authenticated browser E2E page navigation, route-level P75 TTFB/LCP/INP baseline and postdeploy comparisons; monitor Vercel runtime errors and revert or refine dynamic boundaries if PPR errors persist. No database schema/business data changes.
+
+
+## 2026-10-21 — Performance follow-up: remaining query waves and observability
+
+- **Auth refresh cache headers:** Supabase SSR is pinned at `@supabase/ssr 0.7.0`; the Next Proxy now explicitly sets `Cache-Control: private, no-store` on token-refresh responses and forwards refreshed cookies on login/protected-route redirects. This prevents accidental shared caching of a refreshed session while preserving the existing signed-claims check and database RLS.
+- **Finding detail:** the ten independent read requests (finding, profiles, events, reactions, comments, participants, corrective actions, document evidence, document versions and finding types) now start together, removing one Supabase request wave. Finding events read is capped at the latest 100 entries (UI displays a recent timeline).
+- **Vai trò của tôi:** role-to-document relationships are read in parallel with role catalog, type vocabulary and available documents. The response is filtered to the selected role in server code; currently capped at 300 links for bounded reads.
+- **Observability:** `src/lib/page-perf.ts` records anonymized slow-route server timing after the response (only >=850 ms) on Documents, Findings, Finding detail, Catalog, Relationships, Role Knowledge and Governance. Authentication/profile validation logs anonymously at >=450 ms. Logs have no IDs, tokens, query strings or document text.
+- **QA:** latest Preview Next/TypeScript build READY with region `syd1`. Authenticated end-user timing and mutation E2E are still pending; no runtime-log traffic is not proof of zero latency/errors. Do not describe these log thresholds as fulfilled LCP/INP metrics.
+
+## 2026-10-21 — Document classification and knowledge audience (Production PR #50)
+
+**Released:** GitHub [PR #50](https://github.com/apqc-process-map/apqc-platform/pull/50) merged to `main` as `9868f9726f604aa2d7000a88e59f8b760ead0ece`. Vercel Production deployment `dpl_ERNmxGYhaB3GEjifrYLMMN3zNJiG` reached **READY**, and `pnj-apqc-platform.vercel.app` is associated with that release.
+
+- **Tab 02 /documents:** The Loại tài liệu control is editable; Nhóm tài liệu is derived/read-only (23 types, 7 groups). Untyped legacy drafts retain their stored group on edit. Admin multi-selects active business roles in Phải biết, Nên biết / tham chiếu, Không áp dụng. Unselected roles remain Chưa xác định; a role cannot occupy multiple confirmed groups on a document. Document cards show verified knowledge classifications.
+- **Tab 05 /role-knowledge:** Displays three confirmed knowledge categories and preserves RLS restrictions; restricted-document placeholders are retained. These relationships link business role to **stable document identity**, not to versions or individual profiles.
+- **Database:** Migration `20261021000034_document_knowledge_audience.sql` applied. Admin-only `set_document_knowledge_audience(uuid, jsonb)` atomically reclassifies active business roles. Former mapping rows are marked rejected, not physically deleted; this is not a full immutable audit history. Access permissions, private Storage, individual reading assignments, and notification workflows remain separate.
+- **Verified on 2026-10-21:** 3 active business roles, 20 document versions and six existing must/should confirmed mappings retained; Not Applicable controlled type present (zero actual assignments before user use). Admin first-time classification and reclassification passed in rolled-back SQL transactions; Viewer write denied; no test business-data changes persisted. Vercel Preview Next.js/TypeScript build READY and Production deployment READY. No new schema-level Security Advisor finding; the existing leaked-password-protection warning remains.
+- **Outstanding:** Real signed-in browser create/edit/reopen/multiselect/remove-to-unclassified, Tab 05 and Document card roundtrip, Editor read-only behavior, and Production smoke test. These are tracked separately in `TASKS.md`.
+
+## 2026-10-21 — Document type terminology and Tab 02 presentation audit
+
+- Taxonomy: audited all 23 active document types in seven groups; replaced nine confusing Vietnamese labels in place using migration `20261021000035_normalize_document_type_labels.sql`. Types still have the same codes and IDs, and existing document-version references are untouched. Examples: `form_template` is now `Biểu mẫu`, `checklist` is `Bảng kiểm`, `rca_report` is `Báo cáo phân tích nguyên nhân gốc rễ`.
+- UI: the automatic group now has a visually separate field title, value and descriptive help text. Seven group labels are short Vietnamese terms, consistent in the Type select, Document filter and cards. Untyped new documents show `Chưa phân loại`; old untyped versions retain their saved group.
+- Library: group filtering is case-insensitive for legacy stored `Execution`, `Governance` and `Evidence`. Lifecycle names, access levels, risk, language, comparison metadata, visible dates and uploader controls use Vietnamese presentation labels while DB codes remain stable.
+- No schema changes or permission changes were made. Knowledge-audience groups (Phải biết, Nên biết, Không áp dụng) and reading/acknowledgment workflows remain unchanged.
+- Verification: Supabase post-migration queries confirmed 23 active type labels, nine updated names, and preserved references for existing versions. Vercel Preview build and TypeScript are the available compile gates. Authenticated browser visual/E2E testing is still pending and should not be inferred from a READY build.
+
+### Release verification / external deployment blocker (2026-10-21)
+
+- PR #52 merged to `main` at commit `ad9ee0207ee9d46fc6b687e632e971b27a7d691e`; the 6 canonical Markdown docs are also updated in that commit.
+- Supabase controlled-type label migration is **already applied** and its label changes can be observed via the existing production code because type labels are read from live data.
+- **The latest UI/CSS changes are NOT yet on Production.** Vercel returned HTTP 402 `api-deployments-free-per-day` (>100 deployments/day) when a new preview build was requested. The main commit shows a failed Vercel status pointing to a build-rate-limit upgrade page. At the check, Production is still running the previous main commit `0c2a11ca2ce696943369c1bd21bb77b841a1b197`.
+- Production publication needs the Vercel account owner to resolve/reset the deployment quota and trigger or retry the blocked main commit. Do not report feature publication until Vercel Production identifies commit `ad9ee020...` as READY and its domain alias targets that deployment. Latest app build and authenticated browser QA remain pending.

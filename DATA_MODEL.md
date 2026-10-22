@@ -209,8 +209,8 @@ Initial vocabularies include legal entity, department, location, channel, produc
 - shared lifecycle status enum
 - `title_vi text`
 - `title_en text nullable`
-- `document_group text`
-- `document_type_value_id uuid`
+- `document_group text` — derived automatically from the selected type, or retained from the saved group for a legacy untyped draft (no independent selector)
+- `document_type_value_id uuid` — optional on drafts; chosen vocabulary value maps to a group through `vocabulary_values.document_group_code`
 - `language text`
 - `document_abstract text nullable`
 - `access_level access_level`
@@ -309,6 +309,24 @@ Use lightweight catalog tables with a common shape where practical.
 
 Relationships represent current state in the MVP. Temporal history is deferred.
 
+### Role-to-document knowledge classification (2026-10-21)
+
+- **Source**: `object_relationships.source_type='business_role'` and `source_id=business_roles.id`; **target**: `target_type='document'`, `target_id=documents.id` (stable identity, not a version).
+- **Three verified relationship types**: `role_must_know_document` (Phải biết), `role_should_know_document` (Nên biết), and `role_not_applicable_document` (Không áp dụng). All are in the `knowledge` relationship group and restrict source/target to business_role → document.
+- **Chưa xác định / Unclassified**: no verified knowledge relationship for that business role/document; never equate this with Not Applicable.
+- **Selection rule**: Tab 02 sends a multi-select classification mapping of active role UUID to one level (`must`, `should`, `none`). No role may occupy two levels on the same document. Roles omitted from the payload become unclassified.
+- **Write function**: `public.set_document_knowledge_audience(p_document_id uuid, p_assignments jsonb)` is `SECURITY INVOKER`, callable by `authenticated` but checks an active **Admin** via `current_profile_role()`; also checks active business roles and a draft/rejected version. It atomically rejects superseded verified mappings, reactivates an existing canonical mapping or inserts a new verified link, and keeps unchanged mappings. Its writes remain subject to table RLS and relationship constraints/triggers.
+- **Validation/evidence**: confirmed relations require description and evidence/source; the function supplies classification evidence and audit fields. Marked-rejected rows are retained, not deleted; this is **not** a full immutable event audit.
+- **Consumption**: Tab 05 `/role-knowledge` and Tab 02 library cards use verified classification. It does **not** change document/Storage permissions, issue individual `reading_assignments`, send notifications, or set `reading_acknowledgments`.
+- **Migration**: `supabase/migrations/20261021000034_document_knowledge_audience.sql` applied to the current APQC project.
+
+### Controlled document type naming and derived group (2026-10-21)
+
+- Migration `supabase/migrations/20261021000035_normalize_document_type_labels.sql` updates nine `vocabulary_values.label_vi` descriptions under the `document_type` vocabulary; it preserves all 23 rows' UUIDs, `code`, `document_group_code`, active flags, order, and existing foreign-key links.
+- The UI maps stable group codes to human-readable labels through `src/lib/document-display.ts`; it maps stable status, access, language and risk enum codes to Vietnamese text without writing translated values to persisted enum fields.
+- `document_versions.document_group` can include legacy mixed-case group codes. The Document group filter uses case-insensitive `.ilike()` to match those saved values. A group is derived from the selected type on document editing; a draft with no type retains its preexisting group value. New untyped drafts remain stored as `other` and the intake display says `Chưa phân loại` until a type is chosen.
+- Date columns remain ISO dates in PostgreSQL. Document cards and comparison render DD/MM/YYYY without altering stored values.
+
 ### `process_business_object_flows`
 
 Optional specialized table if graph/query ergonomics require it; otherwise represent through `object_relationships`.
@@ -398,7 +416,7 @@ Enforce last-author and approver separation.
 
 - `id uuid`
 - `finding_id uuid`
-- `object_type enum(process, process_version, document, document_version, relationship)`
+- `object_type text` (CHECK-constrained to `process | process_version | document | document_version | relationship | apqc_element`)
 - `object_id uuid`
 - `link_role enum(subject, evidence, resolution)`
 - `evidence_excerpt text nullable`
@@ -429,6 +447,39 @@ This is a scoped activity timeline even though a full platform audit trail is de
 - `created_at timestamptz`
 
 Default due dates derive from severity: Critical 2 days, High 7, Medium 14, Low 30. Explicit due dates override defaults.
+
+
+### `finding_actions` (Document corrective-action tracker)
+
+- `id uuid` — primary key
+- `finding_id uuid` — linked finding with cascading removal
+- `action_title text`, optional `description text`
+- `assignee_id uuid nullable`, `due_at date nullable`
+- `status text` — `todo | in_progress | blocked | done | cancelled`
+- `progress_percent integer` — 0–100, 100 on completion
+- `last_update text nullable`, `completion_evidence text nullable`
+- `created_by uuid`; `created_at`, `updated_at`, `completed_at` timestamps
+- `done` requires `progress_percent=100` and nonempty `completion_evidence`; `blocked` requires a nonempty `last_update`; progress is restricted to 0–100.
+- Insert/update action triggers append `action_created` / `action_updated` rows to `finding_events` for audit-style timeline visibility.
+- RLS: read requires visibility of parent finding; Editor/Admin write operations are checked against owner/assignee relationships. Cross-document findings, related actions and evidence are currently not exposed to Viewer.
+
+Additional `findings` columns:
+
+- `finding_domain text` — `general | document` (legacy defaults to general).
+- `action_decision text` — `pending | required | not_required`.
+- `action_decision_reason text nullable` — required for `not_required`.
+- `impact_summary text nullable` — explicit operational implication.
+- `finding_links` associates multiple concrete `document_version` rows with per-version evidence.
+- Tab 06 shows only `finding_domain=document` rows whose `finding_links` contain at least **two distinct `document_versions.document_id`** values as `object_type=document_version, link_role=subject`. Two versions of the same `documents.id` do not count. This is checked in the Server Action for **all** finding types and at the database **resolution/closure** gate. Generic and single-document findings are preserved outside the tab.
+- The two-step Server Action creates the finding row before inserting evidence links. Therefore the database resolution/closure trigger guards final states; initial creation relies on server validation and may leave a new unlinked record if linking fails. Do not describe this as a database-enforced all-states invariant.
+
+The document-finding action-decision/completion and two-distinct-documents closure guards are enforced by database triggers, separate from legacy generic finding workflow. Migrations `20261021000027`–`20261021000029` implement the tracker/history/RLS; `20261021000033` enforces distinct document identities at closure. No automated document-content comparison is part of this model.
+
+### Document finding DEMO seed and lineage
+
+- `20261021000030_seed_document_findings_demo.sql` is idempotent using `DEMO-FND-DOC-01..16` codes and `[DEMO 06/F01..F08]` finding titles; migrations `31` and `32` complete/clean up contextual enterprise-process evidence.
+- Eight manual finding examples refer to 16 distinct draft-only document identities with 16 linked `subject` version evidence records, 10 example actions, and existing process catalog `PROC-000011..PROC-000020`. These evidence snippets and conflicts are fictional and not file-analysis output.
+- Opt-in cleanup: `scripts/delete-demo-document-findings.sql`. Do not delete real document versions or relabel DEMO data as verified findings.
 
 ## 11. Notifications
 
@@ -479,6 +530,7 @@ Completeness must expose component scores and missing fields, not only a total.
 ### Admin
 
 - Full application data rights through policies/server actions.
+- May classify active business roles for editable document identities with the governed Admin-only function; Viewer/Editor cannot write knowledge assignments.
 - Approval must enforce separation from the last author.
 - Storage access still uses scoped server-generated signed URLs.
 
