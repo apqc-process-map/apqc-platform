@@ -15,7 +15,7 @@ const issueStatuses:Record<string,string>={
   pending_decision:"Chờ quyết định",resolved:"Đã xử lý",closed:"Đã đóng",reopened:"Mở lại"
 };
 type DocumentRow={id:string;document_id:string;title_vi:string;version_number:number;issuing_department:string|null;valid_from:string|null;vocabulary_values:{label_vi:string}|null;documents:{document_code:string}|null};
-type ProcessRow={id:string;name_vi:string;level_type:string;enterprise_processes:{process_code:string}|null};
+type ProcessRow={id:string;name_vi:string;processes:{process_code:string;level_type:string}|null};
 type ActionRow={id:string;finding_id:string;status:string;progress_percent:number;due_at:string|null;assignee_id:string|null};
 type FindingLink={id:string;finding_id:string;object_type:string;object_id:string;link_role:string;evidence_excerpt:string|null};
 type SourceEvidenceRow={finding_id:string;source_ref:number;evidence_excerpt:string};
@@ -43,7 +43,7 @@ export default async function FindingsPage({searchParams}:{
       .order("updated_at",{ascending:false}).limit(200),
     supabase.from("issue_taxonomy").select("code,group_code,group_label_vi,type_label_vi,explanation_vi,decision_order,decision_question_vi,minimum_evidence_vi").eq("is_active",true).order("decision_order"),
     supabase.from("profiles").select("id,display_name,role").eq("is_active",true).order("display_name"),
-    supabase.from("process_versions").select("id,name_vi,level_type,enterprise_processes(process_code)").order("updated_at",{ascending:false}).limit(200)
+    supabase.from("process_versions").select("id,name_vi,processes(process_code,level_type)").order("updated_at",{ascending:false}).limit(200)
   ]);
   const findings=(findingsResult.data||[]);
   const findingIds=findings.map(x=>x.id);
@@ -132,8 +132,8 @@ export default async function FindingsPage({searchParams}:{
     }
     const relatedProcesses:MatrixProcess[]=links.filter(link=>link.finding_id===f.id&&link.object_type==="process_version")
       .map(link=>processMap.get(link.object_id)).filter((process):process is ProcessRow=>Boolean(process))
-      .map(process=>({id:process.id,code:process.enterprise_processes?.process_code||"PROC",
-        name:process.name_vi,level:process.level_type}));
+      .map(process=>({id:process.id,code:process.processes?.process_code||"PROC",
+        name:process.name_vi,level:process.processes?.level_type||"—"}));
     const excelId=f.title.match(/^\[([^\]]+)\]/)?.[1]||f.finding_code;
     return {id:f.id,code:excelId,title:f.title.replace(/^\[[^\]]+\]\s*/,""),description:f.description,impact:f.impact_summary,
       issueCode:f.primary_issue_code,issueType:issueType?.type_label_vi||"Chưa phân loại chuẩn hóa",
@@ -162,7 +162,7 @@ export default async function FindingsPage({searchParams}:{
         <label>Mức độ ảnh hưởng<select name="severity" defaultValue="medium">{Object.entries(severityLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
         <label>Ưu tiên<select name="priority" defaultValue="medium"><option value="low">Thấp</option><option value="medium">Trung bình</option><option value="high">Cao</option><option value="urgent">Khẩn cấp</option></select></label>
         <label>Giao người phụ trách<select name="assignee_id" defaultValue=""><option value="">Chưa giao</option>{people.filter(p=>p.role==="admin"||p.role==="editor").map(p=><option value={p.id} key={p.id}>{p.display_name}</option>)}</select></label>
-        <label>Quy trình liên quan<select name="process_version_id" defaultValue=""><option value="">Chưa liên kết</option>{processes.map(p=><option key={p.id} value={p.id}>{p.enterprise_processes?.process_code||"PROC"} · {p.name_vi} · {p.level_type}</option>)}</select></label>
+        <label>Quy trình liên quan<select name="process_version_id" defaultValue=""><option value="">Chưa liên kết</option>{processes.map(p=><option key={p.id} value={p.id}>{p.processes?.process_code||"PROC"} · {p.name_vi} · {p.processes?.level_type||"—"}</option>)}</select></label>
         <label className="finding-full">Decision Point / điểm quyết định<input name="decision_point" maxLength={500} placeholder="Bước hoặc quyết định nghiệp vụ nơi vấn đề phát sinh"/></label>
         <label className="finding-full">Mô tả vấn đề / nội dung khác nhau<textarea name="description" rows={3} maxLength={5000} required placeholder="Văn bản A quy định…, trong khi văn bản B quy định…; phạm vi trùng tại…"/></label>
         <label className="finding-full">Ảnh hưởng vận hành (nếu có)<textarea name="impact_summary" rows={2} maxLength={2000} placeholder="Ví dụ: cửa hàng có thể áp dụng mức phí không thống nhất"/></label>
