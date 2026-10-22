@@ -264,3 +264,9 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Production logs identified two expected governance rejections on Finding FND-000024: missing resolution summary and three incomplete corrective actions. These were previously surfaced as a generic Next.js error page.
 - The Server Action now preflights document-finding closure requirements and returns coded, non-sensitive messages to the workflow panel. Database triggers and RLS remain authoritative and unchanged.
 - TypeScript, targeted ESLint, production build, and authenticated Production smoke tests passed. Both closure guards return inline Vietnamese alerts without invalid writes or browser console errors; Production merge commit 49670f3 is READY.
+## Desktop QA evidence — 2026-10-22
+
+- Authenticated Production visual QA passed at 1024 px for Process Map and Relationship, 1280 px for Document, and 1600 px across all nine main routes. No horizontal overflow, page alerts, browser console errors, or recent Vercel runtime errors were observed.
+- Process Map keyboard focus exposes the L2 tooltip inside the viewport and Escape dismisses it; input focus styling is visible. Empty L3/L4 states render intentionally.
+- This evidence does not cover a separate Microsoft Edge engine run, Editor role, real-file upload, every loading/empty/error state, or a populated deep L3/L4 hierarchy.
+- Historical Vercel quota-blocked deployment tasks are superseded: current main deployments are reaching READY.
