@@ -545,3 +545,9 @@ Service-role credentials never reach the client.
 - Operational KPI observations and targets.
 - Retention/legal-hold workflow.
 - General custom-field definitions and values.
+
+### Governed issue taxonomy (2026-10-22)
+
+`issue_taxonomy` stores the fixed 11-code issue classification: `code`, group code/label, type label, explanation, diagnostic order/question, minimum evidence and active state. Authenticated active users may read it; anonymous access is denied.
+
+`findings` additionally stores `primary_issue_code` (FK), `secondary_issue_codes` (tags only), `classification_rationale`, `decision_point`, `evidence_status`, `proposed_action`, `owner_question`, and `process_owner_feedback`. Existing `finding_type_value_id` is retained for historical compatibility and is not rewritten by the migration.

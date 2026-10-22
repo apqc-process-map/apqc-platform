@@ -270,3 +270,6 @@ Process Map is a desktop-first internal demo for browsing and governing enterpri
 - Process Map keyboard focus exposes the L2 tooltip inside the viewport and Escape dismisses it; input focus styling is visible. Empty L3/L4 states render intentionally.
 - This evidence does not cover a separate Microsoft Edge engine run, Editor role, real-file upload, every loading/empty/error state, or a populated deep L3/L4 hierarchy.
 - Historical Vercel quota-blocked deployment tasks are superseded: current main deployments are reaching READY.
+## In progress — issue taxonomy / Action Log (2026-10-22)
+
+Branch `codex/issue-taxonomy-action-log` adds the governed Issue.xlsx taxonomy, a dependent classifier and decision helper, workbook metadata on findings, and a corrective-action register at `/notifications`. Migration `20261022000034_issue_taxonomy_action_log.sql` is applied to project `eksftbalhnqpguecdcaj`; verification returned A=3, B=3, C=2, D=3. TypeScript passes. Repository-wide lint remains blocked by pre-existing React purity errors in catalog/findings/governance/relationships/role-knowledge and an existing unescaped-quote error in document-intake. Security advisor reports only the existing leaked-password-protection warning; no new RLS warning was introduced.

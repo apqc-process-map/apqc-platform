@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type Client = Awaited<ReturnType<typeof createSupabaseServerClient>>;
-const issueTypes = ["exact_duplicate","semantic_duplicate","scope_overlap","potential_conflict","version_conflict","effective_date_conflict","relationship_conflict","supersession_candidate","other"];
 
 async function session() {
   const supabase=await createSupabaseServerClient();
@@ -47,8 +46,15 @@ export async function createDocumentFinding(formData:FormData){
   const title=textField(formData,"title",220,true);
   const description=textField(formData,"description",5000,true);
   const impact_summary=textField(formData,"impact_summary",2000)||null;
-  const typeCode=textField(formData,"type_code",100,true);
-  if(!issueTypes.includes(typeCode))throw new Error("Nhóm vấn đề không hợp lệ.");
+  const primary_issue_code=textField(formData,"primary_issue_code",2,true).toUpperCase();
+  const {data:issueType,error:issueTypeError}=await supabase.from("issue_taxonomy").select("code").eq("code",primary_issue_code).eq("is_active",true).maybeSingle();
+  if(issueTypeError||!issueType)throw new Error("Loại lỗi chuẩn hóa không hợp lệ.");
+  const classification_rationale=textField(formData,"classification_rationale",2000,true);
+  const decision_point=textField(formData,"decision_point",500)||null;
+  const owner_question=textField(formData,"owner_question",2000)||null;
+  const proposed_action=textField(formData,"proposed_action",3000)||null;
+  const evidence_status=textField(formData,"evidence_status",20)||"candidate";
+  if(!["candidate","pending","validated","rejected"].includes(evidence_status))throw new Error("Trạng thái bằng chứng không hợp lệ.");
   const severity=textField(formData,"severity",20)||"medium";
   const priority=textField(formData,"priority",20)||"medium";
   if(!["low","medium","high","critical"].includes(severity)||!["low","medium","high","urgent"].includes(priority))
@@ -63,15 +69,13 @@ export async function createDocumentFinding(formData:FormData){
   const distinctDocuments=new Set(validDocuments.map(doc=>doc.document_id));
   if(distinctDocuments.size<2)
     throw new Error("Hai phiên bản của cùng một tài liệu không tạo thành finding chồng chéo giữa nhiều tài liệu.");
-  const {data:type,error:typeError}=await supabase.from("vocabulary_values")
-    .select("id,vocabularies!inner(code)").eq("code",typeCode).eq("vocabularies.code","finding_type").eq("is_active",true).maybeSingle();
-  if(typeError||!type)throw new Error("Loại finding chưa được cấu hình.");
   const assignee=await validateAssignee(supabase,textField(formData,"assignee_id",80));
   const due=dateField(formData,"due_at");
   const evidence=textField(formData,"evidence_excerpt",2000)||null;
   const {data:created,error}=await supabase.from("findings").insert({
     title,description,impact_summary, finding_domain:"document",
-    finding_type_value_id:type.id,severity,priority,status:"new",
+    primary_issue_code,classification_rationale,decision_point,evidence_status,owner_question,proposed_action,
+    severity,priority,status:"new",
     created_by:user.id,assignee_id:assignee,
     ...(due?{due_at:due+"T17:00:00+07:00"}:{})
   }).select("id").single();
@@ -79,6 +83,13 @@ export async function createDocumentFinding(formData:FormData){
   const linkResult=await supabase.from("finding_links").insert(documentIds.map(id=>({
     finding_id:created.id,object_type:"document_version",object_id:id,link_role:"subject",evidence_excerpt:evidence
   })));
+  const processVersionId=textField(formData,"process_version_id",80);
+  if(processVersionId){
+    const {data:processVersion}=await supabase.from("process_versions").select("id").eq("id",processVersionId).maybeSingle();
+    if(!processVersion)throw new Error("Quy trình không tồn tại hoặc bạn không có quyền truy cập.");
+    const {error:processLinkError}=await supabase.from("finding_links").insert({finding_id:created.id,object_type:"process_version",object_id:processVersionId,link_role:"subject"});
+    if(processLinkError)throw new Error("Finding đã tạo nhưng liên kết quy trình thất bại: "+processLinkError.message);
+  }
   if(linkResult.error){
     // Keep this as a visible record for recovery instead of silently losing a partially created issue.
     throw new Error("Finding đã tạo nhưng liên kết tài liệu thất bại: "+linkResult.error.message+". Mã bản ghi: "+created.id);
@@ -169,6 +180,28 @@ export async function addFindingDocumentEvidence(formData:FormData){
     finding_id:findingId,object_type:"document_version",object_id:documentVersionId,
     link_role:"subject",evidence_excerpt:evidence||null
   },{onConflict:"finding_id,object_type,object_id,link_role"});
+  if(error)throw new Error(error.message);
+  refresh(findingId);
+}
+
+export async function updateFindingIssueMetadata(formData:FormData){
+  const {supabase,user,profile}=await session();
+  const findingId=textField(formData,"finding_id",80,true);
+  await allowedManager(supabase,user.id,profile.role,findingId);
+  const primary_issue_code=textField(formData,"primary_issue_code",2,true).toUpperCase();
+  const {data:issueType}=await supabase.from("issue_taxonomy").select("code").eq("code",primary_issue_code).eq("is_active",true).maybeSingle();
+  if(!issueType)throw new Error("Loại lỗi chuẩn hóa không hợp lệ.");
+  const evidence_status=textField(formData,"evidence_status",20,true);
+  if(!["candidate","pending","validated","rejected"].includes(evidence_status))throw new Error("Trạng thái bằng chứng không hợp lệ.");
+  const {error}=await supabase.from("findings").update({
+    primary_issue_code,
+    classification_rationale:textField(formData,"classification_rationale",2000,true),
+    decision_point:textField(formData,"decision_point",500)||null,
+    evidence_status,
+    owner_question:textField(formData,"owner_question",2000)||null,
+    proposed_action:textField(formData,"proposed_action",3000)||null,
+    process_owner_feedback:textField(formData,"process_owner_feedback",3000)||null
+  }).eq("id",findingId);
   if(error)throw new Error(error.message);
   refresh(findingId);
 }
