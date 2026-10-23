@@ -504,3 +504,6 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] FIND-MATRIX-008 — Replace 14 horizontal source columns with one related-process/document column and one source-attributed evidence-content column.
 - [x] FIND-MATRIX-009 — Reduce Decision Point and Owner-comment defaults, compact the header, and add accessible per-column resizing for the current view.
 - [x] FIND-MATRIX-010 — Keep all 35 findings and 113 stored evidence excerpts discoverable through the consolidated layout and local search.
+- [x] FIND-MATRIX-011 — Add a filter-aware sequential STT column without reintroducing per-source horizontal columns.
+- [x] FIND-MATRIX-012 — Wrap header labels to two lines in a 42 px header and reduce Decision Point/Owner-comment defaults while preserving per-column resizing.
+- [x] FIND-MATRIX-013 — Add permission-aware Sửa/Xem controls per issue that deep-link to the governed metadata form on the Finding detail page.

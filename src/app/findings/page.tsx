@@ -30,7 +30,7 @@ export default async function FindingsPage({searchParams}:{
   noteSlowPage("/findings", performance.now());
   const canWrite=profile.role==="admin"||profile.role==="editor";
   let query=supabase.from("findings").select(
-    "id,finding_code,title,description,impact_summary,finding_domain,action_decision,action_decision_reason,finding_type_value_id,primary_issue_code,severity,priority,status,due_at,assignee_id,created_at,decision_point,evidence_status,proposed_action,owner_question,process_owner_feedback"
+    "id,finding_code,title,description,impact_summary,finding_domain,action_decision,action_decision_reason,finding_type_value_id,primary_issue_code,severity,priority,status,due_at,assignee_id,created_by,created_at,decision_point,evidence_status,proposed_action,owner_question,process_owner_feedback"
   ).eq("finding_domain","document").order("created_at",{ascending:false}).limit(200);
   if(status==="open")query=query.in("status",activeStatuses);
   else if(status!=="all")query=query.eq("status",status);
@@ -141,7 +141,8 @@ export default async function FindingsPage({searchParams}:{
       decisionPoint:f.decision_point,proposedAction:f.proposed_action,ownerQuestion:f.owner_question,
       ownerFeedback:f.process_owner_feedback,evidenceStatus:f.evidence_status,status:f.status,statusLabel:issueStatuses[f.status]||f.status,
       severity:f.severity,severityLabel:severityLabels[f.severity]||f.severity,assignee:peopleMap.get(f.assignee_id||"")||"Chưa giao",
-      dueAt:f.due_at,actionSummary,actionProgress:progress,evidence,relatedProcesses};
+      dueAt:f.due_at,actionSummary,actionProgress:progress,evidence,relatedProcesses,
+      canEdit:profile.role==="admin"||(profile.role==="editor"&&(f.created_by===profile.id||f.assignee_id===profile.id))};
   });
 
   return <WorkspaceShell active="/findings" eyebrow="06 · DOCUMENT FINDINGS & ACTIONS"

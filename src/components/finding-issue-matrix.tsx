@@ -16,22 +16,22 @@ export type MatrixFinding={
   ownerFeedback:string|null;evidenceStatus:string;status:string;statusLabel:string;
   severity:string;severityLabel:string;assignee:string;dueAt:string|null;
   actionSummary:string;actionProgress:number;evidence:MatrixEvidence[];
-  relatedProcesses:MatrixProcess[];
+  relatedProcesses:MatrixProcess[];canEdit:boolean;
 };
 
 const evidenceLabels:Record<string,string>={candidate:"Mới ghi nhận",pending:"Chờ xác minh",validated:"Đã xác nhận",rejected:"Không hợp lệ"};
 const dateLabel=(value:string|null)=>value?new Date(value+"T00:00:00").toLocaleDateString("vi-VN"):"Chưa xác định";
 
 const defaultWidths={
-  id:74,type:135,decision:96,problem:180,action:170,owner:125,ownerNote:112,related:190,content:350
+  order:42,id:74,type:130,decision:82,problem:180,action:170,owner:120,ownerNote:104,related:190,content:350
 };
 type ColumnKey=keyof typeof defaultWidths;
 const columnOrder=Object.keys(defaultWidths) as ColumnKey[];
 const minimumWidths:Record<ColumnKey,number>={
-  id:64,type:105,decision:78,problem:130,action:130,owner:100,ownerNote:90,related:145,content:230
+  order:38,id:64,type:100,decision:68,problem:130,action:130,owner:96,ownerNote:84,related:145,content:230
 };
 const columnLabels:Record<ColumnKey,string>={
-  id:"ID",type:"Loại lỗi",decision:"Điểm quyết định",problem:"Vấn đề",action:"Hướng xử lý",
+  order:"STT",id:"ID",type:"Loại lỗi",decision:"Điểm quyết định",problem:"Vấn đề",action:"Hướng xử lý",
   owner:"Xác nhận Owner",ownerNote:"Ý kiến Owner",related:"Quy trình / tài liệu liên quan",content:"Nội dung đối chiếu"
 };
 
@@ -88,6 +88,7 @@ export default function FindingIssueMatrix({findings,documents}:{findings:Matrix
     for(const finding of visible){const key=finding.groupCode+" · "+finding.groupLabel;result.set(key,[...(result.get(key)||[]),finding]);}
     return [...result.entries()];
   },[visible]);
+  const rowNumbers=useMemo(()=>new Map(groups.flatMap(([,items])=>items).map((finding,index)=>[finding.id,index+1] as const)),[groups]);
 
   return <section className="data-panel issue-register-panel">
     <div className="data-panel-heading issue-register-heading">
@@ -119,7 +120,7 @@ export default function FindingIssueMatrix({findings,documents}:{findings:Matrix
             <span>{columnLabels[column]}</span><ResizeHandle column={column} width={widths[column]} onResize={setColumnWidth}/>
           </th>)}
         </tr></thead>
-        <tbody>{groups.map(([group,items])=><FragmentGroup key={group} group={group} items={items} documents={documents} collapsed={!!collapsed[group]} onToggle={()=>setCollapsed(current=>({...current,[group]:!current[group]}))}/>)}</tbody>
+        <tbody>{groups.map(([group,items])=><FragmentGroup key={group} group={group} items={items} documents={documents} rowNumbers={rowNumbers} collapsed={!!collapsed[group]} onToggle={()=>setCollapsed(current=>({...current,[group]:!current[group]}))}/>)}</tbody>
       </table>
     </div>:<div className="finding-issue-list issue-list-view">{groups.map(([group,items])=><section key={group}>
       <header><strong>{group}</strong><span>{items.length} issue</span></header>
@@ -127,12 +128,12 @@ export default function FindingIssueMatrix({findings,documents}:{findings:Matrix
         <div className="finding-issue-head"><div><span className="mono-code">{finding.code}</span><span className="status-badge">{finding.statusLabel}</span><h3><Link href={"/findings/"+finding.id}>{finding.title}</Link></h3></div><span className={"finding-severity-pill finding-severity-"+finding.severity}>{finding.severityLabel}</span></div>
         <p>{finding.description||"Chưa có mô tả vấn đề."}</p><div className="finding-issue-type">{finding.issueCode||"—"} · {finding.issueType}</div>
         <div className="issue-list-meta"><span><strong>Điểm quyết định</strong>{finding.decisionPoint||"Chưa có"}</span><span><strong>Hướng xử lý</strong>{finding.proposedAction||"Chưa đề xuất"}</span><span><strong>Owner</strong>{finding.ownerFeedback||finding.ownerQuestion||"Chờ xác nhận"}</span></div>
-        <footer><span>{finding.evidence.length} nguồn được viện dẫn</span><span>{finding.actionSummary}</span><Link className="text-button" href={"/findings/"+finding.id}>Xem chi tiết →</Link></footer>
+        <footer><span>{finding.evidence.length} nguồn được viện dẫn</span><span>{finding.actionSummary}</span><Link className="text-button" href={"/findings/"+finding.id+"#issue-metadata"}>{finding.canEdit?"Sửa issue →":"Xem chi tiết →"}</Link></footer>
       </article>)}</section>)}</div>}
   </section>;
 }
 
-function FragmentGroup({group,items,documents,collapsed,onToggle}:{group:string;items:MatrixFinding[];documents:MatrixDocument[];collapsed:boolean;onToggle:()=>void}){
+function FragmentGroup({group,items,documents,rowNumbers,collapsed,onToggle}:{group:string;items:MatrixFinding[];documents:MatrixDocument[];rowNumbers:Map<string,number>;collapsed:boolean;onToggle:()=>void}){
   const documentMap=new Map(documents.map(document=>[document.ref,document]));
   return <>{<tr className="issue-group-row"><td colSpan={columnOrder.length}>
     <button type="button" onClick={onToggle} aria-expanded={!collapsed}><span>{collapsed?"▸":"▾"}</span>{group}<strong>{items.length} issue</strong></button>
@@ -140,7 +141,8 @@ function FragmentGroup({group,items,documents,collapsed,onToggle}:{group:string;
   {!collapsed&&items.map(finding=>{
     const evidence=[...finding.evidence].sort((a,b)=>a.ref-b.ref);
     return <tr key={finding.id}>
-      <td className="matrix-col-id"><Link href={"/findings/"+finding.id}>{finding.code}</Link><span className={"finding-severity-pill finding-severity-"+finding.severity}>{finding.severityLabel}</span></td>
+      <td className="matrix-col-order">{rowNumbers.get(finding.id)}</td>
+      <td className="matrix-col-id"><Link href={"/findings/"+finding.id}>{finding.code}</Link><span className={"finding-severity-pill finding-severity-"+finding.severity}>{finding.severityLabel}</span><Link className="matrix-row-edit" href={"/findings/"+finding.id+"#issue-metadata"} aria-label={(finding.canEdit?"Sửa":"Xem")+" issue "+finding.code}>{finding.canEdit?"Sửa":"Xem"}</Link></td>
       <td className="matrix-col-type"><strong>{finding.issueCode||"—"}</strong><span>{finding.issueType}</span></td>
       <td className="matrix-col-decision"><LongText value={finding.decisionPoint||finding.title}/></td>
       <td className="matrix-col-problem"><LongText value={finding.description}/>{finding.impact&&<small className="issue-impact-note">Tác động: {finding.impact}</small>}</td>
