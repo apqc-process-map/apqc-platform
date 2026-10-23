@@ -10,6 +10,10 @@ export type ProcessMapTag = { code: string; label: string; color: string };
 export type ProcessMapAssignment = { role: string; profileName: string };
 export type ProcessMapApplicability = { dimension: string; label: string; isInherited: boolean };
 export type ProcessMapApqcMapping = { pcfId: string; name: string; role: string; matchType: string; status: string; rationale: string };
+export type ProcessMapRelatedDocument = {
+  versionId: string; code: string; title: string; versionNumber: number; status: string; role: string;
+  files: Array<{ id: string; name: string; mimeType: string }>;
+};
 export type ProcessMapNode = {
   id: string; versionId: string; versionNumber: number; parentId: string | null; code: string; name: string; nameEn: string;
   sourceCode: string; allowedRoles: string[];
@@ -19,6 +23,7 @@ export type ProcessMapNode = {
   businessPurpose: string; scopeAndBoundaries: string; criticalDecisionPoints: string;
   accountabilityAndImpact: string; accessLevel: string; reviewDueAt: string | null;
   tags: ProcessMapTag[]; assignments: ProcessMapAssignment[]; applicability: ProcessMapApplicability[]; systems: string[]; apqcMappings: ProcessMapApqcMapping[];
+  relatedDocuments: ProcessMapRelatedDocument[];
   supersedesVersionNumber: number | null;
   createdAt: string | null; createdBy: string; updatedAt: string | null; updatedBy: string;
   submittedAt: string | null; submittedBy: string; approvedAt: string | null; approvedBy: string; publishedAt: string | null; publishedBy: string;
@@ -149,6 +154,27 @@ export default function ProcessMapClient({ nodes, userName, role, errorMessage }
       </section>
       <aside className="detail-panel process-detail-panel">
         <div className="process-detail-heading"><div><p className="section-kicker">PROCESS DETAIL</p><span className="detail-code">{selected.code} · v{selected.versionNumber}</span><h2>{selected.name}</h2><span className="detail-level">{selected.level} · {selected.status}</span></div>{canEdit ? <button type="button" className="process-edit-toggle" onClick={() => setEditing((value) => !value)} aria-expanded={editing}>{editing ? "Đóng chỉnh sửa" : "Chỉnh sửa metadata"}</button> : null}</div>
+        <section className="process-documents-panel" aria-labelledby="process-documents-title">
+          <div className="process-documents-header">
+            <div><h3 id="process-documents-title">Tài liệu liên quan <span className="count-chip">{selected.relatedDocuments.length}</span></h3>
+              <p>Các file đã gắn với quy trình này và bạn có quyền truy cập.</p></div>
+            <Link className="text-button" href={"/documents?process=" + selected.id}>Xem trong Document →</Link>
+          </div>
+          {selected.relatedDocuments.length ? <ul className="process-documents-list">
+            {selected.relatedDocuments.map((document) => <li key={document.versionId}>
+              <div className="process-document-details">
+                <strong>{document.code ? document.code + " · " : ""}{document.title}</strong>
+                <span>v{document.versionNumber} · {document.status === "effective" ? "Đang hiệu lực" : document.status === "approved" ? "Đã duyệt" : document.status === "draft" ? "Bản nháp" : document.status} · {document.role === "primary" ? "Quy trình chính" : "Quy trình liên quan"}</span>
+              </div>
+              <div className="process-document-links">
+                {document.files.length ? document.files.map((file) => <a key={file.id} href={"/documents/files/" + file.id} target="_blank" rel="noopener noreferrer" title={file.name}>
+                  {file.mimeType === "application/pdf" || file.mimeType.startsWith("image/") ? "Mở file" : "Tải file"} · {file.name}
+                </a>) : <span>Chưa có file đính kèm</span>}
+                <Link href={"/documents?detail=" + document.versionId + "#document-metadata-detail"}>Thông tin tài liệu</Link>
+              </div>
+            </li>)}
+          </ul> : <p className="process-documents-empty">Chưa có tài liệu được liên kết hoặc không có tài liệu bạn được phép xem.</p>}
+        </section>
         <ProcessMetadataCard key={selected.versionId || selected.id} process={selected} nodes={nodes} />
         {editing && canEdit ? <form key={selected.versionId} action={updateProcessMetadata} className="process-metadata-form">
           <input type="hidden" name="process_id" value={selected.id} />
