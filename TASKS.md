@@ -508,3 +508,11 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] FIND-MATRIX-011 — Add a filter-aware sequential STT column without reintroducing per-source horizontal columns.
 - [x] FIND-MATRIX-012 — Wrap header labels to two lines in a 42 px header and reduce Decision Point/Owner-comment defaults while preserving per-column resizing.
 - [x] FIND-MATRIX-013 — Add permission-aware Sửa/Xem controls per issue that deep-link to the governed metadata form on the Finding detail page.
+
+## 2026-10-23 — Truy cập tài liệu theo quy trình
+
+- [x] DOC-PROCESS-001 — Đối soát Supabase: 12 documents, 12 file binaries, 12 process links; các liên kết tập trung ở bốn quy trình.
+- [x] DOC-PROCESS-002 — Hiển thị file và metadata của tài liệu được liên kết ngay khi chọn node Process Map; hỗ trợ mở trực tiếp và đi tới thư viện tài liệu.
+- [x] DOC-PROCESS-003 — Thêm bộ lọc quy trình vào Document; mở/tải các file trực tiếp từ document cards.
+- [x] DOC-PROCESS-004 — Tiếp tục dùng private Storage/signed URL và RLS của phiên bản tài liệu; không đổi database.
+- [ ] QA-DOC-PROCESS-001 — Kiểm tra UI và thao tác mở file trên Preview bằng tài khoản Admin, Viewer (draft, approved, effective) và thực hiện smoke test sau phát hành.

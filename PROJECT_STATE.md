@@ -303,3 +303,9 @@ PRs #60 and #61 add the governed Issue.xlsx taxonomy, a dependent classifier and
 - The process lookup now follows the current `process_versions.process_id → processes.id` relationship. Preview QA confirmed all 35 process-version subject links render with process codes; the prior relation/column names caused the process query to fail.
 - Authenticated Vercel Preview QA passed at 1024 px and 1280 px: 35 data rows, ten headers, sequential/filter-aware STT, 35 Admin `Sửa` links, the `#issue-metadata` deep link and save form, contained horizontal scrolling, no page-level overflow, keyboard resizing and no browser console errors. Next.js production build and TypeScript passed all 15 routes. Targeted lint remains blocked only by the pre-existing `performance.now()` React purity error in `/findings`.
 - Production deployment and smoke verification remain pending until PR merge.
+
+## Document ↔ Process Map navigation — 2026-10-23
+
+- Kiểm tra Production Supabase: 12 `documents`, 12 `document_versions`, 12 `document_files` và 12 `document_process_links`; các liên kết thuộc QTTG.1 (4), TG-L1 (4), QTTG.4 (3), QTTG.3 (1). Dữ liệu tài liệu gồm 10 bản nháp và 2 bản đã duyệt; Viewer hiện không được đọc các trạng thái này qua RLS.
+- Nhánh `codex/process-document-open-links-20261023` bổ sung danh sách file theo process trong panel Process Map và lọc theo process tại Document. File vẫn lưu riêng tư, mở bằng route signed URL hiện có; không thêm migration hoặc sao chép binary.
+- Vercel Preview đã biên dịch thành công cho thay đổi giao diện ban đầu; cần xác nhận bản commit cuối cùng và thực hiện QA có đăng nhập trước khi xem là hoàn tất toàn diện.
