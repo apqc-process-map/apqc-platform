@@ -26,8 +26,8 @@ const sortOptions = [
   ["valid_from_desc", "Hiệu lực mới nhất"],
 ] as const;
 
-export default async function DocumentsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; type?: string; group?: string; language?: string; access?: string; risk?: string; owner?: string; sort?: string; preset?: string; group_by?: string; related_q?: string; detail?: string; read_q?: string; read_status?: string; compare?: string; preview?: string; edit?: string; created?: string; updated?: string }> }) {
-  const { q = "", status = "all", type = "all", group = "all", language = "all", access = "all", risk = "all", owner = "all", sort = "updated_desc", preset = "all", group_by = "none", related_q = "", detail, read_q = "", read_status = "pending", compare, preview, edit, created, updated } = await searchParams;
+export default async function DocumentsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; type?: string; group?: string; language?: string; access?: string; risk?: string; owner?: string; sort?: string; preset?: string; group_by?: string; related_q?: string; process?: string; detail?: string; read_q?: string; read_status?: string; compare?: string; preview?: string; edit?: string; created?: string; updated?: string }> }) {
+  const { q = "", status = "all", type = "all", group = "all", language = "all", access = "all", risk = "all", owner = "all", sort = "updated_desc", preset = "all", group_by = "none", related_q = "", process = "all", detail, read_q = "", read_status = "pending", compare, preview, edit, created, updated } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
   const requestNow=await getServerTimestamp();
   let query = supabase.from("document_versions").select("id, document_id, version_number, status, title_vi, title_en, document_group, language, document_abstract, change_summary, valid_from, valid_until, review_due_at, access_level, risk_rating, issuing_department, applicability_note, keywords, legal_reference, retention_note, created_at, updated_at, owner_id, designated_approver_id, created_by, document_type_value_id, vocabulary_values(label_vi), documents(document_code), document_files(id, original_file_name, mime_type, size_bytes)").limit(100);
@@ -169,6 +169,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   };
   const relatedNeedle=related_q.trim().toLocaleLowerCase("vi");
   const displayVersions=(versions||[]).filter(item=>{
+    if(process!=="all"&&!(processLinksByVersion.get(item.id)||[]).some(link=>link.process_id===process))return false;
     if(preset==="linked_process"&&!(processLinksByVersion.get(item.id)||[]).length)return false;
     if(preset==="missing_metadata"&&hasRequiredMetadata(item))return false;
     if(relatedNeedle&&!contextTerms(item).some(value=>value.toLocaleLowerCase("vi").includes(relatedNeedle)))return false;
@@ -265,6 +266,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
         <label className="document-filter-search">Tìm qua đối tượng liên quan
           <input name="related_q" defaultValue={related_q} placeholder="Quy trình, chức danh, phạm vi, tag…"/>
         </label>
+        <label>Quy trình liên kết<select name="process" defaultValue={process}><option value="all">Tất cả quy trình</option>{availableProcesses.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
         <label>Nhóm View theo<select name="group_by" defaultValue={group_by}><option value="none">Không nhóm</option><option value="type">Loại tài liệu</option><option value="process">Business Process</option><option value="status">Trạng thái</option><option value="owner">Chủ sở hữu</option></select></label>
         <label className="document-filter-search">Tìm kiếm
           <input name="q" defaultValue={q} placeholder="Tên, tóm tắt, từ khóa, đơn vị ban hành…" />
