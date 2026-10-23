@@ -1,6 +1,7 @@
 import { requireActiveAccount } from "@/lib/auth";
 import ProcessMapClient, {
   type ProcessMapApqcMapping,
+  type ProcessMapRelatedDocument,
   type ProcessMapApplicability,
   type ProcessMapNode,
   type ProcessMapTag,
@@ -60,6 +61,20 @@ type MappingRow = {
   apqc_elements: { pcf_id: string; name: string } | Array<{ pcf_id: string; name: string }> | null;
 };
 
+type DocumentVersionRelation = {
+  id: string;
+  title_vi: string;
+  version_number: number;
+  status: string;
+  documents: { document_code: string } | { document_code: string }[] | null;
+  document_files: Array<{ id: string; original_file_name: string; mime_type: string }> | null;
+};
+type DocumentProcessLinkRow = {
+  process_id: string;
+  link_role: string;
+  document_versions: DocumentVersionRelation | DocumentVersionRelation[] | null;
+};
+
 type ProcessRow = {
   id: string;
   process_code: string;
@@ -107,10 +122,20 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
   const versionNumberById = new Map(
     processes.flatMap((process) => process.process_versions || []).map((version) => [version.id, version.version_number]),
   );
-  const [tagResult, applicabilityResult] = versionIds.length ? await Promise.all([
-    supabase.from("object_tags").select("object_id,governance_tags(code,label_vi,color)").eq("object_type", "process_version").in("object_id", versionIds),
-    supabase.from("object_applicability").select("object_id,dimension,free_text,is_inherited,vocabulary_values(label_vi,label_en),systems(name,code)").eq("object_type", "process_version").in("object_id", versionIds),
-  ]) : [{ data: [], error: null }, { data: [], error: null }];
+  // Fetch file metadata through document-version RLS; never expose private Storage keys to the browser.
+  const [tagResult, applicabilityResult, relatedDocumentsResult] = await Promise.all([
+    versionIds.length
+      ? supabase.from("object_tags").select("object_id,governance_tags(code,label_vi,color)").eq("object_type", "process_version").in("object_id", versionIds)
+      : Promise.resolve({ data: [], error: null }),
+    versionIds.length
+      ? supabase.from("object_applicability").select("object_id,dimension,free_text,is_inherited,vocabulary_values(label_vi,label_en),systems(name,code)").eq("object_type", "process_version").in("object_id", versionIds)
+      : Promise.resolve({ data: [], error: null }),
+    processes.length
+      ? supabase.from("document_process_links")
+          .select("process_id,link_role,document_versions!inner(id,title_vi,version_number,status,documents(document_code),document_files(id,original_file_name,mime_type))")
+          .in("process_id", processes.map((process) => process.id))
+      : Promise.resolve({ data: [], error: null }),
+  ]);
 
   const tagsByVersion = new Map<string, ProcessMapTag[]>();
   for (const row of (tagResult.data || []) as unknown as TagRow[]) {
@@ -131,6 +156,30 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
       isInherited: row.is_inherited,
     }]);
     if (system) systemsByVersion.set(row.object_id, [...(systemsByVersion.get(row.object_id) || []), system.name]);
+  }
+
+  const documentsByProcess = new Map<string, ProcessMapRelatedDocument[]>();
+  for (const row of (relatedDocumentsResult.data || []) as unknown as DocumentProcessLinkRow[]) {
+    const version = firstRelation(row.document_versions);
+    if (!version) continue;
+    const related = documentsByProcess.get(row.process_id) || [];
+    if (related.some((item) => item.versionId === version.id)) continue;
+    const documentIdentity = firstRelation(version.documents);
+    related.push({
+      versionId: version.id,
+      code: documentIdentity?.document_code || "",
+      title: version.title_vi,
+      versionNumber: version.version_number,
+      status: version.status,
+      role: row.link_role,
+      files: (version.document_files || []).map((file) => ({
+        id: file.id, name: file.original_file_name, mimeType: file.mime_type,
+      })),
+    });
+    documentsByProcess.set(row.process_id, related);
+  }
+  for (const items of documentsByProcess.values()) {
+    items.sort((a, b) => Number(b.role === "primary") - Number(a.role === "primary") || a.title.localeCompare(b.title, "vi"));
   }
 
   const nodes: ProcessMapNode[] = processes.map((process) => {
@@ -192,6 +241,7 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
       applicability: version ? applicabilityByVersion.get(version.id) || [] : [],
       systems: version ? systemsByVersion.get(version.id) || [] : [],
       apqcMappings,
+      relatedDocuments: documentsByProcess.get(process.id) || [],
       supersedesVersionNumber: version?.supersedes_version_id ? versionNumberById.get(version.supersedes_version_id) || null : null,
       createdAt: version?.created_at || null,
       createdBy: actorDisplayName(version?.created_profile || null, version?.created_by),
@@ -206,6 +256,6 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
     };
   });
 
-  const supplementalError = tagResult.error?.message || applicabilityResult.error?.message;
+  const supplementalError = tagResult.error?.message || applicabilityResult.error?.message || relatedDocumentsResult.error?.message;
   return <ProcessMapClient nodes={nodes} userName={profile.display_name} role={profile.role} errorMessage={error?.message || supplementalError} />;
 }

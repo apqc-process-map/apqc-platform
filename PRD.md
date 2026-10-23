@@ -847,3 +847,11 @@ Users may find a document through RLS-visible related objects such as Business P
 - Tìm kiếm tại chỗ theo ID, vấn đề, điểm quyết định, hướng xử lý và loại lỗi. Bộ lọc bằng chứng phân biệt một nguồn, từ hai nguồn và nguồn chưa được cung cấp.
 - Danh mục nguồn giữ metadata tiêu đề, loại tài liệu, đơn vị ban hành và ngày hiệu lực khi có dữ liệu. Nguồn 13–14 vẫn được hiển thị và đánh dấu thiếu file nếu chưa có binary; nội dung workbook liên quan vẫn được bảo toàn.
 - Dữ liệu ô bằng chứng được lưu tại finding_source_evidence theo khóa Finding + số thứ tự nguồn. Chỉ người dùng đã xác thực và có quyền thấy Finding tương ứng mới đọc được; không đưa workbook hoặc nội dung tài liệu nội bộ vào Git.
+
+## Bổ sung 2026-10-23 — Mở tài liệu từ quy trình
+
+- Khi chọn một quy trình trên tab **Process Map**, khu vực chi tiết hiển thị danh sách phiên bản tài liệu đã được liên kết trực tiếp với `processes.id` qua `document_process_links`, gồm mã/tên tài liệu, trạng thái, vai trò liên kết, tên file và thao tác mở hoặc tải file.
+- Người dùng có thể mở file qua đường dẫn ứng dụng `/documents/files/{file_id}` trong tab mới, hoặc mở metadata và chuyển sang tab **Document** được lọc sẵn theo quy trình.
+- Tab **Document** có bộ lọc **Quy trình liên kết**, dựa trên liên kết dữ liệu thật; các thẻ tài liệu có nút mở/tải file trực tiếp.
+- Chỉ hiện tài liệu mà người dùng được phép đọc theo Supabase RLS. Tài liệu chưa hiệu lực không tự động hiển thị cho Viewer. Storage tiếp tục là private bucket, truy cập qua signed URL thời hạn ngắn được tạo bởi route server có xác thực. Không tạo bản sao file hoặc sửa đổi APQC classification.
+- Trường hợp không có tài liệu phù hợp/quyền đọc, hiển thị trạng thái rỗng thay vì hiển thị đường dẫn Storage.
