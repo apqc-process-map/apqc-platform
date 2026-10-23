@@ -87,7 +87,7 @@ export default async function FindingDetailPage({ params, searchParams }: { para
     <Link className="text-button" href="/findings">← Quay lại Findings</Link>
     {workflowError ? <div className="state-message error-state" role="alert"><strong>Không thể lưu workflow</strong><span>{workflowErrors[workflowError] || workflowErrors.save_failed}</span></div> : null}
     {workflowSaved ? <div className="state-message" role="status"><strong>Đã lưu workflow.</strong><span>Trạng thái và thông tin phụ trách đã được cập nhật.</span></div> : null}
-    {isDocumentFinding&&<section className="data-panel issue-metadata-panel">
+    {isDocumentFinding&&<section className="data-panel issue-metadata-panel" id="issue-metadata">
       <div className="data-panel-heading"><div><p className="section-kicker">ISSUE CLASSIFICATION</p><h2>Phân loại & bối cảnh xác minh</h2><p>Mỗi issue có đúng một Primary Code; thứ tự chẩn đoán không phải mức độ nghiêm trọng.</p></div><span className="count-chip">{finding.primary_issue_code||"Chưa phân loại"}</span></div>
       {canEdit?<form action={updateFindingIssueMetadata} className="finding-create-grid issue-metadata-form">
         <input type="hidden" name="finding_id" value={finding.id}/>

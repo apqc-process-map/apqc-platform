@@ -650,7 +650,8 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - Relationship statistics and network node text use compact responsive sizes; long labels are truncated instead of forcing the laptop layout wider.
 - At laptop widths, the relationship workspace uses one full-width column; at narrow widths, inbound/outbound cards use two columns and the center object moves above them.
 - The Finding evidence matrix uses one compact “Quy trình / tài liệu liên quan” column instead of one horizontal column per source. The adjacent “Nội dung đối chiếu” column groups each cited source with its exact conflict/overlap excerpt, preserving missing-source indicators and all stored evidence.
-- “Điểm quyết định” and “Ý kiến Owner” default to narrow widths. Every matrix column exposes a mouse/keyboard resize handle for temporary view customization; only the single header row is vertically sticky and remains compact at the supported 1024 px desktop size.
+- Ma trận bắt đầu bằng cột **STT**, sau đó là ID và các trường nghiệp vụ. “Điểm quyết định” và “Ý kiến Owner” mặc định hẹp; tiêu đề được phép xuống tối đa hai dòng trong header 42 px. Mọi cột có tay nắm chuột/bàn phím để chỉnh độ rộng tạm thời; chỉ một hàng header được ghim dọc ở kích thước desktop 1024 px.
+- Mỗi dòng ma trận có nút **Sửa** cho Admin hoặc Editor có quyền trên finding và nút **Xem** cho người dùng chỉ đọc. Nút mở thẳng vùng metadata của trang chi tiết; quyền cập nhật vẫn do Server Action và RLS kiểm soát.
 
 
 ## 29. Relationship network lines — 2026-10-20
@@ -840,9 +841,9 @@ Users may find a document through RLS-visible related objects such as Business P
 
 ## 41. Ma trận Finding theo nguồn tài liệu — 2026-10-22
 
-- Tab **06 · Finding & Action** mặc định hiển thị ma trận đối chiếu tương đương sheet Issue List: năm cột nghiệp vụ cố định gồm ID, Loại lỗi chuẩn hóa, Điểm quyết định, Vấn đề và Hướng xử lý; tiếp theo là xác nhận/ý kiến Owner và 14 cột nguồn tài liệu.
+- Tab **06 · Finding & Action** mặc định hiển thị ma trận đối chiếu tương đương sheet Issue List trong 10 cột: STT, ID, Loại lỗi chuẩn hóa, Điểm quyết định, Vấn đề, Hướng xử lý, Xác nhận Owner, Ý kiến Owner, Quy trình/tài liệu liên quan và Nội dung đối chiếu. Nguồn không còn trải thành 14 cột ngang; từng nguồn và trích dẫn vẫn được giữ trong hai cột cuối.
 - Hiển thị đủ 35 finding và 113 ô bằng chứng có nội dung trong workbook. Ô trống mang nghĩa “Chưa đánh giá”, không được diễn giải thành không có quan hệ hoặc không có xung đột.
-- Nội dung dài được thu gọn trong ô và có thể mở toàn văn, không cắt mất dữ liệu. Header và năm cột nhận diện được ghim khi cuộn; nhóm vấn đề có thể thu gọn. Chế độ Danh sách là phương án đọc chi tiết bổ sung, không thay thế ma trận mặc định.
+- Nội dung dài được thu gọn trong ô và có thể mở toàn văn, không cắt mất dữ liệu. Header cao 42 px, cho phép nhãn tối đa hai dòng và được ghim dọc; các cột đầu không ghim ngang. Nhóm vấn đề có thể thu gọn. Chế độ Danh sách là phương án đọc chi tiết bổ sung, không thay thế ma trận mặc định.
 - Tìm kiếm tại chỗ theo ID, vấn đề, điểm quyết định, hướng xử lý và loại lỗi. Bộ lọc bằng chứng phân biệt một nguồn, từ hai nguồn và nguồn chưa được cung cấp.
 - Danh mục nguồn giữ metadata tiêu đề, loại tài liệu, đơn vị ban hành và ngày hiệu lực khi có dữ liệu. Nguồn 13–14 vẫn được hiển thị và đánh dấu thiếu file nếu chưa có binary; nội dung workbook liên quan vẫn được bảo toàn.
 - Dữ liệu ô bằng chứng được lưu tại finding_source_evidence theo khóa Finding + số thứ tự nguồn. Chỉ người dùng đã xác thực và có quyền thấy Finding tương ứng mới đọc được; không đưa workbook hoặc nội dung tài liệu nội bộ vào Git.
