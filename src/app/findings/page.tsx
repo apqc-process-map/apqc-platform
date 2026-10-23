@@ -126,10 +126,9 @@ export default async function FindingsPage({searchParams}:{
       const doc=docMap.get(link.object_id),ref=doc?refFromDoc(doc)||0:0;
       if(ref>0&&!evidence.some(item=>item.ref===ref))evidence.push({documentId:doc?.document_id||null,ref,evidence:link.evidence_excerpt});
     }
-    const referencedText=[f.title,f.description,f.proposed_action,f.owner_question,f.process_owner_feedback].filter(Boolean).join(" ");
-    for(const match of referencedText.matchAll(/\[(\d{1,2})\]/g)){
-      const ref=Number(match[1]);if(ref>=1&&ref<=14&&!evidence.some(item=>item.ref===ref))evidence.push({documentId:sourceByRef.get(ref)?.document_id||null,ref,evidence:null});
-    }
+    // Bracketed source numbers in issue prose can describe context or a proposed
+    // action. They are not evidence that the referenced document overlaps or has
+    // the issue. Only stored evidence rows and explicit finding links belong here.
     const relatedProcesses:MatrixProcess[]=links.filter(link=>link.finding_id===f.id&&link.object_type==="process_version")
       .map(link=>processMap.get(link.object_id)).filter((process):process is ProcessRow=>Boolean(process))
       .map(process=>({id:process.id,code:process.processes?.process_code||"PROC",

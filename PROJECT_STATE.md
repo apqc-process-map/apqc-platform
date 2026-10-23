@@ -302,7 +302,8 @@ PRs #60 and #61 add the governed Issue.xlsx taxonomy, a dependent classifier and
 - Default widths are compact: Decision Point 82 px and Owner Comment 104 px. The header is 42 px high and clamps long labels to two lines. Every column can be resized temporarily with pointer drag or keyboard ArrowLeft/ArrowRight; widths reset on reload.
 - The process lookup now follows the current `process_versions.process_id → processes.id` relationship. Preview QA confirmed all 35 process-version subject links render with process codes; the prior relation/column names caused the process query to fail.
 - Authenticated Vercel Preview QA passed at 1024 px and 1280 px: 35 data rows, ten headers, sequential/filter-aware STT, 35 Admin `Sửa` links, the `#issue-metadata` deep link and save form, contained horizontal scrolling, no page-level overflow, keyboard resizing and no browser console errors. Next.js production build and TypeScript passed all 15 routes. Targeted lint remains blocked only by the pre-existing `performance.now()` React purity error in `/findings`.
-- Production deployment and smoke verification remain pending until PR merge.
+- PR #69 was subsequently merged and its Production deployment/smoke verification passed before this evidence-only refinement.
+- Evidence-only refinement QA on PR #71 Preview confirmed 35 rows and exactly 113 related-document entries matching the 113 content excerpts. Ten findings no longer gain context-only bracket references; nine missing-file evidence occurrences remain visible. At 1024 px the 190 px related column has no label/item overflow, the page has no horizontal overflow, and the browser console is clean.
 
 ## Document ↔ Process Map navigation — 2026-10-23
 
