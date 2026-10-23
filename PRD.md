@@ -652,6 +652,7 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - The Finding evidence matrix uses one compact “Quy trình / tài liệu liên quan” column instead of one horizontal column per source. The adjacent “Nội dung đối chiếu” column groups each cited source with its exact conflict/overlap excerpt, preserving missing-source indicators and all stored evidence.
 - Ma trận bắt đầu bằng cột **STT**, sau đó là ID và các trường nghiệp vụ. “Điểm quyết định” và “Ý kiến Owner” mặc định hẹp; tiêu đề được phép xuống tối đa hai dòng trong header 42 px. Mọi cột có tay nắm chuột/bàn phím để chỉnh độ rộng tạm thời; chỉ một hàng header được ghim dọc ở kích thước desktop 1024 px.
 - Mỗi dòng ma trận có nút **Sửa** cho Admin hoặc Editor có quyền trên finding và nút **Xem** cho người dùng chỉ đọc. Nút mở thẳng vùng metadata của trang chi tiết; quyền cập nhật vẫn do Server Action và RLS kiểm soát.
+- Trong cột **Quy trình / tài liệu liên quan**, nhóm tài liệu chỉ hiển thị nguồn có bản ghi bằng chứng đối chiếu hoặc được liên kết trực tiếp làm đối tượng của finding. Không suy diễn quan hệ chỉ từ mã nguồn dạng `[n]` xuất hiện trong mô tả, câu hỏi Owner hoặc hướng xử lý; các mã này có thể chỉ là ngữ cảnh. Nguồn thiếu file nhưng có bằng chứng vẫn phải hiển thị.
 
 
 ## 29. Relationship network lines — 2026-10-20
