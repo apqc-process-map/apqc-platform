@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { updateProcessMetadata } from "@/app/actions";
 import WorkspaceShell from "@/components/workspace-shell";
 import ProcessMetadataCard from "./process-metadata-card";
+import "./process-documents.css";
 
 export type ProcessMapTag = { code: string; label: string; color: string };
 export type ProcessMapAssignment = { role: string; profileName: string };
