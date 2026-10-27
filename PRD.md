@@ -37,7 +37,7 @@ The current MVP has six active demo accounts: **three Admin and three Viewer**. 
 
 ### Viewer
 
-- View published and effective processes/documents.
+- View process content permitted by publication rules. Read document workflow statuses allowed to the user's system role, including draft and in-review records where `allowed_roles` permits; private files still require an authenticated short-lived signed URL.
 - Browse maps, catalog, APQC references, metrics, and permitted findings.
 - Receive in-app notifications.
 - Confirm required reading for a specific version.
@@ -385,7 +385,7 @@ Alternative terminal/intermediate states: `Rejected`, `Cancelled`.
 - Admin reviews, comments, rejects, approves, and publishes/schedules.
 - The last author cannot approve their own change.
 - Rejection requires a reason.
-- Viewer sees only effective published content.
+- Viewer may read document metadata/files in every workflow status only when the version's `allowed_roles` includes Viewer; access classification, process publication visibility and all write/review/approval actions remain governed separately.
 - Detailed collaborator-only draft visibility is deferred; Editors can see all drafts in the MVP.
 
 ### Compare
@@ -653,6 +653,7 @@ The MVP is successful when this flow works on Vercel with Supabase and the requi
 - Ma trận bắt đầu bằng cột **STT**, sau đó là ID và các trường nghiệp vụ. “Điểm quyết định” và “Ý kiến Owner” mặc định hẹp; tiêu đề được phép xuống tối đa hai dòng trong header 42 px. Mọi cột có tay nắm chuột/bàn phím để chỉnh độ rộng tạm thời; chỉ một hàng header được ghim dọc ở kích thước desktop 1024 px.
 - Mỗi dòng ma trận có nút **Sửa** cho Admin hoặc Editor có quyền trên finding và nút **Xem** cho người dùng chỉ đọc. Nút mở thẳng vùng metadata của trang chi tiết; quyền cập nhật vẫn do Server Action và RLS kiểm soát.
 - Trong cột **Quy trình / tài liệu liên quan**, nhóm tài liệu chỉ hiển thị nguồn có bản ghi bằng chứng đối chiếu hoặc được liên kết trực tiếp làm đối tượng của finding. Không suy diễn quan hệ chỉ từ mã nguồn dạng `[n]` xuất hiện trong mô tả, câu hỏi Owner hoặc hướng xử lý; các mã này có thể chỉ là ngữ cảnh. Nguồn thiếu file nhưng có bằng chứng vẫn phải hiển thị.
+- Tài liệu đã có record trong cột này là liên kết có thể mở ở tab mới bất kể trạng thái Draft/Review/Approved/Effective. Nếu có file, liên kết mở route signed URL; nếu mới có metadata, liên kết mở chi tiết Document. Nguồn chưa được cung cấp không tạo liên kết giả.
 
 
 ## 29. Relationship network lines — 2026-10-20
@@ -791,7 +792,7 @@ The page reads the selected process metadata, controlled lookups, and audit rela
 
 - **Tab 02 Document:** One editable controlled document type; its group is derived and displayed read-only. Existing untyped draft group values are preserved. Admin can multi-select existing business roles into three mutually exclusive groups; no selection means unclassified.
 - **Tab 05 Vai trò của tôi:** Displays three confirmed role-to-document knowledge groups with pre-existing restricted-document placeholders under RLS. This is not a document-access or individual-reading policy.
-- **Data/security:** Migration 20261021000034_document_knowledge_audience.sql adds the Not Applicable relationship type and an Admin-only, security-invoker, atomic classification function. Reclassified older mappings are set to rejected, not deleted. This does not amount to a full immutable relationship audit history.
+- **Data/security:** Migration 20261021104055_document_knowledge_audience.sql adds the Not Applicable relationship type and an Admin-only, security-invoker, atomic classification function. Reclassified older mappings are set to rejected, not deleted. This does not amount to a full immutable relationship audit history.
 - **Deployment evidence:** GitHub PR #50 (https://github.com/apqc-process-map/apqc-platform/pull/50) merged to main. Vercel Production for merge commit 9868f9726f604aa2d7000a88e59f8b760ead0ece reached READY on 2026-10-21. Rolled-back Admin insertion/reclassification and Viewer-denial database tests passed. Existing 20 document versions and six confirmed must/should mappings were retained.
 - **Pending verification:** Authenticated browser E2E for create/edit/reopen, multi-selection, changes/removal to unclassified, Tab 05 and Document card synchronization, plus Editor read-only behavior. Next.js/TypeScript build success does not replace runtime E2E.
 
@@ -800,7 +801,7 @@ The page reads the selected process metadata, controlled lookups, and audit rela
 - Standardize the Vietnamese copy across metadata intake, direct file upload, reading queue, filters, document cards, metadata comparison, and lifecycle selections. Persist enum codes unchanged, show localized names through a single presentation mapping.
 - The derived-group control is explicitly non-editable, with a separate caption, value field, and contextual helper; a blank type shows 'Chưa phân loại' for new drafts and preserves old group values on existing untyped records.
 - Document filters include readable names for all seven groups and all lifecycle statuses; group queries are case-insensitive to include legacy `Governance`/`Execution` values. Cards display language, group, access, risk, and dates with Vietnamese labels and DD/MM/YYYY dates.
-- Migration `20261021000035_normalize_document_type_labels.sql` updates nine Vietnamese vocabulary labels in place (stable IDs and codes, no version rewrite). Scope and knowledge-audience rules from section 37 are unchanged.
+- Migration `20261021110248_normalize_document_type_labels.sql` updates nine Vietnamese vocabulary labels in place (stable IDs and codes, no version rewrite). Scope and knowledge-audience rules from section 37 are unchanged.
 - Validate the Next.js Preview TypeScript build and Production deployment; full authenticated visual/browser create-edit-filter-save smoke QA is a separate check.
 
 ## 40. Metadata-driven discovery and shared metadata card — 2026-10-22
@@ -854,5 +855,15 @@ Users may find a document through RLS-visible related objects such as Business P
 - Khi chọn một quy trình trên tab **Process Map**, khu vực chi tiết hiển thị danh sách phiên bản tài liệu đã được liên kết trực tiếp với `processes.id` qua `document_process_links`, gồm mã/tên tài liệu, trạng thái, vai trò liên kết, tên file và thao tác mở hoặc tải file.
 - Người dùng có thể mở file qua đường dẫn ứng dụng `/documents/files/{file_id}` trong tab mới, hoặc mở metadata và chuyển sang tab **Document** được lọc sẵn theo quy trình.
 - Tab **Document** có bộ lọc **Quy trình liên kết**, dựa trên liên kết dữ liệu thật; các thẻ tài liệu có nút mở/tải file trực tiếp.
-- Chỉ hiện tài liệu mà người dùng được phép đọc theo Supabase RLS. Tài liệu chưa hiệu lực không tự động hiển thị cho Viewer. Storage tiếp tục là private bucket, truy cập qua signed URL thời hạn ngắn được tạo bởi route server có xác thực. Không tạo bản sao file hoặc sửa đổi APQC classification.
+- Người dùng active đã đăng nhập được đọc tài liệu liên kết ở mọi trạng thái khi system role của họ nằm trong `allowed_roles`; mức phân loại truy cập và RLS vẫn áp dụng. Quyền sửa, duyệt và xuất bản không thay đổi. Storage tiếp tục là private bucket, truy cập qua signed URL thời hạn ngắn được tạo bởi route server có xác thực. Không tạo bản sao file hoặc sửa đổi APQC classification.
 - Trường hợp không có tài liệu phù hợp/quyền đọc, hiển thị trạng thái rỗng thay vì hiển thị đường dẫn Storage.
+
+## 41. Repository, access and transaction hardening — 2026-10-27
+
+- Document workflow status is not an access classification. An active authenticated user may read a Draft, Review, Approved or Effective document only when the version's `allowed_roles` includes that system role; Admin remains unrestricted and an Editor may also read a draft they created or own. File access remains private and uses the authenticated signed-file route.
+- Creating/updating a Document and its primary process, applicability, tags and role-knowledge links is one database transaction. Creating a document Finding with evidence links and creating an Action with its required decision update are also atomic. A failed child write must leave no partial parent record.
+- `create_document_draft_atomic`, `update_document_metadata_atomic`, `create_document_finding_atomic` and `create_finding_action_atomic` run as `SECURITY INVOKER`, use an empty `search_path`, deny `anon`, and re-check active system role in the function body in addition to table RLS.
+- Document and Finding lists paginate at 50 rows; Relationship paginates at 100. Filter/query state is preserved in previous/next links. Counts show current-page rows and the RLS-visible total.
+- User text used in raw PostgREST `.or()` expressions is trimmed, length-limited, quoted and escaped; column names come only from trusted code.
+- Page-level errors must include failed supporting metadata/link requests instead of silently rendering incomplete cards or relationship context.
+- Repository delivery runs lint, TypeScript, migration integrity, unit tests and production build in GitHub Actions. Vercel Git integration remains the only deployment path to avoid duplicate deploys.

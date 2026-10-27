@@ -8,7 +8,7 @@ export const instant = false;
 export default async function GovernancePage() {
   const { supabase, profile } = await requireActiveAccount();
   // Safe, post-response timing with no user or document identifiers.
-  noteSlowPage("/governance", performance.now());
+  noteSlowPage("/governance");
   const [frameworks,elements,metrics,coverage,reviews,reading,findings] = await Promise.all([
     supabase.from("apqc_frameworks").select("id,code,name,version,imported_at,source_license_note"),
     supabase.from("apqc_elements").select("*",{count:"exact",head:true}),

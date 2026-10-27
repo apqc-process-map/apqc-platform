@@ -1,44 +1,48 @@
 # Process Map
 
-Desktop-first process governance demo aligned to APQC PCF 8.0.
+Desktop-first internal process-governance application aligned to APQC PCF 8.0. Enterprise processes, documents, relationships and findings are governed independently; APQC remains the reference taxonomy.
 
-## Foundation
+## Stack and delivery
 
-- Next.js App Router, TypeScript, Tailwind CSS
-- Supabase project: `apqc-process-map's Project`
-- Vercel project: `hoang-apqc/apqc-platform`
-- Public Supabase environment keys are configured in Vercel; secrets are not committed
+- Next.js 16 App Router, React 19 and TypeScript.
+- Supabase Auth, PostgreSQL/RLS and private Storage.
+- GitHub `apqc-process-map/apqc-platform`; `main` is the Vercel production source.
+- Vercel project `hoang-apqc/apqc-platform`; public Supabase client variables are configured in Vercel and secrets are never committed.
+- Production: https://pnj-apqc-platform.vercel.app/
 
-## Local development
+## Current controlled dataset
+
+- APQC PCF 8.0: 2,017 elements and 3,284 metrics.
+- 12 installment-document identities/versions with private source files.
+- 11 evidenced enterprise-process nodes (L0, L1 and nine L2 nodes).
+- 35 findings, 22 corrective actions and 113 source-evidence cells.
+- Six active accounts: three Admin and three Viewer. Credentials and licensed/private source files stay outside Git.
+
+## Main modules
+
+01 Home · 02 Document · 03 Process Map · 04 Relationship · 05 Vai trò của tôi · 06 Finding & Action · 07 Catalog · 08 Governance · 09 Action Log.
+
+Document intake supports governed metadata, private direct-to-Storage upload, signed file access, lifecycle states, process links, applicability, tags and role-knowledge classification. Finding displays the full controlled issue register and evidence consolidation; Action Log tracks corrective-action work and notification history. Automated AI/OCR document comparison is not implemented.
+
+## Development
+
+The laptop does not need a system Node.js installation when work is run through the bundled Codex runtime. In a standard developer environment:
 
 ```bash
 pnpm install
+pnpm quality
+pnpm build
 pnpm dev
 ```
 
-Quality checks:
+`pnpm quality` runs ESLint, TypeScript, migration integrity checks and unit tests. Pull requests and pushes to `main` also run `.github/workflows/quality.yml`. Vercel remains the deployment owner; CI does not create a second deployment.
 
-```bash
-pnpm lint
-pnpm build
-```
+## Source of truth
 
-## Current modules and demo scope (2026-10-21)
+- [PRD.md](PRD.md): confirmed product behavior and scope.
+- [DATA_MODEL.md](DATA_MODEL.md): schema, lifecycle and RLS model.
+- [PLAN.md](PLAN.md): delivery phases and remaining gates.
+- [TASKS.md](TASKS.md): canonical task status.
+- [PROJECT_STATE.md](PROJECT_STATE.md): concise cross-session verified state.
 
-- The application is populated with APQC reference data and ten synthetic enterprise processes; Home is **not** an uninitialized Foundation empty state.
-- Navigation: **01 Home**, **02 Document**, **03 Process Map**, **04 Relationship**, **05 Vai trò của tôi**, **06 Finding & Action**, **07 Catalog**, **08 Governance**, **09 Action Log**.
-- Tab 02 (`/documents`) uses one controlled **Loại tài liệu**; **Nhóm tài liệu** is derived/read-only, preserving the stored legacy group for untyped drafts. The 2026-10-21 content-quality pass simplified 9 redundant/unclear type names, replaced slash-heavy group captions with seven concise group labels, and separated the derived-group field label, value and help text. Document filters, cards, lifecycle status, access, risk and dates now use consistent Vietnamese display labels; old mixed-case group codes remain filterable. Admin can multi-select active business roles in **Phải biết**, **Nên biết / tham chiếu**, and **Không áp dụng**; an unselected role remains **Chưa xác định**. Each role belongs to at most one group per document.
-- Tab 05 (`/role-knowledge`) displays the three confirmed knowledge groups. Knowledge classification does **not** grant document access and does **not** create individual notifications/reading assignments automatically. Migration `20261021000034_document_knowledge_audience.sql` and PR [#50](https://github.com/apqc-process-map/apqc-platform/pull/50) are released (Vercel Production READY, 2026-10-21); authenticated form E2E remains pending.
-- Tab 06 (`/findings`) exclusively lists issues arising between **at least two separate document identities**, each with linked version-level evidence. It supports explicit action decisions and multiple owner/deadline/progress-tracked corrective actions.
-- The demonstration contains **8** fictional tagged cross-document findings, **16** draft metadata-only demo documents, and **10** example actions, mapped to ten enterprise processes. **They are not real findings, extracted clauses, or approved operating rules.**
-- Legacy general/single-document findings remain stored but are not shown in tab 06. No automatic AI conflict detection, file full-text comparison or OCR is implemented.
-- Source-of-truth documents: [PRD](PRD.md) (scope), [DATA_MODEL](DATA_MODEL.md) (schema/RLS), [PLAN](PLAN.md) (milestones), [TASKS](TASKS.md) (status), and [PROJECT_STATE](PROJECT_STATE.md) (current verified state).
-
-Production: https://pnj-apqc-platform.vercel.app/
-
-## Performance and page loading
-
-- Authenticated page rendering explicitly waits for request context and verifies identity with Supabase `getClaims()`. Access to profiles, document versions and findings remains governed by RLS.
-- Filters on the main workspaces navigate through Next `<Form>` without full browser reload. Sidebar navigation prefetches on interaction intent; file downloads retain standard links.
-- Server-side Vercel Functions are configured in `syd1` (Sydney), alongside Supabase. Change this only after measuring latency from end-user locations.
-- The loading skeleton is a *perceived responsiveness* improvement; it does not replace optimizing real server response times. Performance acceptance targets and pending E2E checks are recorded in `TASKS.md` and `PROJECT_STATE.md`.
+Uploaded documents, APQC workbook sources, user passwords, environment values and database dumps must not be committed.

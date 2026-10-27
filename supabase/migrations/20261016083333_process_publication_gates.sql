@@ -1,4 +1,4 @@
-﻿-- Complete process publication gates and approval separation.
+-- Complete process publication gates and approval separation.
 alter table public.process_versions add column if not exists updated_by uuid references public.profiles(id);
 create or replace function public.validate_process_version_dates()
 returns trigger language plpgsql security invoker set search_path = public as $$

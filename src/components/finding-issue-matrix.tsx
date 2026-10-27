@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, type KeyboardEvent, type PointerEvent } from "react";
 
 export type MatrixDocument={
-  id:string|null;ref:number;code:string;title:string;department:string|null;
+  id:string|null;fileId:string|null;ref:number;code:string;title:string;department:string|null;
   documentType:string|null;validFrom:string|null;available:boolean;
 };
 export type MatrixEvidence={documentId:string|null;ref:number;evidence:string|null};
@@ -151,7 +151,7 @@ function FragmentGroup({group,items,documents,rowNumbers,collapsed,onToggle}:{gr
       <td className="matrix-col-ownerNote"><LongText value={finding.ownerFeedback} empty="Chờ ý kiến Owner"/><small>{finding.assignee} · {finding.dueAt?new Date(finding.dueAt).toLocaleDateString("vi-VN"):"Chưa đặt hạn"}</small></td>
       <td className="matrix-related"><div className="matrix-related-list">
         {finding.relatedProcesses.length?<div className="matrix-related-group"><strong>Quy trình</strong>{finding.relatedProcesses.map(process=><span key={process.id} className="matrix-related-item"><b>{process.code}</b>{process.name}<small>{process.level}</small></span>)}</div>:<span className="issue-matrix-empty">Chưa liên kết quy trình</span>}
-        {evidence.length?<div className="matrix-related-group"><strong>Tài liệu có issue / trùng lặp</strong>{evidence.map(item=>{const document=documentMap.get(item.ref);return <span key={item.ref} className={document?.available?"matrix-related-item":"matrix-related-item is-missing"} title={document?.title}><b>[{item.ref}]</b>{document?.title||"Nguồn chưa được cung cấp"}</span>})}</div>:<span className="issue-matrix-empty">Chưa có tài liệu được xác định có issue</span>}
+        {evidence.length?<div className="matrix-related-group"><strong>Tài liệu có issue / trùng lặp</strong>{evidence.map(item=>{const document=documentMap.get(item.ref);if(!document?.id)return <span key={item.ref} className="matrix-related-item is-missing" title={document?.title}><b>[{item.ref}]</b><span>{document?.title||"Nguồn chưa được cung cấp"}</span></span>;return <Link key={item.ref} className="matrix-related-item" href={document.fileId?"/documents/files/"+document.fileId:"/documents?detail="+document.id} target="_blank" rel="noopener noreferrer" title={document.title}><b>[{item.ref}]</b><span>{document.title}</span><small>{document.fileId?"Mở file ↗":"Xem metadata ↗"}</small></Link>})}</div>:<span className="issue-matrix-empty">Chưa có tài liệu được xác định có issue</span>}
       </div></td>
       <td className="matrix-content">{evidence.length?<div className="matrix-content-list">{evidence.map(item=>{const document=documentMap.get(item.ref);return <article key={item.ref} className={document?.available?"has-evidence":"missing-source"}><strong>[{item.ref}] {document?.title||"Nguồn chưa được cung cấp"}</strong><LongText value={item.evidence} empty={document?.available?"Có liên kết; chưa nhập trích dẫn":"Nguồn được viện dẫn nhưng chưa có file"}/></article>})}</div>:<span className="issue-matrix-empty">Chưa có nội dung đối chiếu</span>}</td>
     </tr>;

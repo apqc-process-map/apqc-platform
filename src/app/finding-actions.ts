@@ -42,7 +42,7 @@ function refresh(id:string){
   revalidatePath("/findings/"+id);
 }
 export async function createDocumentFinding(formData:FormData){
-  const {supabase,user}=await session();
+  const {supabase}=await session();
   const title=textField(formData,"title",220,true);
   const description=textField(formData,"description",5000,true);
   const impact_summary=textField(formData,"impact_summary",2000)||null;
@@ -72,30 +72,17 @@ export async function createDocumentFinding(formData:FormData){
   const assignee=await validateAssignee(supabase,textField(formData,"assignee_id",80));
   const due=dateField(formData,"due_at");
   const evidence=textField(formData,"evidence_excerpt",2000)||null;
-  const {data:created,error}=await supabase.from("findings").insert({
-    title,description,impact_summary, finding_domain:"document",
-    primary_issue_code,classification_rationale,decision_point,evidence_status,owner_question,proposed_action,
-    severity,priority,status:"new",
-    created_by:user.id,assignee_id:assignee,
-    ...(due?{due_at:due+"T17:00:00+07:00"}:{})
-  }).select("id").single();
-  if(error||!created)throw new Error(error?.message||"Không thể tạo finding.");
-  const linkResult=await supabase.from("finding_links").insert(documentIds.map(id=>({
-    finding_id:created.id,object_type:"document_version",object_id:id,link_role:"subject",evidence_excerpt:evidence
-  })));
   const processVersionId=textField(formData,"process_version_id",80);
-  if(processVersionId){
-    const {data:processVersion}=await supabase.from("process_versions").select("id").eq("id",processVersionId).maybeSingle();
-    if(!processVersion)throw new Error("Quy trình không tồn tại hoặc bạn không có quyền truy cập.");
-    const {error:processLinkError}=await supabase.from("finding_links").insert({finding_id:created.id,object_type:"process_version",object_id:processVersionId,link_role:"subject"});
-    if(processLinkError)throw new Error("Finding đã tạo nhưng liên kết quy trình thất bại: "+processLinkError.message);
-  }
-  if(linkResult.error){
-    // Keep this as a visible record for recovery instead of silently losing a partially created issue.
-    throw new Error("Finding đã tạo nhưng liên kết tài liệu thất bại: "+linkResult.error.message+". Mã bản ghi: "+created.id);
-  }
-  refresh(created.id);
-  redirect("/findings/"+created.id);
+  const {data:createdId,error}=await supabase.rpc("create_document_finding_atomic",{
+    p_payload:{title,description,impact_summary,primary_issue_code,classification_rationale,
+      decision_point,evidence_status,owner_question,proposed_action,severity,priority,
+      assignee_id:assignee,evidence_excerpt:evidence,due_at:due?due+"T17:00:00+07:00":null},
+    p_document_version_ids:documentIds,
+    p_process_version_id:processVersionId||null
+  });
+  if(error||!createdId)throw new Error(error?.message||"Không thể tạo finding và liên kết.");
+  refresh(createdId);
+  redirect("/findings/"+createdId);
 }
 export async function saveDocumentFindingDecision(formData:FormData){
   const {supabase,user,profile}=await session();
@@ -119,18 +106,14 @@ export async function saveDocumentFindingDecision(formData:FormData){
 export async function createFindingAction(formData:FormData){
   const {supabase,user,profile}=await session();
   const findingId=textField(formData,"finding_id",80,true);
-  const finding=await allowedManager(supabase,user.id,profile.role,findingId);
+  await allowedManager(supabase,user.id,profile.role,findingId);
   const title=textField(formData,"action_title",300,true);
   const description=textField(formData,"description",3000)||null;
   const due_at=dateField(formData,"due_at");
   const assignee_id=await validateAssignee(supabase,textField(formData,"assignee_id",80));
-  if(finding.action_decision!=="required"){
-    const {error}=await supabase.from("findings").update({action_decision:"required",action_decision_reason:null}).eq("id",findingId);
-    if(error)throw new Error(error.message);
-  }
-  const {error}=await supabase.from("finding_actions").insert({
-    finding_id:findingId,action_title:title,description,assignee_id,due_at,
-    status:"todo",progress_percent:0,created_by:user.id
+  const {error}=await supabase.rpc("create_finding_action_atomic",{
+    p_finding_id:findingId,p_title:title,p_description:description,
+    p_assignee_id:assignee_id,p_due_at:due_at
   });
   if(error)throw new Error(error.message);
   refresh(findingId);

@@ -239,7 +239,7 @@ Do not mark these blockers complete using fabricated data, invented browser evid
 
 - [DONE] Make Nhóm tài liệu read-only and automatically derive it from the selected Loại tài liệu (23 controlled types, 7 groups); keep legacy untyped group data.
 - [DONE] Offer three exclusive multi-select groups of existing active business roles: Phải biết, Nên biết / tham chiếu, Không áp dụng. Unselected roles remain Chưa xác định.
-- [DONE] Reuse two existing controlled knowledge links; add role_not_applicable_document via migration 20261021000034_document_knowledge_audience.sql.
+- [DONE] Reuse two existing controlled knowledge links; add role_not_applicable_document via migration 20261021104055_document_knowledge_audience.sql.
 - [DONE] Add Admin-only atomic classification with Security Invoker; old reclassified links become rejected, not deleted. Leave Storage/RLS access controls and individual reading assignments unchanged.
 - [DONE] Display knowledge metadata in Document cards and Tab 05; PR #50 merged; Vercel Production commit 9868f9726f604aa2d7000a88e59f8b760ead0ece READY.
 - [VERIFIED] Rollback-only SQL Admin insert/reclassification and Viewer-denial tests passed; 20 versions and six original knowledge mappings preserved. Next.js/TypeScript Preview build passed.
@@ -251,7 +251,7 @@ Do not mark these blockers complete using fabricated data, invented browser evid
 - [DONE] Separate the derived-group caption, read-only group value and help text visually on desktop and mobile; clarify blank-type and historical-group behavior.
 - [DONE] Consolidate Vietnamese presentation labels for group, status, language, access level, risk and date format; align create/edit, document filters, cards, comparison and file-uploader copy.
 - [DONE] Make the Document group filter case-insensitive to preserve visibility of legacy `Execution`/`Governance` values.
-- [DONE] Apply controlled-vocabulary label migration `20261021000035_normalize_document_type_labels.sql` without rewriting any business document/version relation.
+- [DONE] Apply controlled-vocabulary label migration `20261021110248_normalize_document_type_labels.sql` without rewriting any business document/version relation.
 - [PENDING] Authenticated browser visual QA and end-to-end user testing for create/edit, type-to-group, group filtering, upload, card data, and lifecycle flows, beyond successful compilation/production build.
 
 ### Phase 10 — Controlled installment source onboarding (2026-10-22)
@@ -267,3 +267,10 @@ Exit: database counts and authorization boundaries are verified, the production 
 ### 2026-10-23 — Production QA continuation
 
 Authenticated Production acceptance covers the current installment dataset across Documents, Process Map, Finding Matrix and Action Log. The next delivery boundary is external validation, not additional inferred metadata: Process Owner review, missing sources 13–14, an approved Editor test identity, and any additional real process samples.
+
+## 9. Current hardening release — 2026-10-27
+
+- Repository checks, pagination, search-input hardening, migration integrity and CI are implemented locally.
+- Database delivery is split into four non-destructive units: document read policy, atomic mutation RPCs, RLS/index hardening, and the three remaining foreign-key indexes.
+- All four production migrations are applied. Viewer read/denial checks, Admin rollback-only atomic workflow probes and Security/Performance Advisors passed; no probe data persisted.
+- Remaining release path: run final build and authenticated browser/visual QA, then perform one GitHub merge and one final Vercel production deployment.
