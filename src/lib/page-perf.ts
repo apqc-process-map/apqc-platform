@@ -6,7 +6,8 @@ import { after } from "next/server";
  * TTFB, and deliberately omits route parameters, user IDs and private data.
  * It is a server-processing indicator, not a substitute for browser LCP/INP.
  */
-export function noteSlowPage(route: string, startedAt: number) {
+export function noteSlowPage(route: string) {
+  const startedAt = performance.now();
   after(() => {
     const elapsedMs = Math.round(performance.now() - startedAt);
     if (elapsedMs >= 850) {

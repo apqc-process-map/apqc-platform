@@ -3,6 +3,7 @@ import Form from "next/form";
 import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import { requireActiveAccount } from "@/lib/auth";
+import { buildOrIlikeFilter, normalizeSearchTerm } from "@/lib/postgrest-search";
 
 export const instant = false;
 
@@ -13,8 +14,8 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const { q = "", type = "all", status = "all", level = "all", sort = "updated_desc" } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
   // Safe, post-response timing with no user or document identifiers.
-  noteSlowPage("/catalog", performance.now());
-  const term = q.trim();
+  noteSlowPage("/catalog");
+  const term = normalizeSearchTerm(q);
 
   let processQuery = supabase.from("process_versions")
     .select("id, process_id, version_number, status, name_vi, name_en, purpose, updated_at, processes!inner(process_code, level_type)")
@@ -23,9 +24,11 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
     .select("id, pcf_id, hierarchy_id, level_number, name, description, display_order")
     .limit(150);
 
-  if (term) {
-    processQuery = processQuery.or(`name_vi.ilike.%${term}%,name_en.ilike.%${term}%,purpose.ilike.%${term}%`);
-    apqcQuery = apqcQuery.or(`pcf_id.ilike.%${term}%,name.ilike.%${term}%,description.ilike.%${term}%`);
+  const processSearch = buildOrIlikeFilter(["name_vi", "name_en", "purpose"], term);
+  const apqcSearch = buildOrIlikeFilter(["pcf_id", "name", "description"], term);
+  if (processSearch && apqcSearch) {
+    processQuery = processQuery.or(processSearch);
+    apqcQuery = apqcQuery.or(apqcSearch);
   }
   if (status !== "all") processQuery = processQuery.eq("status", status);
   if (level !== "all") {

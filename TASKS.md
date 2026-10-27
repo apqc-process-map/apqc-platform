@@ -152,7 +152,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 ### Completed since the previous review
 
 - [x] NOTIF-001 — Notifications schema and finding event service are implemented and verified in Supabase.
-- [x] DATA-FIX — Vietnamese demo data for 3 findings and 8 relationship types was repaired in Supabase and versioned in migration `20261016000006_repair_vietnamese_demo_data.sql`.
+- [x] DATA-FIX — Vietnamese demo data for 3 findings and 8 relationship types was repaired in Supabase and versioned in migration `20261016094000_repair_vietnamese_demo_data.sql`.
 - [x] DEPLOY — PR #5 and PR #6 were merged to `main`; production deployment is READY.
 
 ### Current partial tasks
@@ -234,7 +234,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DOC-004/005/009 — Server validates size, MIME, matching extension and SHA-256; private signed preview/download and field-by-field metadata comparison are implemented.
 - [x] FIND-003/005/006/008 — Explicit role transitions, assignment, participants/watchers, reactions, readable timeline and comments are implemented.
 - [x] QA-001 — `supabase/tests/lifecycle_and_notifications.sql` passed in a rollback transaction for SLA defaults, completeness output, inverse labels, publication gate and four-eyes approval.
-- [x] SECURITY — Supabase Advisor findings for executable `SECURITY DEFINER` functions and mutable function `search_path` were fixed by migration `20261019000013_notification_security_hardening.sql`. The remaining Advisor warning is the account-level leaked-password protection setting.
+- [x] SECURITY — Supabase Advisor findings for executable `SECURITY DEFINER` functions and mutable function `search_path` were fixed by migration `20261019012443_notification_security_hardening.sql`. The remaining Advisor warning is the account-level leaked-password protection setting.
 - [x] DEMO-DOC — Three disposable documents/four versions now cover draft, in-review and effective states; all have process links and the cleanup script removes metadata, reading assignments and test uploads.
 
 ### Still partial with verified reason
@@ -255,7 +255,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 
 ## Review snapshot — 2026-10-19 rich demo metadata
 
-- [x] DEMO-DATA — Applied and verified migration `20261019000012_rich_demo_metadata.sql`: 10/10 process versions have all five Executive Summary fields; 10/10 have applicability; 6 controlled tags have 15 process assignments; 32 verified demo relationships; 5 typed findings; and document metadata/tags are populated.
+- [x] DEMO-DATA — Applied and verified migration `20261019015542_rich_demo_metadata.sql`: 10/10 process versions have all five Executive Summary fields; 10/10 have applicability; 6 controlled tags have 15 process assignments; 32 verified demo relationships; 5 typed findings; and document metadata/tags are populated.
 - [x] MAP-007 — Process Map now loads the rich process metadata from Supabase and displays business purpose, scope, decision points, accountability, access, review date, systems, applicability and tags.
 - [x] CLEANUP — `scripts/delete-demo-processes.sql` now removes generic object metadata/tag assignments before deleting demo records.
 - [ ] Remaining QA-004/005/006/007 and QA-008 limitations are unchanged: authenticated browser, keyboard, multi-viewport and real-file upload verification still require an available signed-in browser session/sample.
@@ -276,7 +276,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] `MAP-002` — Removed the left value-chain navigator. The primary canvas now contains a code/name/owner/tag/content search bar and L0–L4 level filters, with all matched process blocks kept in their level bands.
 - [x] `MAP-006` — Each block exposes the five Executive Summary fields on hover and keyboard focus; the same content is persistently readable in the right detail panel.
 - [x] `MAP-011` — Admins can edit the five tooltip sections plus core process metadata from the right panel. Draft/rejected versions update in place; a published/current version is preserved and saving creates draft v+1.
-- [x] `SECURITY` — Migrations `20261019000019_process_map_metadata_editing.sql` and `20261019000020_consolidate_draft_applicability_policies.sql` are applied in Supabase. RLS permits only Admins to create/update their governed process drafts and copy related assignments, mappings, applicability and tags. Cloned APQC mappings are set to `proposed` for re-verification.
+- [x] `SECURITY` — Migrations `20261019064856_process_map_metadata_editing.sql` and `20261019065602_consolidate_draft_applicability_policies.sql` are applied in Supabase. RLS permits only Admins to create/update their governed process drafts and copy related assignments, mappings, applicability and tags. Cloned APQC mappings are set to `proposed` for re-verification.
 - [~] `QA-002/004/005/006/007/008` — Rolled-back Admin/Viewer RLS tests and a Vercel Preview production build/TypeScript check passed. Authenticated browser edit flow, keyboard/hover visual checks, and wide/1024-px checks remain to be executed for this enhancement.
 
 
@@ -407,7 +407,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DOC-KNOW-001 — Confirm 23 controlled types in 7 groups, 3 active business roles, and 6 original confirmed Must/Should relationships before the change.
 - [x] DOC-KNOW-002 — Derive canonical group automatically; remove editable group control; retain saved legacy group for untyped documents.
 - [x] DOC-KNOW-003 — Three multi-select role lists with exclusive group membership, plus Chưa xác định as an unselected state.
-- [x] DOC-KNOW-004 — Apply migration `20261021000034_document_knowledge_audience.sql` and verify Admin-only save and new Not Applicable relationship type.
+- [x] DOC-KNOW-004 — Apply migration `20261021104055_document_knowledge_audience.sql` and verify Admin-only save and new Not Applicable relationship type.
 - [x] DOC-KNOW-005 — Preview build/TypeScript READY; rollback-only Admin assignment and reclassification tests pass, Viewer mutation is denied; Production commit `9868f9726f604aa2d7000a88e59f8b760ead0ece` READY.
 - [x] DOC-KNOW-006 — Confirm 20 document versions and six original verified knowledge links remain; SQL tests leave no persistent test data.
 - [ ] DOC-KNOW-QA-001 — Authenticated Admin browser creation, editing, reopening, multi-selection and changing/removing classifications.
@@ -464,7 +464,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] Add B → C → A → D diagnostic decision helper and primary-code recommendation.
 - [x] Add issue metadata from workbook sheet 2 to Finding intake/detail.
 - [x] Reframe Action Log as the cross-Finding corrective-action register while retaining notification history.
-- [x] Apply migration `20261022000034_issue_taxonomy_action_log.sql` and verify taxonomy counts and RLS advisors on connected Supabase.
+- [x] Apply migration `20261022070345_issue_taxonomy_action_log.sql` and verify taxonomy counts and RLS advisors on connected Supabase.
 - [x] Complete authenticated production verification for dependent classification and Action Log; deploy merge commit through Vercel.
 
 ## 2026-10-22 — Controlled installment source onboarding
@@ -475,6 +475,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE REAL-DATA-004 — Add proposed APQC L0–L2 mappings with explicit owner-verification rationale; do not mark them verified.
 - [x] DONE REAL-DATA-005 — Make all six active profiles selectable as action assignees while preserving Viewer read-only authorization.
 - [x] DONE REAL-DATA-006 — Release legacy DOC upload support; attach exactly one private source file to each of the 12 document versions; verify Process Map, Findings, and Action Log on the signed-in Vercel Preview.
+- [x] DONE REAL-DATA-008 — Remove the six tagged `[DEMO]` relationship rows whose source roles and target documents were already deleted; verify no tagged or dangling relationship remains.
 - [ ] PENDING REAL-DATA-007 — Process Owner validates missing metadata, APQC proposals, evidence, effective dates, and publication decisions.
 
 ## 2026-10-22 — Finding source-evidence matrix
@@ -504,6 +505,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] FIND-MATRIX-008 — Replace 14 horizontal source columns with one related-process/document column and one source-attributed evidence-content column.
 - [x] FIND-MATRIX-009 — Reduce Decision Point and Owner-comment defaults, compact the header, and add accessible per-column resizing for the current view.
 - [x] FIND-MATRIX-014 — Restrict the related-document list to stored evidence sources or explicit finding-subject links; do not infer issue participation from bracketed source numbers in prose.
+- [x] FIND-MATRIX-015 — Make evidenced document names clickable and open a private file or metadata detail regardless of document workflow status.
 - [x] FIND-MATRIX-010 — Keep all 35 findings and 113 stored evidence excerpts discoverable through the consolidated layout and local search.
 - [x] FIND-MATRIX-011 — Add a filter-aware sequential STT column without reintroducing per-source horizontal columns.
 - [x] FIND-MATRIX-012 — Wrap header labels to two lines in a 42 px header and reduce Decision Point/Owner-comment defaults while preserving per-column resizing.
@@ -515,4 +517,17 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DOC-PROCESS-002 — Hiển thị file và metadata của tài liệu được liên kết ngay khi chọn node Process Map; hỗ trợ mở trực tiếp và đi tới thư viện tài liệu.
 - [x] DOC-PROCESS-003 — Thêm bộ lọc quy trình vào Document; mở/tải các file trực tiếp từ document cards.
 - [x] DOC-PROCESS-004 — Tiếp tục dùng private Storage/signed URL và RLS của phiên bản tài liệu; không đổi database.
+- [x] DONE DOC-ACCESS-001 — Migration `20261027004304_document_status_read_policy.sql` lets permitted roles read Draft, Review, Approved and Effective document versions while preserving `allowed_roles`, access classification and role-gated writes; Viewer SQL simulation verified 12 visible drafts and zero disallowed-role rows.
 - [ ] QA-DOC-PROCESS-001 — Kiểm tra UI và thao tác mở file trên Preview bằng tài khoản Admin, Viewer (draft, approved, effective) và thực hiện smoke test sau phát hành.
+
+## 2026-10-23 — Repository hardening and final delivery
+
+- [x] DONE HARDEN-001 — Fix `.env` ignore rules while retaining tracked `.env.example`; scan migrations for obvious committed credentials.
+- [x] DONE HARDEN-002 — Sanitize raw PostgREST OR-search expressions and cover normal, invalid-column and punctuation cases with unit tests.
+- [x] DONE HARDEN-003 — Remove React server-render purity lint errors and the unoptimized image warning; add server pagination to Document, Finding and Relationship lists.
+- [x] DONE HARDEN-004 — Add `pnpm quality` and GitHub Actions checks for lint, typecheck, migration integrity, unit tests and production build.
+- [x] DONE HARDEN-005 — Align historical migration filenames to the connected Supabase ledger and enforce unique 14-digit versions/no BOM.
+- [x] DONE HARDEN-006 — Add atomic document create/update, document-finding and corrective-action RPCs; split production SQL into independently reviewable migrations.
+- [x] DONE HARDEN-007 — Apply four production migrations, synchronize local filenames to the remote ledger, and verify `SECURITY INVOKER`, empty `search_path`, authenticated-only EXECUTE and non-overlapping write policies.
+- [x] DONE HARDEN-008 — Viewer denial/read-scope probes, Admin atomic rollback probes and Supabase advisors passed; authenticated Preview QA confirmed Viewer access to all 12 permitted versions (including Draft), private Draft PDF access, full missing-metadata card, Admin 35/35 Finding Matrix links, Relationship load, special-character search and 1024 px overflow/console checks.
+- [ ] TODO HARDEN-009 — Run final build, commit/push/PR/merge, verify the single Vercel production deployment and smoke-test the production alias.

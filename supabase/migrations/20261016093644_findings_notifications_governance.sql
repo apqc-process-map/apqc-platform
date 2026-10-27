@@ -1,4 +1,4 @@
-﻿-- E7/E8 findings, notifications, and governance reporting foundations.
+-- E7/E8 findings, notifications, and governance reporting foundations.
 create type public.finding_severity as enum ('low','medium','high','critical');
 create type public.finding_priority as enum ('low','medium','high','urgent');
 create type public.finding_status as enum ('new','triage','in_progress','pending_decision','resolved','closed','reopened');

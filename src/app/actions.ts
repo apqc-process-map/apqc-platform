@@ -7,25 +7,6 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 const findingStatuses = ["new", "triage", "in_progress", "pending_decision", "resolved", "closed", "reopened"] as const;
 const reactions = ["agree", "disagree", "need_more_information"] as const;
 const documentStatuses = ["draft", "in_review", "rejected", "approved", "scheduled", "effective", "cancelled", "superseded", "archived"] as const;
-const allowedMimeTypes = new Set([
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  "image/png",
-  "image/jpeg",
-]);
-const allowedFileExtensions: Record<string, string[]> = {
-  "application/pdf": ["pdf"],
-  "application/msword": ["doc"],
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ["docx"],
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ["xlsx"],
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation": ["pptx"],
-  "image/png": ["png"],
-  "image/jpeg": ["jpg", "jpeg"],
-};
-
 async function authenticatedContext() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -170,42 +151,6 @@ export async function removeFindingParticipant(formData: FormData) {
   revalidatePath(`/findings/${findingId}`);
 }
 
-export async function uploadDocumentFile(formData: FormData) {
-  const documentVersionId = String(formData.get("document_version_id") || "");
-  const file = formData.get("file");
-  if (!documentVersionId || !(file instanceof File) || !file.size) throw new Error("Hãy chọn file cần upload.");
-  if (file.size > 26_214_400) throw new Error("File vượt giới hạn 25 MB.");
-  if (!allowedMimeTypes.has(file.type)) throw new Error("Chỉ chấp nhận PDF, DOC, DOCX, XLSX, PPTX, PNG hoặc JPEG.");
-  const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "";
-  if (!allowedFileExtensions[file.type]?.includes(extension)) throw new Error("Phần mở rộng file không khớp với MIME type.");
-
-  const { supabase, user, profile } = await authenticatedContext();
-  if (profile.role !== "admin" && profile.role !== "editor") throw new Error("Bạn không có quyền upload tài liệu.");
-
-  const bytes = await file.arrayBuffer();
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  const checksum = [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, "0")).join("");
-  const storageKey = `${documentVersionId}/${crypto.randomUUID()}.${extension}`;
-
-  const upload = await supabase.storage.from("process-documents").upload(storageKey, bytes, { contentType: file.type, upsert: false });
-  if (upload.error) throw new Error(upload.error.message);
-  const saved = await supabase.from("document_files").insert({
-    document_version_id: documentVersionId,
-    storage_bucket: "process-documents",
-    storage_key: storageKey,
-    original_file_name: file.name.slice(0, 255),
-    mime_type: file.type,
-    size_bytes: file.size,
-    checksum_sha256: checksum,
-    uploaded_by: user.id,
-  });
-  if (saved.error) {
-    await supabase.storage.from("process-documents").remove([storageKey]);
-    throw new Error(saved.error.message);
-  }
-  revalidatePath("/documents");
-}
-
 export async function updateDocumentLifecycle(formData: FormData) {
   const documentVersionId = String(formData.get("document_version_id") || "");
   const status = String(formData.get("status") || "");
@@ -246,15 +191,6 @@ function optionalString(data:FormData,field:string,max=1000):string|null {
 function optionalDate(data:FormData,field:string):string|null {
   const value=optionalString(data,field,10);
   if(value && (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(value)))) throw new Error("Ngày không hợp lệ.");
-  return value;
-}
-function documentFile(data:FormData):File|null {
-  const value=data.get("file");
-  if(!(value instanceof File)||!value.size) return null;
-  if(value.size>26_214_400) throw new Error("File vượt giới hạn 25 MB.");
-  if(!allowedMimeTypes.has(value.type)) throw new Error("Chỉ nhận PDF, DOC, DOCX, XLSX, PPTX, PNG hoặc JPEG.");
-  const extension=value.name.split(".").pop()?.toLowerCase()||"";
-  if(!allowedFileExtensions[value.type]?.includes(extension)) throw new Error("Định dạng và phần mở rộng file không khớp.");
   return value;
 }
 async function validateDraftForm(
@@ -351,106 +287,22 @@ async function validateDraftForm(
   if(!["vi","en","vi-en"].includes(metadata.language)) throw new Error("Ngôn ngữ không hợp lệ.");
   return {metadata,extras:{processId,scopes,tagIds,knowledge}};
 }
-async function saveDocumentRelations(
-  supabase:Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  userId:string,versionId:string,extras:DocumentExtras,replace:boolean
-) {
-  if(replace){
-    const removedLinks=await supabase.from("document_process_links").delete().eq("document_version_id",versionId).eq("link_role","primary");
-    if(removedLinks.error)throw new Error(removedLinks.error.message);
-    const removedScopes=await supabase.from("object_applicability").delete()
-      .eq("object_type","document_version").eq("object_id",versionId).in("dimension",[...documentScopeDimensions]);
-    if(removedScopes.error)throw new Error(removedScopes.error.message);
-    const removedTags=await supabase.from("object_tags").delete().eq("object_type","document_version").eq("object_id",versionId);
-    if(removedTags.error)throw new Error(removedTags.error.message);
-  }
-  if(extras.processId){
-    const added=await supabase.from("document_process_links").insert({
-      document_version_id:versionId,process_id:extras.processId,link_role:"primary"
-    });
-    if(added.error)throw new Error(added.error.message);
-  }
-  if(extras.scopes.length){
-    const added=await supabase.from("object_applicability").insert(extras.scopes.map(s=>({
-      object_type:"document_version",object_id:versionId,dimension:s.dimension,vocabulary_value_id:s.vocabulary_value_id
-    })));
-    if(added.error)throw new Error(added.error.message);
-  }
-  if(extras.tagIds.length){
-    const added=await supabase.from("object_tags").insert(extras.tagIds.map(tagId=>({
-      object_type:"document_version",object_id:versionId,tag_id:tagId,assigned_by:userId
-    })));
-    if(added.error)throw new Error(added.error.message);
-  }
-}
-async function saveDocumentKnowledge(
-  supabase:Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  documentId:string,knowledge:Record<string,KnowledgeLevel>
-){
-  // Database RPC checks Admin role, editable version, known roles and saves all changes atomically.
-  const {error}=await supabase.rpc("set_document_knowledge_audience",{
-    p_document_id:documentId,p_assignments:knowledge
-  });
-  if(error)throw new Error("Không thể lưu đối tượng cần biết: "+error.message);
-  revalidatePath("/role-knowledge");
-  revalidatePath("/relationships");
-}
-
-async function saveDraftFile(
-  supabase:Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  userId:string,versionId:string,file:File
-){
-  const bytes=await file.arrayBuffer();
-  const digest=await crypto.subtle.digest("SHA-256",bytes);
-  const checksum=[...new Uint8Array(digest)].map(v=>v.toString(16).padStart(2,"0")).join("");
-  const ext=file.name.split(".").pop()!.toLowerCase();
-  const key=versionId+"/"+crypto.randomUUID()+"."+ext;
-  const upload=await supabase.storage.from("process-documents").upload(key,bytes,{contentType:file.type,upsert:false});
-  if(upload.error)throw new Error(upload.error.message);
-  const saved=await supabase.from("document_files").insert({
-    document_version_id:versionId,storage_bucket:"process-documents",storage_key:key,
-    original_file_name:file.name.slice(0,255),mime_type:file.type,
-    size_bytes:file.size,checksum_sha256:checksum,uploaded_by:userId
-  });
-  if(saved.error){
-    await supabase.storage.from("process-documents").remove([key]);
-    throw new Error(saved.error.message);
-  }
-}
 export async function createDocumentDraft(formData:FormData){
-  const {supabase,user,profile}=await authenticatedContext();
+  const {supabase,profile}=await authenticatedContext();
   if(!["admin","editor"].includes(profile.role))throw new Error("Bạn không có quyền tạo tài liệu.");
-  const file=documentFile(formData);
   const {metadata,extras}=await validateDraftForm(supabase,formData);
   if(profile.role!=="admin"&&Object.keys(extras.knowledge).length)
     throw new Error("Chỉ Admin được phân loại nhóm chức danh cần biết.");
-  if(!file&&!metadata.title_vi)throw new Error("Hãy nhập tên tài liệu hoặc chọn file.");
-  if(!metadata.title_vi)metadata.title_vi=file!.name.replace(/\.[^.]+$/,"").slice(0,255);
-  const identity=await supabase.from("documents").insert({created_by:user.id}).select("id").single();
-  if(identity.error||!identity.data)throw new Error(identity.error?.message||"Không thể tạo tài liệu.");
-  const documentId=identity.data.id;
-  let versionId:string|null=null;
-  try{
-    const version=await supabase.from("document_versions").insert({
-      ...metadata,document_id:documentId,version_number:1,status:"draft",created_by:user.id
-    }).select("id").single();
-    if(version.error||!version.data)throw new Error(version.error?.message||"Không thể lưu metadata.");
-    versionId=version.data.id;
-    await saveDocumentRelations(supabase,user.id,version.data.id,extras,false);
-    if(file)await saveDraftFile(supabase,user.id,version.data.id,file);
-    if(profile.role==="admin")await saveDocumentKnowledge(supabase,documentId,extras.knowledge);
-  }catch(error){
-    if(versionId){
-      await supabase.from("object_tags").delete().eq("object_type","document_version").eq("object_id",versionId);
-      await supabase.from("object_applicability").delete().eq("object_type","document_version").eq("object_id",versionId);
-      await supabase.from("document_process_links").delete().eq("document_version_id",versionId);
-      await supabase.from("document_versions").delete().eq("id",versionId);
-    }
-    await supabase.from("documents").delete().eq("id",documentId);
-    throw error;
-  }
+  if(!metadata.title_vi)throw new Error("Hãy nhập tên tài liệu.");
+  const {data:versionId,error}=await supabase.rpc("create_document_draft_atomic",{
+    p_metadata:metadata,
+    p_process_id:extras.processId,
+    p_scopes:extras.scopes,
+    p_tag_ids:extras.tagIds,
+    p_knowledge:profile.role==="admin"?extras.knowledge:{}
+  });
+  if(error||!versionId)throw new Error(error?.message||"Không thể tạo tài liệu và metadata liên quan.");
   revalidatePath("/documents");
-  if(!versionId)throw new Error("Không có phiên bản tài liệu mới.");
   return {versionId};
 }
 export async function updateDocumentMetadata(formData:FormData){
@@ -467,10 +319,15 @@ export async function updateDocumentMetadata(formData:FormData){
   if(profile.role!=="admin"&&Object.keys(extras.knowledge).length)
     throw new Error("Chỉ Admin được phân loại nhóm chức danh cần biết.");
   if(!metadata.title_vi)throw new Error("Tên tài liệu không được để trống.");
-  const {data:updated,error}=await supabase.from("document_versions").update(metadata).eq("id",versionId).select("id").single();
-  if(error||!updated)throw new Error(error?.message||"Không thể lưu metadata.");
-  await saveDocumentRelations(supabase,user.id,versionId,extras,true);
-  if(profile.role==="admin")await saveDocumentKnowledge(supabase,current.document_id,extras.knowledge);
+  const {data:updated,error}=await supabase.rpc("update_document_metadata_atomic",{
+    p_version_id:versionId,
+    p_metadata:metadata,
+    p_process_id:extras.processId,
+    p_scopes:extras.scopes,
+    p_tag_ids:extras.tagIds,
+    p_knowledge:profile.role==="admin"?extras.knowledge:{}
+  });
+  if(error||!updated)throw new Error(error?.message||"Không thể lưu metadata và liên kết.");
   revalidatePath("/documents");
   redirect("/documents?updated=1");
 }

@@ -9,6 +9,7 @@ import RelationshipMetadataForm, {
   type RelationshipTypeOption,
 } from "./relationship-metadata-form";
 import RelationshipNetwork, { type RelationshipNetworkItem } from "./relationship-network";
+import Pagination from "@/components/pagination";
 
 export const instant = false;
 
@@ -37,13 +38,21 @@ function displayDate(value: string | null) {
 export default async function RelationshipsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ group?: string; status?: string; focus?: string; edit?: string; manage?: string; saved?: string }>;
+  searchParams: Promise<{ group?: string; status?: string; focus?: string; edit?: string; manage?: string; saved?: string; page?: string }>;
 }) {
-  const { group = "all", status = "all", focus = "", edit = "", manage = "", saved = "" } = await searchParams;
+  const { group = "all", status = "all", focus = "", edit = "", manage = "", saved = "", page = "1" } = await searchParams;
+  const pageSize=100;
+  const currentPage=Math.max(1,Number.parseInt(page,10)||1);
   const { supabase, profile } = await requireActiveAccount();
   // Safe, post-response timing with no user or document identifiers.
-  noteSlowPage("/relationships", performance.now());
+  noteSlowPage("/relationships");
 
+  let relationshipQuery=supabase.from("object_relationships")
+    .select("id,source_type,source_id,target_type,target_id,relationship_type_id,label,description,evidence_text,status,valid_from,valid_until,created_by,updated_at,relationship_types!inner(code,group_code,label_vi,inverse_label_vi,is_directed)",{count:"exact"})
+    .order("updated_at",{ascending:false});
+  if(status!=="all")relationshipQuery=relationshipQuery.eq("status",status);
+  if(group!=="all")relationshipQuery=relationshipQuery.eq("relationship_types.group_code",group);
+  relationshipQuery=relationshipQuery.range((currentPage-1)*pageSize,currentPage*pageSize-1);
   const [
     typeResult,
     processResult,
@@ -65,9 +74,7 @@ export default async function RelationshipsPage({
     supabase.from("business_roles").select("id,code,name").eq("is_active", true),
     supabase.from("business_objects").select("id,code,name").eq("is_active", true),
     supabase.from("findings").select("id,finding_code,title"),
-    supabase.from("object_relationships")
-      .select("id,source_type,source_id,target_type,target_id,relationship_type_id,label,description,evidence_text,status,valid_from,valid_until,created_by,updated_at,relationship_types(code,group_code,label_vi,inverse_label_vi,is_directed)")
-      .order("updated_at", { ascending: false }).limit(200),
+    relationshipQuery,
   ]);
 
   const types = (typeResult.data || []) as RelationshipTypeRow[];
@@ -170,7 +177,7 @@ export default async function RelationshipsPage({
     || systemResult.error || riskResult.error || kpiResult.error || roleResult.error || objectResult.error || findingResult.error;
 
   return <WorkspaceShell active="/relationships" eyebrow="MẠNG LƯỚI LIÊN KẾT" title="Quan hệ" description="Xem một đối tượng cung cấp, phụ thuộc, quản lý hoặc liên quan tới đối tượng nào." userName={profile.display_name} role={profile.role}>
-    <div className="relationship-summary compact"><article><span>Loại quan hệ</span><strong>{types.length}</strong></article><article><span>Đang hiển thị</span><strong>{relationships.length}</strong></article><article><span>Phạm vi</span><strong>Liên kết trực tiếp</strong></article></div>
+    <div className="relationship-summary compact"><article><span>Loại quan hệ</span><strong>{types.length}</strong></article><article><span>Đang hiển thị</span><strong>{relationships.length} / {relationshipResult.count||0}</strong></article><article><span>Phạm vi</span><strong>Liên kết trực tiếp</strong></article></div>
     <Form action="/relationships" scroll={false} className="catalog-toolbar compact relationship-filter"><select name="focus" defaultValue={focus} aria-label="Tài liệu trung tâm"><option value="">Tất cả tài liệu</option>{[...documentFocusOptions].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><select name="group" defaultValue={group} aria-label="Nhóm quan hệ"><option value="all">Tất cả nhóm</option>{groups.map((item) => <option key={item} value={item}>{item}</option>)}</select><select name="status" defaultValue={status} aria-label="Trạng thái"><option value="all">Tất cả trạng thái</option><option value="proposed">Đề xuất</option><option value="verified">Đã xác minh</option><option value="rejected">Từ chối</option></select><button type="submit">Áp dụng</button></Form>
 
     <div className="relationship-management-bar">
@@ -192,5 +199,6 @@ export default async function RelationshipsPage({
       const validity = [relationship.valid_from ? "Từ " + displayDate(relationship.valid_from) : "", relationship.valid_until ? "đến " + displayDate(relationship.valid_until) : ""].filter(Boolean).join(" ");
       return <article key={item.id}><span className="object-pill">{item.sourceType}</span><div className="relationship-record-copy"><strong><span className="relationship-inline-code">{item.sourceCode || "—"}</span>{item.sourceLabel} → <span className="relationship-inline-code">{item.targetCode || "—"}</span>{item.targetLabel}</strong><small>{item.typeLabel}{item.directed ? ` · Chiều ngược: ${item.inverseLabel}` : " · Hai chiều"}</small>{relationship.description ? <p>{relationship.description}</p> : null}<span className="relationship-record-meta">{validity || "Không giới hạn hiệu lực"}{relationship.evidence_text ? " · Có bằng chứng" : " · Chưa có bằng chứng"}</span></div><span className="object-pill target">{item.targetType}</span><span className="status-badge">{item.status}</span>{mayEdit ? <Link className="relationship-edit-link" href={`/relationships?edit=${item.id}#relationship-metadata`}>Sửa</Link> : null}</article>;
     })}</div></section> : null}
+    <Pagination pathname="/relationships" currentPage={currentPage} total={relationshipResult.count||0} pageSize={pageSize} params={{group,status,focus}}/>
   </WorkspaceShell>;
 }

@@ -5,6 +5,7 @@ import { createDocumentFinding } from "@/app/finding-actions";
 import { requireActiveAccount } from "@/lib/auth";
 import IssueClassifier,{type IssueTaxonomyItem} from "@/components/issue-classifier";
 import FindingIssueMatrix,{type MatrixDocument,type MatrixEvidence,type MatrixFinding,type MatrixProcess} from "@/components/finding-issue-matrix";
+import Pagination from "@/components/pagination";
 
 export const instant = false;
 
@@ -14,7 +15,7 @@ const issueStatuses:Record<string,string>={
   new:"Mới phát hiện",triage:"Đang xác minh",in_progress:"Đang xử lý",
   pending_decision:"Chờ quyết định",resolved:"Đã xử lý",closed:"Đã đóng",reopened:"Mở lại"
 };
-type DocumentRow={id:string;document_id:string;title_vi:string;version_number:number;issuing_department:string|null;valid_from:string|null;vocabulary_values:{label_vi:string}|null;documents:{document_code:string}|null};
+type DocumentRow={id:string;document_id:string;title_vi:string;version_number:number;issuing_department:string|null;valid_from:string|null;vocabulary_values:{label_vi:string}|null;documents:{document_code:string}|null;document_files:{id:string}[]|null};
 type ProcessRow={id:string;name_vi:string;processes:{process_code:string;level_type:string}|null};
 type ActionRow={id:string;finding_id:string;status:string;progress_percent:number;due_at:string|null;assignee_id:string|null};
 type FindingLink={id:string;finding_id:string;object_type:string;object_id:string;link_role:string;evidence_excerpt:string|null};
@@ -22,24 +23,28 @@ type SourceEvidenceRow={finding_id:string;source_ref:number;evidence_excerpt:str
 const overdue=(date:string|null|undefined)=>!!date&&new Date(date).getTime()<Date.now();
 
 export default async function FindingsPage({searchParams}:{
-  searchParams:Promise<{status?:string;severity?:string;assigned?:string;type?:string}>
+  searchParams:Promise<{status?:string;severity?:string;assigned?:string;type?:string;page?:string}>
 }) {
-  const {status="all",severity="all",assigned="all",type="all"}=await searchParams;
+  const {status="all",severity="all",assigned="all",type="all",page="1"}=await searchParams;
+  const pageSize=50;
+  const currentPage=Math.max(1,Number.parseInt(page,10)||1);
   const {supabase,profile}=await requireActiveAccount();
   // Safe, post-response timing with no user or document identifiers.
-  noteSlowPage("/findings", performance.now());
+  noteSlowPage("/findings");
   const canWrite=profile.role==="admin"||profile.role==="editor";
   let query=supabase.from("findings").select(
-    "id,finding_code,title,description,impact_summary,finding_domain,action_decision,action_decision_reason,finding_type_value_id,primary_issue_code,severity,priority,status,due_at,assignee_id,created_by,created_at,decision_point,evidence_status,proposed_action,owner_question,process_owner_feedback"
-  ).eq("finding_domain","document").order("created_at",{ascending:false}).limit(200);
+    "id,finding_code,title,description,impact_summary,finding_domain,action_decision,action_decision_reason,finding_type_value_id,primary_issue_code,severity,priority,status,due_at,assignee_id,created_by,created_at,decision_point,evidence_status,proposed_action,owner_question,process_owner_feedback",{count:"exact"}
+  ).eq("finding_domain","document").order("created_at",{ascending:false});
   if(status==="open")query=query.in("status",activeStatuses);
   else if(status!=="all")query=query.eq("status",status);
   if(severity!=="all")query=query.eq("severity",severity);
   if(assigned==="me")query=query.eq("assignee_id",profile.id);
   if(assigned==="unassigned")query=query.is("assignee_id",null);
+  if(type!=="all")query=query.eq("primary_issue_code",type);
+  query=query.range((currentPage-1)*pageSize,currentPage*pageSize-1);
   const [findingsResult,allDocuments,taxonomyResult,peopleResult,processResult] = await Promise.all([
     query,
-    supabase.from("document_versions").select("id,document_id,title_vi,version_number,issuing_department,valid_from,vocabulary_values(label_vi),documents(document_code)")
+    supabase.from("document_versions").select("id,document_id,title_vi,version_number,issuing_department,valid_from,vocabulary_values(label_vi),documents(document_code),document_files(id)")
       .order("updated_at",{ascending:false}).limit(200),
     supabase.from("issue_taxonomy").select("code,group_code,group_label_vi,type_label_vi,explanation_vi,decision_order,decision_question_vi,minimum_evidence_vi").eq("is_active",true).order("decision_order"),
     supabase.from("profiles").select("id,display_name,role").eq("is_active",true).order("display_name"),
@@ -65,10 +70,12 @@ export default async function FindingsPage({searchParams}:{
   const docMap=new Map(((allDocuments.data||[]) as unknown as DocumentRow[]).map(doc=>[doc.id,doc]));
   // The intake already loads recent versions; reuse them and fetch only missing
   // older linked versions, avoiding a third sequential DB request for normal cases.
+  let supplementalDocumentError:string|null=null;
   const missingDocs=[...new Set(links.filter(link=>link.object_type==="document_version").map(link=>link.object_id))].filter(id=>!docMap.has(id));
   if(missingDocs.length){
     const moreDocs=await supabase.from("document_versions")
-      .select("id,document_id,title_vi,version_number,issuing_department,valid_from,vocabulary_values(label_vi),documents(document_code)").in("id",missingDocs);
+      .select("id,document_id,title_vi,version_number,issuing_department,valid_from,vocabulary_values(label_vi),documents(document_code),document_files(id)").in("id",missingDocs);
+    if(moreDocs.error)supplementalDocumentError=moreDocs.error.message;
     for(const doc of (moreDocs.data||[]) as unknown as DocumentRow[])docMap.set(doc.id,doc);
   }
   const taxonomy=(taxonomyResult.data||[]) as IssueTaxonomyItem[];
@@ -77,7 +84,7 @@ export default async function FindingsPage({searchParams}:{
   const peopleMap=new Map(people.map(p=>[p.id,p.display_name]));
   // The Excel register contains single-source, cross-document and missing-source issues.
   // Keep all three classes visible; filters describe evidence scope instead of hiding valid rows.
-  const filtered=(type==="all"?findings:findings.filter(f=>f.primary_issue_code===type))
+  const filtered=findings
     .sort((a,b)=>(taxonomyMap.get(a.primary_issue_code||"")?.decision_order||99)-(taxonomyMap.get(b.primary_issue_code||"")?.decision_order||99));
   const active=filtered.filter(f=>activeStatuses.includes(f.status));
   const activeActionIds=new Set(active.map(f=>f.id));
@@ -107,7 +114,7 @@ export default async function FindingsPage({searchParams}:{
   for(const doc of docMap.values()){const ref=refFromDoc(doc);if(ref&&ref<=14&&!sourceByRef.has(ref))sourceByRef.set(ref,doc);}
   const matrixDocuments:MatrixDocument[]=sourceTitles.map((title,index)=>{
     const ref=index+1,doc=sourceByRef.get(ref);
-    return {id:doc?.id||null,ref,code:doc?.documents?.document_code||("SOURCE-"+String(ref).padStart(2,"0")),
+    return {id:doc?.id||null,fileId:doc?.document_files?.[0]?.id||null,ref,code:doc?.documents?.document_code||("SOURCE-"+String(ref).padStart(2,"0")),
       title:doc?.title_vi||title,department:doc?.issuing_department||null,documentType:doc?.vocabulary_values?.label_vi||null,
       validFrom:doc?.valid_from||null,available:Boolean(doc)};
   });
@@ -190,8 +197,9 @@ export default async function FindingsPage({searchParams}:{
       <select name="assigned" defaultValue={assigned} aria-label="Người phụ trách"><option value="all">Mọi người phụ trách</option><option value="me">Được giao cho tôi</option><option value="unassigned">Chưa giao</option></select>
       <button type="submit">Lọc</button>
     </Form>
-    {findingsResult.error?<div className="state-message error-state"><strong>Không thể tải findings</strong><span>{findingsResult.error.message}</span></div>:
+    {(findingsResult.error||allDocuments.error||taxonomyResult.error||peopleResult.error||processResult.error)?<div className="state-message error-state"><strong>Không thể tải findings</strong><span>{(findingsResult.error||allDocuments.error||taxonomyResult.error||peopleResult.error||processResult.error)?.message}</span></div>:
       <FindingIssueMatrix findings={matrixFindings} documents={matrixDocuments}/>}
-    {(documentLinksResult.error||processLinksResult.error||actionsResult.error||sourceEvidenceResult.error)&&<p className="state-message error-state">Không thể tải đầy đủ liên kết tài liệu hoặc action. Vui lòng thử lại.</p>}
+    <Pagination pathname="/findings" currentPage={currentPage} total={findingsResult.count||0} pageSize={pageSize} params={{status,severity,assigned,type}}/>
+    {(documentLinksResult.error||processLinksResult.error||actionsResult.error||sourceEvidenceResult.error||supplementalDocumentError)&&<p className="state-message error-state">Không thể tải đầy đủ liên kết tài liệu hoặc action. Vui lòng thử lại.</p>}
   </WorkspaceShell>;
 }

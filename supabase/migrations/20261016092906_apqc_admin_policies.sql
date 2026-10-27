@@ -1,4 +1,4 @@
-﻿-- Admin-only APQC maintenance through the authenticated Data API.
+-- Admin-only APQC maintenance through the authenticated Data API.
 grant insert, update, delete on public.apqc_frameworks, public.apqc_elements, public.apqc_metrics to authenticated;
 
 create policy "admins insert APQC frameworks" on public.apqc_frameworks for insert to authenticated

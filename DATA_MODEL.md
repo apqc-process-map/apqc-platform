@@ -318,11 +318,11 @@ Relationships represent current state in the MVP. Temporal history is deferred.
 - **Write function**: `public.set_document_knowledge_audience(p_document_id uuid, p_assignments jsonb)` is `SECURITY INVOKER`, callable by `authenticated` but checks an active **Admin** via `current_profile_role()`; also checks active business roles and a draft/rejected version. It atomically rejects superseded verified mappings, reactivates an existing canonical mapping or inserts a new verified link, and keeps unchanged mappings. Its writes remain subject to table RLS and relationship constraints/triggers.
 - **Validation/evidence**: confirmed relations require description and evidence/source; the function supplies classification evidence and audit fields. Marked-rejected rows are retained, not deleted; this is **not** a full immutable event audit.
 - **Consumption**: Tab 05 `/role-knowledge` and Tab 02 library cards use verified classification. It does **not** change document/Storage permissions, issue individual `reading_assignments`, send notifications, or set `reading_acknowledgments`.
-- **Migration**: `supabase/migrations/20261021000034_document_knowledge_audience.sql` applied to the current APQC project.
+- **Migration**: `supabase/migrations/20261021104055_document_knowledge_audience.sql` applied to the current APQC project.
 
 ### Controlled document type naming and derived group (2026-10-21)
 
-- Migration `supabase/migrations/20261021000035_normalize_document_type_labels.sql` updates nine `vocabulary_values.label_vi` descriptions under the `document_type` vocabulary; it preserves all 23 rows' UUIDs, `code`, `document_group_code`, active flags, order, and existing foreign-key links.
+- Migration `supabase/migrations/20261021110248_normalize_document_type_labels.sql` updates nine `vocabulary_values.label_vi` descriptions under the `document_type` vocabulary; it preserves all 23 rows' UUIDs, `code`, `document_group_code`, active flags, order, and existing foreign-key links.
 - The UI maps stable group codes to human-readable labels through `src/lib/document-display.ts`; it maps stable status, access, language and risk enum codes to Vietnamese text without writing translated values to persisted enum fields.
 - `document_versions.document_group` can include legacy mixed-case group codes. The Document group filter uses case-insensitive `.ilike()` to match those saved values. A group is derived from the selected type on document editing; a draft with no type retains its preexisting group value. New untyped drafts remain stored as `other` and the intake display says `Chưa phân loại` until a type is chosen.
 - Date columns remain ISO dates in PostgreSQL. Document cards and comparison render DD/MM/YYYY without altering stored values.
@@ -477,7 +477,7 @@ The document-finding action-decision/completion and two-distinct-documents closu
 
 ### Document finding DEMO seed and lineage
 
-- `20261021000030_seed_document_findings_demo.sql` is idempotent using `DEMO-FND-DOC-01..16` codes and `[DEMO 06/F01..F08]` finding titles; migrations `31` and `32` complete/clean up contextual enterprise-process evidence.
+- `20261021073426_seed_document_findings_demo.sql` is idempotent using `DEMO-FND-DOC-01..16` codes and `[DEMO 06/F01..F08]` finding titles; migrations `31` and `32` complete/clean up contextual enterprise-process evidence.
 - Eight manual finding examples refer to 16 distinct draft-only document identities with 16 linked `subject` version evidence records, 10 example actions, and existing process catalog `PROC-000011..PROC-000020`. These evidence snippets and conflicts are fictional and not file-analysis output.
 - Opt-in cleanup: `scripts/delete-demo-document-findings.sql`. Do not delete real document versions or relabel DEMO data as verified findings.
 
@@ -513,7 +513,7 @@ Completeness must expose component scores and missing fields, not only a total.
 
 ### Viewer
 
-- Select effective process/document versions allowed to Viewer.
+- Select effective process versions and document-version workflow statuses permitted by `allowed_roles`; access classifications remain enforced, writes stay denied, and private files use authenticated signed URLs.
 - Select APQC reference data and permitted catalog/context data.
 - Insert own acknowledgment.
 - Select/comment/react on findings where permitted.
@@ -551,3 +551,14 @@ Service-role credentials never reach the client.
 `issue_taxonomy` stores the fixed 11-code issue classification: `code`, group code/label, type label, explanation, diagnostic order/question, minimum evidence and active state. Authenticated active users may read it; anonymous access is denied.
 
 `findings` additionally stores `primary_issue_code` (FK), `secondary_issue_codes` (tags only), `classification_rationale`, `decision_point`, `evidence_status`, `proposed_action`, `owner_question`, and `process_owner_feedback`. Existing `finding_type_value_id` is retained for historical compatibility and is not rewritten by the migration.
+## Atomic document and finding mutations — 2026-10-27
+
+Production migrations `20261027004304`–`20261027004641` establish the current access and transaction boundary:
+
+- `document_versions` SELECT is independent of lifecycle status but remains constrained by `allowed_roles`; Admin can read all rows and an Editor can additionally read versions they created or own.
+- `create_document_draft_atomic(jsonb, uuid, jsonb, uuid[], jsonb)` creates the stable document, draft version, primary process link, applicability, tags and Admin-managed knowledge audience in one transaction.
+- `update_document_metadata_atomic(uuid, jsonb, uuid, jsonb, uuid[], jsonb)` locks the editable version and replaces its governed metadata/links atomically.
+- `create_document_finding_atomic(jsonb, uuid[], uuid)` validates 2–20 visible versions representing at least two stable document identities, then inserts the Finding and evidence/process links atomically.
+- `create_finding_action_atomic(uuid, text, text, uuid, date)` locks the Finding, records the required-action decision and creates the Action atomically.
+- All four functions are `SECURITY INVOKER`, have `search_path = ''`, are executable by `authenticated` only, and retain RLS/role checks. No service-role path is used by the application.
+- Foreign-key covering indexes reported by Supabase are present. Newly created indexes may be reported as unused until normal traffic exercises their query paths; removal requires measured evidence, not an immediate post-create Advisor result.

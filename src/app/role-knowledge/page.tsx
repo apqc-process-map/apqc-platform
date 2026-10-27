@@ -14,7 +14,7 @@ export default async function RoleKnowledgePage({ searchParams }: { searchParams
   const { role = "" } = await searchParams;
   const { supabase, profile } = await requireActiveAccount();
   // Safe, post-response timing with no user or document identifiers.
-  noteSlowPage("/role-knowledge", performance.now());
+  noteSlowPage("/role-knowledge");
   const [roleResult, typeResult, documentResult, relationshipResult] = await Promise.all([
     supabase.from("business_roles").select("id,code,name,description").eq("is_active", true).order("name"),
     supabase.from("relationship_types").select("id,code").in("code", ["role_must_know_document", "role_should_know_document", "role_not_applicable_document"]),
