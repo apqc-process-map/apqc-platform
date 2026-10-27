@@ -1,5 +1,6 @@
 import { requireActiveAccount } from "@/lib/auth";
 import ProcessMapClient, {
+  type ProcessMapApqcNode,
   type ProcessMapApqcMapping,
   type ProcessMapRelatedDocument,
   type ProcessMapApplicability,
@@ -58,7 +59,18 @@ type MappingRow = {
   match_type: string;
   status: string;
   rationale: string;
-  apqc_elements: { pcf_id: string; name: string } | Array<{ pcf_id: string; name: string }> | null;
+  apqc_elements: ApqcElementRow | ApqcElementRow[] | null;
+};
+
+type ApqcElementRow = {
+  id: string;
+  pcf_id: string;
+  hierarchy_id: string;
+  level_number: number;
+  name: string;
+  description: string;
+  parent_id: string | null;
+  display_order: number;
 };
 
 type DocumentVersionRelation = {
@@ -113,7 +125,7 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
   const { supabase, profile } = await requireActiveAccount();
   const { data, error } = await supabase
     .from("processes")
-    .select("id,process_code,source_code,parent_process_id,level_type,display_order,process_versions(id,version_number,status,name_vi,name_en,purpose,description,scope_in,scope_out,trigger,outcome,process_at_a_glance,business_purpose,scope_and_boundaries,critical_decision_points,accountability_and_impact,access_level,allowed_roles,valid_from,valid_until,review_due_at,change_summary,created_at,updated_at,submitted_at,approved_at,published_at,created_by,updated_by,submitted_by,approved_by,published_by,supersedes_version_id,created_profile:profiles!process_versions_created_by_fkey(display_name),updated_profile:profiles!process_versions_updated_by_fkey(display_name),submitted_profile:profiles!process_versions_submitted_by_fkey(display_name),approved_profile:profiles!process_versions_approved_by_fkey(display_name),published_profile:profiles!process_versions_published_by_fkey(display_name),process_assignments(assignment_role,profile_id,profiles(display_name)),process_apqc_mappings(id,mapping_role,match_type,status,rationale,apqc_elements(pcf_id,name))))")
+    .select("id,process_code,source_code,parent_process_id,level_type,display_order,process_versions(id,version_number,status,name_vi,name_en,purpose,description,scope_in,scope_out,trigger,outcome,process_at_a_glance,business_purpose,scope_and_boundaries,critical_decision_points,accountability_and_impact,access_level,allowed_roles,valid_from,valid_until,review_due_at,change_summary,created_at,updated_at,submitted_at,approved_at,published_at,created_by,updated_by,submitted_by,approved_by,published_by,supersedes_version_id,created_profile:profiles!process_versions_created_by_fkey(display_name),updated_profile:profiles!process_versions_updated_by_fkey(display_name),submitted_profile:profiles!process_versions_submitted_by_fkey(display_name),approved_profile:profiles!process_versions_approved_by_fkey(display_name),published_profile:profiles!process_versions_published_by_fkey(display_name),process_assignments(assignment_role,profile_id,profiles(display_name)),process_apqc_mappings(id,mapping_role,match_type,status,rationale,apqc_elements(id,pcf_id,hierarchy_id,level_number,name,description,parent_id,display_order))))")
     .is("archived_at", null)
     .order("display_order");
 
@@ -123,7 +135,7 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
     processes.flatMap((process) => process.process_versions || []).map((version) => [version.id, version.version_number]),
   );
   // Fetch file metadata through document-version RLS; never expose private Storage keys to the browser.
-  const [tagResult, applicabilityResult, relatedDocumentsResult] = await Promise.all([
+  const [tagResult, applicabilityResult, relatedDocumentsResult, apqcResult] = await Promise.all([
     versionIds.length
       ? supabase.from("object_tags").select("object_id,governance_tags(code,label_vi,color)").eq("object_type", "process_version").in("object_id", versionIds)
       : Promise.resolve({ data: [], error: null }),
@@ -135,7 +147,32 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
           .select("process_id,link_role,document_versions!inner(id,title_vi,version_number,status,documents(document_code),document_files(id,original_file_name,mime_type))")
           .in("process_id", processes.map((process) => process.id))
       : Promise.resolve({ data: [], error: null }),
+    supabase.from("apqc_elements")
+      .select("id,pcf_id,hierarchy_id,level_number,name,description,parent_id,display_order")
+      .lte("level_number", 3)
+      .order("display_order"),
   ]);
+
+  const apqcElements = (apqcResult.data || []) as ApqcElementRow[];
+  const apqcById = new Map(apqcElements.map((element) => [element.id, element]));
+  function ancestorAtLevel(element: ApqcElementRow, targetLevel: number) {
+    let current: ApqcElementRow | undefined = element;
+    while (current && current.level_number > targetLevel && current.parent_id) current = apqcById.get(current.parent_id);
+    return current?.level_number === targetLevel ? current : undefined;
+  }
+
+  const apqcNodes: ProcessMapApqcNode[] = apqcElements
+    .filter((element) => element.level_number <= 2)
+    .map((element) => ({
+      id: element.id,
+      pcfId: element.pcf_id,
+      hierarchyId: element.hierarchy_id,
+      levelNumber: element.level_number,
+      name: element.name,
+      description: element.description,
+      parentId: element.parent_id,
+      displayOrder: element.display_order,
+    }));
 
   const tagsByVersion = new Map<string, ProcessMapTag[]>();
   for (const row of (tagResult.data || []) as unknown as TagRow[]) {
@@ -203,6 +240,9 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
         matchType: mapping.match_type,
         status: mapping.status,
         rationale: mapping.rationale,
+        apqcLevel: element.level_number,
+        ancestorLevel1Id: ancestorAtLevel(element, 1)?.id || null,
+        ancestorLevel2Id: ancestorAtLevel(element, 2)?.id || null,
       }] : [];
     });
     return {
@@ -256,6 +296,6 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
     };
   });
 
-  const supplementalError = tagResult.error?.message || applicabilityResult.error?.message || relatedDocumentsResult.error?.message;
-  return <ProcessMapClient nodes={nodes} userName={profile.display_name} role={profile.role} errorMessage={error?.message || supplementalError} />;
+  const supplementalError = tagResult.error?.message || applicabilityResult.error?.message || relatedDocumentsResult.error?.message || apqcResult.error?.message;
+  return <ProcessMapClient nodes={nodes} apqcNodes={apqcNodes} userName={profile.display_name} role={profile.role} errorMessage={error?.message || supplementalError} />;
 }

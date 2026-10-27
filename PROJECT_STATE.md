@@ -22,6 +22,7 @@ Process Map is a desktop-first internal application for browsing and governing e
 
 - Authenticated route protection, role-aware navigation and database-enforced RLS.
 - APQC catalog/search/detail and data-driven Process Map with L0–L4 bands, search, selection, metadata detail/editing and linked documents.
+- Process Map landscape now uses APQC PCF level 1 as L0 and APQC PCF level 2 as L1; L2 is evidence-gated and shows only enterprise records with visible linked documents. Repository process levels and proposed mappings remain unchanged.
 - Relationship network/table with controlled types, direction labels, document focus, governed create/edit and collapsed legend.
 - Document library with metadata intake/editing, filter/sort/group, private direct browser upload, signed file route, PDF/image preview, Office download, lifecycle, comparison, process/applicability/tag links and role-knowledge classification.
 - “Vai trò của tôi” groups verified knowledge mappings into required, reference and not-applicable; these mappings do not grant access.
