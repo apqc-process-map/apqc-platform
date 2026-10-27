@@ -475,6 +475,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE REAL-DATA-004 — Add proposed APQC L0–L2 mappings with explicit owner-verification rationale; do not mark them verified.
 - [x] DONE REAL-DATA-005 — Make all six active profiles selectable as action assignees while preserving Viewer read-only authorization.
 - [x] DONE REAL-DATA-006 — Release legacy DOC upload support; attach exactly one private source file to each of the 12 document versions; verify Process Map, Findings, and Action Log on the signed-in Vercel Preview.
+- [x] DONE REAL-DATA-008 — Remove the six tagged `[DEMO]` relationship rows whose source roles and target documents were already deleted; verify no tagged or dangling relationship remains.
 - [ ] PENDING REAL-DATA-007 — Process Owner validates missing metadata, APQC proposals, evidence, effective dates, and publication decisions.
 
 ## 2026-10-22 — Finding source-evidence matrix
@@ -528,5 +529,5 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE HARDEN-005 — Align historical migration filenames to the connected Supabase ledger and enforce unique 14-digit versions/no BOM.
 - [x] DONE HARDEN-006 — Add atomic document create/update, document-finding and corrective-action RPCs; split production SQL into independently reviewable migrations.
 - [x] DONE HARDEN-007 — Apply four production migrations, synchronize local filenames to the remote ledger, and verify `SECURITY INVOKER`, empty `search_path`, authenticated-only EXECUTE and non-overlapping write policies.
-- [~] PARTIAL HARDEN-008 — Viewer denial/read-scope probes, Admin atomic rollback probes and Supabase advisors passed; authenticated Admin/Viewer browser QA remains.
+- [x] DONE HARDEN-008 — Viewer denial/read-scope probes, Admin atomic rollback probes and Supabase advisors passed; authenticated Preview QA confirmed Viewer access to all 12 permitted versions (including Draft), private Draft PDF access, full missing-metadata card, Admin 35/35 Finding Matrix links, Relationship load, special-character search and 1024 px overflow/console checks.
 - [ ] TODO HARDEN-009 — Run final build, commit/push/PR/merge, verify the single Vercel production deployment and smoke-test the production alias.

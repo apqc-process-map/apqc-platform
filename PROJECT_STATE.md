@@ -14,7 +14,7 @@ Process Map is a desktop-first internal application for browsing and governing e
 ## Verified production data
 
 - APQC: 2,017 elements, 3,284 metrics, 13 categories, levels 1–5, no known orphan/duplicate import defects.
-- Controlled installment scope: 12 document identities/versions with 12 private binaries; 11 process nodes (L0, L1 and nine L2); 11 proposed APQC mappings; 35 findings; 22 corrective actions; 104 document-version links; 35 process-version links; 113 source-evidence cells.
+- Controlled installment scope: 12 document identities/versions with 12 private binaries; 11 process nodes (L0, L1 and nine L2); 11 proposed APQC mappings; 35 findings; 22 corrective actions; 104 document-version links; 35 process-version links; 113 source-evidence cells. Six dangling `[DEMO]` relationship fixtures were removed after confirming that their source roles and target documents no longer existed.
 - Six active accounts: three Admin and three Viewer; no Editor account. Credentials are not stored in Git.
 - APQC workbook and supplied business documents remain outside Git.
 
@@ -48,17 +48,16 @@ Process Map is a desktop-first internal application for browsing and governing e
 
 - TypeScript: passed.
 - ESLint: passed with zero warnings after replacing the raw image element and fixing dead bindings.
-- Migration integrity: 44 SQL files with unique 14-digit versions, no UTF-8 BOM and no detected credentials.
+- Migration integrity: 45 SQL files with unique 14-digit versions, no UTF-8 BOM and no detected credentials.
 - Search helper unit tests: 3 passed (required an unsandboxed Node test runner because Windows blocked child-process spawn in the restricted sandbox).
 - Supabase production: four hardening migrations applied and migration-ledger filenames synchronized. Viewer simulation returned 12 visible non-effective documents and zero rows outside Viewer `allowed_roles`; Viewer mutation RPC was denied. Admin rollback probe passed create/update Document, create Finding and create Action atomically, with zero probe rows persisted.
-- Final Next.js 16.4.1 production build passed all 15 routes. Authenticated preview/production browser QA and Vercel deployment remain before release.
+- Final Next.js 16.4.1 production build passed all 15 routes. Authenticated Preview QA at 1024 px passed for Viewer document access (including Draft metadata/private PDF), special-character search, Admin 35/35 Finding Matrix links and Relationship loading with no horizontal overflow or console errors. Production smoke QA remains before release.
 
 ## Remaining gates
 
-1. Run final production build and authenticated Admin/Viewer browser QA at 1024 px and 1280 px, including draft/effective file access and atomic edit/action flows.
-2. Commit, push, open/merge the pull request, then verify the single final Vercel production deployment.
-3. Process Owner must still validate proposed APQC mappings, unknown metadata/effective dates and 113 evidence cells; source binaries 13–14 remain unavailable.
-4. Editor-specific QA needs an approved Editor account or a temporary role change.
+1. Merge the open pull request, then verify the final Vercel production deployment and production alias smoke test.
+2. Process Owner must still validate proposed APQC mappings, unknown metadata/effective dates and 113 evidence cells; source binaries 13–14 remain unavailable.
+3. Editor-specific QA needs an approved Editor account or a temporary role change.
 
 ## Deferred scope
 
