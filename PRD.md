@@ -104,6 +104,13 @@ The Action Log keeps the existing `/notifications` route, notification records, 
 - Top-level nodes show code, name, level/type, owner, lifecycle status, child count, document count, open-finding count, and review-overdue indicator.
 - APQC Reference View is available as a separate mode and shows enterprise-process coverage per APQC element.
 
+### APQC-led landscape convention
+
+- L0 renders APQC PCF level-1 Categories directly from the immutable reference dataset.
+- L1 renders APQC PCF level-2 Process Groups for the selected L0 Category.
+- L2 renders only enterprise process records that have at least one document-version link visible to the current user. A document-linked scope/E2E record may appear at L2, while its stored enterprise level remains unchanged in the repository.
+- L2 cards show their supporting-document count. Processes without document evidence are omitted from the landscape, not deleted from the repository.
+
 ### Layered drill-down
 
 - Clicking a node selects it, opens its direct child layer, and updates the detail panel.
