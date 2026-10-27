@@ -253,7 +253,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
               </div>
             </section>;
           })}
-          <div className="value-chain-legend" aria-label="Chú thích level"><span className="legend-l0">L0 Value chain</span><span className="legend-l1">L1 E2E</span><span className="legend-l2">L2 Process</span><span className="legend-l3">L3 Subprocess</span><span className="legend-l4">L4 Activity / Task</span></div>
+          <div className="value-chain-legend" aria-label="Chú thích level"><span className="legend-l0">L0 APQC Category</span><span className="legend-l1">L1 APQC Process Group</span><span className="legend-l2">L2 Document-backed Process</span><span className="legend-l3">L3 Subprocess</span><span className="legend-l4">L4 Activity / Task</span></div>
         </div></div>
       </section>
       <aside className="detail-panel process-detail-panel">
@@ -310,9 +310,9 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
           </fieldset>
           <div className="process-edit-actions"><button type="submit" className="primary-button">Lưu metadata</button><button type="button" className="text-button" onClick={() => setEditing(false)}>Hủy</button></div>
         </form> : null}
-        {!canEdit ? <p className="process-readonly-note">Bạn đang ở chế độ xem. Chỉ Admin được chỉnh sửa metadata quy trình.</p> : null}
+        {selected.sourceKind !== "apqc" && !canEdit ? <p className="process-readonly-note">Bạn đang ở chế độ xem. Chỉ Admin được chỉnh sửa metadata quy trình.</p> : null}
       </aside>
     </div> : null}
-    <footer className="map-note"><span className="setup-check">i</span><span><strong>Level phản ánh dữ liệu hiện có.</strong> L0–L2 đã có process; L3–L4 sẽ tự hiển thị khi có subprocess, activity hoặc task.</span></footer>
+    <footer className="map-note"><span className="setup-check">i</span><span><strong>Cấu trúc theo nguồn dữ liệu.</strong> L0–L1 lấy trực tiếp từ APQC; L2 chỉ hiển thị quy trình có tài liệu nguồn.</span></footer>
   </WorkspaceShell>;
 }
