@@ -51,13 +51,13 @@ Process Map is a desktop-first internal application for browsing and governing e
 - Migration integrity: 45 SQL files with unique 14-digit versions, no UTF-8 BOM and no detected credentials.
 - Search helper unit tests: 3 passed (required an unsandboxed Node test runner because Windows blocked child-process spawn in the restricted sandbox).
 - Supabase production: four hardening migrations applied and migration-ledger filenames synchronized. Viewer simulation returned 12 visible non-effective documents and zero rows outside Viewer `allowed_roles`; Viewer mutation RPC was denied. Admin rollback probe passed create/update Document, create Finding and create Action atomically, with zero probe rows persisted.
-- Final Next.js 16.4.1 production build passed all 15 routes. Authenticated Preview QA at 1024 px passed for Viewer document access (including Draft metadata/private PDF), special-character search, Admin 35/35 Finding Matrix links and Relationship loading with no horizontal overflow or console errors. Production smoke QA remains before release.
+- Final Next.js 16.4.1 production build passed all 15 routes. Authenticated Preview QA at 1024 px passed for Viewer document access (including Draft metadata/private PDF), special-character search, Admin 35/35 Finding Matrix links and Relationship loading with no horizontal overflow or console errors.
+- PR #72 merged as `393aa4a`. Vercel production deployment `dpl_AJm7tSBQkkqyAFMWA17fvdRg5oEn` reached READY on `pnj-apqc-platform.vercel.app`; authenticated production smoke tests passed for Documents 12/12, Process Map L0–L2, Findings 35/35 and Relationship 0/0 empty state, with no browser-console or recent Vercel runtime error.
 
 ## Remaining gates
 
-1. Merge the open pull request, then verify the final Vercel production deployment and production alias smoke test.
-2. Process Owner must still validate proposed APQC mappings, unknown metadata/effective dates and 113 evidence cells; source binaries 13–14 remain unavailable.
-3. Editor-specific QA needs an approved Editor account or a temporary role change.
+1. Process Owner must still validate proposed APQC mappings, unknown metadata/effective dates and 113 evidence cells; source binaries 13–14 remain unavailable.
+2. Editor-specific QA needs an approved Editor account or a temporary role change.
 
 ## Deferred scope
 
