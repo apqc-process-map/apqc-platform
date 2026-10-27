@@ -25,6 +25,7 @@ export type ProcessMapRelatedDocument = {
 export type ProcessMapNode = {
   id: string; versionId: string; versionNumber: number; parentId: string | null; code: string; name: string; nameEn: string;
   sourceCode: string; allowedRoles: string[]; sourceKind?: "enterprise" | "apqc";
+  evidenceCoverage?: "direct" | "descendant" | "none";
   level: string; status: string; owner: string; summary: string; purpose: string; description: string;
   scopeIn: string; scopeOut: string; trigger: string; outcome: string; changeSummary: string;
   validFrom: string | null; validUntil: string | null; mappingCount: number; displayOrder: number;
@@ -65,7 +66,12 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       ...node,
       level: ["subprocess", "activity", "task"].includes(node.level) ? node.level : "process",
       sourceKind: "enterprise" as const,
+      evidenceCoverage: "direct" as const,
     })), [nodes]);
+  const evidencePathIds = useMemo(() => new Set(documentedSourceNodes.flatMap((node) => node.apqcMappings.flatMap((mapping) => [
+    mapping.ancestorLevel1Id,
+    mapping.ancestorLevel2Id,
+  ].filter((id): id is string => Boolean(id))))), [documentedSourceNodes]);
   const defaultCategoryId = useMemo(() => documentedSourceNodes
     .flatMap((node) => node.apqcMappings)
     .map((mapping) => mapping.ancestorLevel1Id)
@@ -90,6 +96,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       nameEn: element.name,
       allowedRoles: [],
       sourceKind: "apqc",
+      evidenceCoverage: evidencePathIds.has(element.id) ? "descendant" : "none",
       level: element.levelNumber === 1 ? "value_chain" : "e2e",
       status: "reference",
       owner: "APQC PCF 8.0",
@@ -128,7 +135,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       approvedBy: "",
       publishedAt: null,
       publishedBy: "",
-    })), [apqcNodes, selectedCategoryId]);
+    })), [apqcNodes, evidencePathIds, selectedCategoryId]);
   const categoryDocumentNodes = useMemo(() => documentedSourceNodes.filter((node) => {
     if (!node.apqcMappings.length) return true;
     return node.apqcMappings.some((mapping) => {
@@ -234,7 +241,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
                   const supportsPreview = PREVIEWABLE_LEVELS.has(band.key);
                   const isPreviewed = supportsPreview && previewId === node.id;
                   return <div className="process-block-shell" key={node.id} onMouseLeave={() => setPreviewId(null)}>
-                    <button type="button" className={`process-block${node.id === selected.id ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onMouseEnter={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onFocus={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onBlur={supportsPreview ? () => setPreviewId(null) : undefined} onKeyDown={supportsPreview ? (event) => { if (event.key === "Escape") setPreviewId(null); } : undefined} aria-pressed={node.id === selected.id} aria-describedby={isPreviewed ? tooltipId : undefined}>
+                    <button type="button" className={`process-block evidence-${node.evidenceCoverage || "none"}${node.id === selected.id ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onMouseEnter={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onFocus={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onBlur={supportsPreview ? () => setPreviewId(null) : undefined} onKeyDown={supportsPreview ? (event) => { if (event.key === "Escape") setPreviewId(null); } : undefined} aria-pressed={node.id === selected.id} aria-describedby={isPreviewed ? tooltipId : undefined}>
                       <span>{node.sourceKind === "apqc" ? `APQC ${node.code}` : node.code}</span><strong>{node.name}</strong><small>{node.sourceKind === "apqc" ? `PCF ID ${node.sourceCode}` : `${node.relatedDocuments.length} t\u00e0i li\u1ec7u`}</small>
                     </button>
                     {isPreviewed ? <div className="process-preview" id={tooltipId} role="tooltip" style={{ top: previewPosition.top, left: previewPosition.left }}>
@@ -253,7 +260,12 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
               </div>
             </section>;
           })}
-          <div className="value-chain-legend" aria-label="Chú thích level"><span className="legend-l0">L0 APQC Category</span><span className="legend-l1">L1 APQC Process Group</span><span className="legend-l2">L2 Document-backed Process</span><span className="legend-l3">L3 Subprocess</span><span className="legend-l4">L4 Activity / Task</span></div>
+          <div className="value-chain-legend" aria-label="Chú thích độ phủ dữ liệu">
+            <strong>Độ phủ dữ liệu</strong>
+            <span><i className="coverage-swatch direct" aria-hidden="true" />Có tài liệu trực tiếp</span>
+            <span><i className="coverage-swatch descendant" aria-hidden="true" />Có dữ liệu ở cấp dưới</span>
+            <span><i className="coverage-swatch none" aria-hidden="true" />Chưa có dữ liệu liên kết</span>
+          </div>
         </div></div>
       </section>
       <aside className="detail-panel process-detail-panel">
