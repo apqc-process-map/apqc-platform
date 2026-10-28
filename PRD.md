@@ -112,6 +112,8 @@ The Action Log keeps the existing `/notifications` route, notification records, 
 - L2 cards show their supporting-document count. Processes without document evidence remain visible with the no-evidence style; only records with visible direct links use the dark evidence style.
 - L2 cards must display the full process code, process name, and document count. Card rows grow to the longest visible content, and the responsive grid reduces its column count instead of clipping or ellipsizing text on narrower desktop screens.
 - Process cards separate classification/identity from the title: L0 uses an APQC Category code header, L1 uses an APQC reference code header, and L2 uses an enterprise process-code header.
+- Card headers use one aligned visual system: L0 shows `Category` and `APQC {code}` on separate lines, L1 shows `APQC tham chiếu` and its code on separate lines, while L2 shows only the enterprise process code.
+- The Process Detail panel is hidden by default. A persistent show/hide control restores the selected process detail; while hidden, the landscape uses the full workspace width.
 - The landscape visualizes document-evidence coverage without changing APQC classification: a dark block means the node has directly linked documents, a medium block means an APQC ancestor has document-backed descendants, and a pale block means no linked evidence is currently visible. A persistent legend explains all three states.
 - The default hierarchy layout uses a focus-and-context pattern: a compact L0 overview, descriptive L1 selection cards, a visible selected-path connector, and mapped L2 process cards with document-evidence intensity. The connector communicates drill-down only, never execution sequence.
 

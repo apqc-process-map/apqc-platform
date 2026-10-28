@@ -155,6 +155,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
   const [previewPosition, setPreviewPosition] = useState({ top: 0, left: 0 });
   const [editing, setEditing] = useState(false);
   const [headerExpanded, setHeaderExpanded] = useState(true);
+  const [detailVisible, setDetailVisible] = useState(false);
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("selected");
@@ -209,6 +210,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
         <div className="map-actions"><button type="button" className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button type="button" className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
         {!referenceMode ? <div className="process-map-toolbar-search"><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Tìm process trên sơ đồ" placeholder="Tìm code, tên, owner, tag hoặc nội dung…" /></div> : null}
       </div>
+      {!referenceMode ? <button type="button" className="process-map-collapse-button process-map-detail-toggle" onClick={() => setDetailVisible((value) => !value)} aria-expanded={detailVisible} aria-controls="process-detail-panel">{detailVisible ? "Ẩn chi tiết" : "Hiện chi tiết"}</button> : null}
       <button type="button" className="process-map-collapse-button" onClick={() => setHeaderExpanded((value) => !value)} aria-expanded={headerExpanded} aria-controls="process-map-header-controls">
         <span aria-hidden="true">{headerExpanded ? "⌃" : "⌄"}</span>
         {headerExpanded ? "Thu gọn" : "Mở rộng"}
@@ -219,7 +221,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
   return <WorkspaceShell active="/process-map" eyebrow="PROCESS LANDSCAPE" title="Process Map" description="Tìm kiếm, xem tổng quan và quản trị metadata quy trình theo L0–L4." userName={userName} role={role} headerContent={headerContent}>
     {errorMessage ? <div className="state-message error-state"><strong>Không thể tải Process Map</strong><span>{errorMessage}</span></div> : null}
     {!errorMessage && !selected ? <div className="state-message"><strong>Chưa có process</strong><span>Tạo process metadata để bắt đầu hierarchy.</span></div> : null}
-    {referenceMode ? <section className="reference-empty"><div className="reference-icon">◇</div><h2>APQC Reference View</h2><p>Tra cứu taxonomy APQC đã import và đối chiếu coverage với enterprise process. Hai mô hình được quản lý độc lập.</p><Link className="primary-button" href="/catalog">Mở APQC Catalog →</Link></section> : selected ? <div className="map-layout value-chain-layout process-map-workspace">
+    {referenceMode ? <section className="reference-empty"><div className="reference-icon">◇</div><h2>APQC Reference View</h2><p>Tra cứu taxonomy APQC đã import và đối chiếu coverage với enterprise process. Hai mô hình được quản lý độc lập.</p><Link className="primary-button" href="/catalog">Mở APQC Catalog →</Link></section> : selected ? <div className={`map-layout value-chain-layout process-map-workspace${detailVisible ? "" : " is-detail-hidden"}`}>
       <section className="scope-column panel value-chain-panel">
         <div className="level-filter" aria-label="Lọc theo cấp độ">
           <button type="button" className={!activeLevels.length ? "active" : ""} onClick={() => setActiveLevels([])}>Tất cả cấp</button>
@@ -244,7 +246,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
                   const isCurrentNode = node.id === selected.id;
                   return <div className="process-block-shell" key={node.id} onMouseLeave={() => setPreviewId(null)}>
                     <button type="button" className={`process-block evidence-${node.evidenceCoverage || "none"}${isPathNode ? " in-path" : ""}${isCurrentNode ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onMouseEnter={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onFocus={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onBlur={supportsPreview ? () => setPreviewId(null) : undefined} onKeyDown={supportsPreview ? (event) => { if (event.key === "Escape") setPreviewId(null); } : undefined} aria-pressed={isCurrentNode} aria-current={isPathNode ? "step" : undefined} aria-describedby={isPreviewed ? tooltipId : undefined}>
-                      <span className="process-block-code"><small>{band.key === "L0" ? "APQC Category" : band.key === "L1" ? "APQC tham chiếu" : "Mã quy trình"}</small><b>{node.code}</b></span><strong>{node.name}</strong>{band.key === "L1" && node.description ? <em className="process-block-description">{node.description}</em> : null}<small>{node.sourceKind === "apqc" ? `PCF ID ${node.sourceCode}` : `${node.relatedDocuments.length} t\u00e0i li\u1ec7u`}</small>
+                      <span className={`process-block-code${band.key === "L2" ? " is-code-only" : ""}`}>{band.key !== "L2" ? <small>{band.key === "L0" ? "Category" : "APQC tham chiếu"}</small> : null}<b>{band.key === "L0" ? `APQC ${node.code}` : node.code}</b></span><strong>{node.name}</strong>{band.key === "L1" && node.description ? <em className="process-block-description">{node.description}</em> : null}<small>{node.sourceKind === "apqc" ? `PCF ID ${node.sourceCode}` : `${node.relatedDocuments.length} t\u00e0i li\u1ec7u`}</small>
                     </button>
                     {isPreviewed ? <div className="process-preview" id={tooltipId} role="tooltip" style={{ top: previewPosition.top, left: previewPosition.left }}>
                       <div className="process-preview-heading"><span>{band.key} · {node.code}</span><strong>{node.name}</strong></div>
@@ -270,7 +272,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
           </div>
         </div></div>
       </section>
-      <aside className="detail-panel process-detail-panel">
+      <aside className="detail-panel process-detail-panel" id="process-detail-panel" hidden={!detailVisible}>
         <div className="process-detail-heading"><div><p className="section-kicker">PROCESS DETAIL</p><span className="detail-code">{selected.code} · v{selected.versionNumber}</span><h2>{selected.name}</h2><span className="detail-level">{selected.level} · {selected.status}</span></div>{canEdit ? <button type="button" className="process-edit-toggle" onClick={() => setEditing((value) => !value)} aria-expanded={editing}>{editing ? "Đóng chỉnh sửa" : "Chỉnh sửa metadata"}</button> : null}</div>
         {selected.sourceKind === "apqc" ? <section className="apqc-reference-detail" aria-label="APQC reference detail">
           <span>APQC PCF 8.0 / {selected.level === "value_chain" ? "Category" : "Process Group"}</span>
