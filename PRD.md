@@ -111,6 +111,7 @@ The Action Log keeps the existing `/notifications` route, notification records, 
 - L2 renders only enterprise process records that have at least one document-version link visible to the current user. A document-linked scope/E2E record may appear at L2, while its stored enterprise level remains unchanged in the repository.
 - L2 cards show their supporting-document count. Processes without document evidence are omitted from the landscape, not deleted from the repository.
 - The landscape visualizes document-evidence coverage without changing APQC classification: a dark block means the node has directly linked documents, a medium block means an APQC ancestor has document-backed descendants, and a pale block means no linked evidence is currently visible. A persistent legend explains all three states.
+- The default hierarchy layout uses a focus-and-context pattern: a compact L0 overview, descriptive L1 selection cards, a visible selected-path connector, and document-backed L2 process cards. The connector communicates drill-down only, never execution sequence.
 
 ### Layered drill-down
 

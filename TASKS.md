@@ -534,3 +534,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE MAP-012 — Render Process Map L0/L1 from immutable APQC PCF level-1/level-2 elements and restrict L2 to enterprise processes with visible linked source documents.
 - [ ] PENDING MAP-013 — Process Owner validates proposed APQC paths and explicitly reallocates broad E2E document links to child processes only when source evidence supports the change.
 - [x] DONE MAP-014 — Add evidence-intensity styling and a legend so users can trace visible document data from APQC L0 through L1 to document-backed L2 nodes.
+- [x] DONE MAP-015 — Improve Process Map hierarchy readability with compact L0 context, descriptive L1 cards, selected-path highlighting and an explicit L1-to-L2 drill-down connector.

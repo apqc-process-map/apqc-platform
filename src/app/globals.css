@@ -653,3 +653,34 @@
 .apqc-reference-detail>small{padding-top:7px;border-top:1px solid #dce9e6;color:#70828a;font-size:9px;line-height:1.45}
 .process-documents-panel.is-apqc-hidden{display:none}
 .process-block span:first-child{font-variant-numeric:tabular-nums}
+
+/* Focus-and-context hierarchy inspired by enterprise process landscapes. */
+.process-level-band{position:relative}
+.process-level-band.l0{padding-bottom:4px;border-bottom:1px solid #e6ecee}
+.process-level-band.l0 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(92px,1fr));align-items:stretch}
+.process-level-band.l0 .process-block{min-height:64px;padding:7px 8px;text-align:center}
+.process-level-band.l0 .process-block span,.process-level-band.l0 .process-block small{font-size:7px}
+.process-level-band.l0 .process-block strong{display:-webkit-box;overflow:hidden;font-size:9px;line-height:1.25;-webkit-box-orient:vertical;-webkit-line-clamp:3}
+.process-level-band.l1{margin-bottom:28px;padding-top:5px}
+.process-level-band.l1::after{content:"";position:absolute;left:55%;bottom:-22px;width:0;height:16px;border-left:2px solid #d0a800;transform:translateX(-50%)}
+.process-level-band.l1::before{content:"";position:absolute;z-index:1;left:55%;bottom:-27px;border-top:7px solid #d0a800;border-right:6px solid transparent;border-left:6px solid transparent;transform:translateX(-50%)}
+.process-level-band.l1 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(128px,1fr));align-items:stretch}
+.process-level-band.l1 .process-block{min-height:146px;align-content:start;padding:12px 11px;text-align:center}
+.process-level-band.l1 .process-block>span{font-size:10px;font-weight:800}
+.process-level-band.l1 .process-block>strong{font-size:12px;line-height:1.35}
+.process-block-description{display:-webkit-box;overflow:hidden;margin:7px -11px -2px;padding:8px 10px 0;border-top:1px solid currentColor;font-size:9px;font-style:normal;font-weight:500;line-height:1.4;opacity:.78;-webkit-box-orient:vertical;-webkit-line-clamp:5}
+.process-level-band.l1 .process-block>small{align-self:end;margin-top:7px;font-size:8px}
+.process-level-band.l2{padding-top:6px}
+.process-level-band.l2 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(148px,1fr));align-items:stretch}
+.process-level-band.l2 .process-block{min-height:106px;padding:12px 13px;text-align:center}
+.process-level-band.l2 .process-block>span{font-size:10px;font-weight:800}
+.process-level-band.l2 .process-block>strong{font-size:12px;line-height:1.35}
+.process-level-band.l2 .process-block>small{margin-top:5px;font-size:9px}
+.process-level-band .process-block.in-path{border-color:#e2b900;box-shadow:0 0 0 2px #f2c900}
+.process-level-band .process-block.in-path.selected{box-shadow:0 0 0 2px #f2c900,0 0 0 5px rgba(27,138,131,.18)}
+@media(max-width:1180px){
+  .process-level-band.l0 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(82px,1fr))}
+  .process-level-band.l1 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+  .process-level-band.l1 .process-block{min-height:136px;padding:10px 9px}
+  .process-block-description{margin-right:-9px;margin-left:-9px}
+}
