@@ -533,3 +533,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE HARDEN-009 — PR #72 merged as `393aa4a`; Vercel production deployment `dpl_AJm7tSBQkkqyAFMWA17fvdRg5oEn` reached READY and authenticated smoke tests passed on `pnj-apqc-platform.vercel.app`.
 - [x] DONE MAP-012 — Render Process Map L0/L1 from immutable APQC PCF level-1/level-2 elements and restrict L2 to enterprise processes with visible linked source documents.
 - [ ] PENDING MAP-013 — Process Owner validates proposed APQC paths and explicitly reallocates broad E2E document links to child processes only when source evidence supports the change.
+- [x] DONE MAP-014 — Add evidence-intensity styling and a legend so users can trace visible document data from APQC L0 through L1 to document-backed L2 nodes.
