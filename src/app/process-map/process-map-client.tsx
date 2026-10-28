@@ -154,7 +154,6 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [previewPosition, setPreviewPosition] = useState({ top: 0, left: 0 });
   const [editing, setEditing] = useState(false);
-  const [headerExpanded, setHeaderExpanded] = useState(true);
   const [detailVisible, setDetailVisible] = useState(false);
 
   useEffect(() => {
@@ -203,18 +202,14 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
   const canEdit = role === "admin" && selected?.sourceKind !== "apqc" && Boolean(selected?.versionId);
   const editableVersion = selected ? EDITABLE_STATUSES.has(selected.status) : false;
 
-  const headerContent = <section className={`process-map-header-block${headerExpanded ? " is-expanded" : " is-collapsed"}`} aria-label="Điều khiển Process Landscape">
+  const headerContent = <section className="process-map-header-block" aria-label="Điều khiển Process Landscape">
     <div className="process-map-header-main">
       <p className="eyebrow accent process-map-header-label">PROCESS LANDSCAPE</p>
-      <div className="process-map-header-controls" id="process-map-header-controls" hidden={!headerExpanded}>
+      <div className="process-map-header-controls">
         <div className="map-actions"><button type="button" className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button type="button" className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
         {!referenceMode ? <div className="process-map-toolbar-search"><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Tìm process trên sơ đồ" placeholder="Tìm code, tên, owner, tag hoặc nội dung…" /></div> : null}
       </div>
-      {!referenceMode ? <button type="button" className="process-map-collapse-button process-map-detail-toggle" onClick={() => setDetailVisible((value) => !value)} aria-expanded={detailVisible} aria-controls="process-detail-panel">{detailVisible ? "Ẩn chi tiết" : "Hiện chi tiết"}</button> : null}
-      <button type="button" className="process-map-collapse-button" onClick={() => setHeaderExpanded((value) => !value)} aria-expanded={headerExpanded} aria-controls="process-map-header-controls">
-        <span aria-hidden="true">{headerExpanded ? "⌃" : "⌄"}</span>
-        {headerExpanded ? "Thu gọn" : "Mở rộng"}
-      </button>
+      {!referenceMode ? <button type="button" className="process-map-toolbar-button process-map-detail-toggle" onClick={() => setDetailVisible((value) => !value)} aria-expanded={detailVisible} aria-controls="process-detail-panel">{detailVisible ? "Ẩn chi tiết" : "Hiện chi tiết"}</button> : null}
     </div>
   </section>;
 
