@@ -53,21 +53,25 @@ const LANDSCAPE_LEVEL_BANDS = LEVEL_BANDS.map((band) => ({
     ? "APQC Category"
     : band.key === "L1"
       ? "APQC Process Group"
-      : band.key === "L2" ? "Quy tr\u00ecnh c\u00f3 t\u00e0i li\u1ec7u" : band.label,
+      : band.key === "L2" ? "Quy tr\u00ecnh doanh nghi\u1ec7p" : band.label,
 }));
 
 const EDITABLE_STATUSES = new Set(["draft", "rejected"]);
 const PREVIEWABLE_LEVELS = new Set(["L2", "L3", "L4"]);
 
 export default function ProcessMapClient({ nodes, apqcNodes, userName, role, errorMessage }: Props) {
-  const documentedSourceNodes = useMemo(() => nodes
-    .filter((node) => node.relatedDocuments.length > 0)
+  const enterpriseSourceNodes = useMemo(() => nodes
+    .filter((node) => node.apqcMappings.some((mapping) => Boolean(mapping.ancestorLevel2Id)))
     .map((node) => ({
       ...node,
       level: ["subprocess", "activity", "task"].includes(node.level) ? node.level : "process",
       sourceKind: "enterprise" as const,
-      evidenceCoverage: "direct" as const,
+      evidenceCoverage: node.relatedDocuments.length > 0 ? "direct" as const : "none" as const,
     })), [nodes]);
+  const documentedSourceNodes = useMemo(
+    () => enterpriseSourceNodes.filter((node) => node.relatedDocuments.length > 0),
+    [enterpriseSourceNodes],
+  );
   const evidencePathIds = useMemo(() => new Set(documentedSourceNodes.flatMap((node) => node.apqcMappings.flatMap((mapping) => [
     mapping.ancestorLevel1Id,
     mapping.ancestorLevel2Id,
@@ -136,18 +140,14 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       publishedAt: null,
       publishedBy: "",
     })), [apqcNodes, evidencePathIds, selectedCategoryId]);
-  const categoryDocumentNodes = useMemo(() => documentedSourceNodes.filter((node) => {
-    if (!node.apqcMappings.length) return true;
-    return node.apqcMappings.some((mapping) => {
-      if (mapping.ancestorLevel1Id !== selectedCategoryId) return false;
-      return !mapping.ancestorLevel2Id || mapping.ancestorLevel2Id === selectedGroupId;
-    });
-  }), [documentedSourceNodes, selectedCategoryId, selectedGroupId]);
+  const categoryProcessNodes = useMemo(() => enterpriseSourceNodes.filter((node) => node.apqcMappings.some((mapping) =>
+    mapping.ancestorLevel1Id === selectedCategoryId && mapping.ancestorLevel2Id === selectedGroupId
+  )), [enterpriseSourceNodes, selectedCategoryId, selectedGroupId]);
   const landscapeNodes = useMemo(
-    () => [...apqcLandscapeNodes, ...categoryDocumentNodes],
-    [apqcLandscapeNodes, categoryDocumentNodes],
+    () => [...apqcLandscapeNodes, ...categoryProcessNodes],
+    [apqcLandscapeNodes, categoryProcessNodes],
   );
-  const [selectedId, setSelectedId] = useState(documentedSourceNodes[0]?.id || defaultCategoryId || "");
+  const [selectedId, setSelectedId] = useState(documentedSourceNodes[0]?.id || enterpriseSourceNodes[0]?.id || defaultCategoryId || "");
   const [referenceMode, setReferenceMode] = useState(false);
   const [query, setQuery] = useState("");
   const [activeLevels, setActiveLevels] = useState<string[]>([]);
@@ -276,7 +276,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
           <span>APQC PCF 8.0 / {selected.level === "value_chain" ? "Category" : "Process Group"}</span>
           <strong>PCF ID {selected.sourceCode} / Hierarchy {selected.code}</strong>
           <p>{selected.description || "APQC description unavailable."}</p>
-          <small>{"D\u1eef li\u1ec7u tham chi\u1ebfu ch\u1ec9 \u0111\u1ecdc. L2 ch\u1ec9 hi\u1ec3n th\u1ecb quy tr\u00ecnh c\u00f3 t\u00e0i li\u1ec7u ngu\u1ed3n."}</small>
+          <small>{"D\u1eef li\u1ec7u tham chi\u1ebfu ch\u1ec9 \u0111\u1ecdc. L2 hi\u1ec3n th\u1ecb quy tr\u00ecnh doanh nghi\u1ec7p; m\u00e0u \u0111\u1eadm ch\u1ec9 d\u00f9ng cho quy tr\u00ecnh c\u00f3 t\u00e0i li\u1ec7u li\u00ean k\u1ebft."}</small>
         </section> : null}
         <section className={`process-documents-panel${selected.sourceKind === "apqc" ? " is-apqc-hidden" : ""}`} aria-labelledby="process-documents-title">
           <div className="process-documents-header">
@@ -327,6 +327,6 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
         {selected.sourceKind !== "apqc" && !canEdit ? <p className="process-readonly-note">Bạn đang ở chế độ xem. Chỉ Admin được chỉnh sửa metadata quy trình.</p> : null}
       </aside>
     </div> : null}
-    <footer className="map-note"><span className="setup-check">i</span><span><strong>Cấu trúc theo nguồn dữ liệu.</strong> L0–L1 lấy trực tiếp từ APQC; L2 chỉ hiển thị quy trình có tài liệu nguồn.</span></footer>
+    <footer className="map-note"><span className="setup-check">i</span><span><strong>Cấu trúc theo nguồn dữ liệu.</strong> L0–L1 lấy trực tiếp từ APQC; L2 hiển thị quy trình đã map, màu đậm chỉ báo tài liệu liên kết trực tiếp.</span></footer>
   </WorkspaceShell>;
 }

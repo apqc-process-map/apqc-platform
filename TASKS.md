@@ -535,3 +535,13 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [ ] PENDING MAP-013 — Process Owner validates proposed APQC paths and explicitly reallocates broad E2E document links to child processes only when source evidence supports the change.
 - [x] DONE MAP-014 — Add evidence-intensity styling and a legend so users can trace visible document data from APQC L0 through L1 to document-backed L2 nodes.
 - [x] DONE MAP-015 — Improve Process Map hierarchy readability with compact L0 context, descriptive L1 cards, selected-path highlighting and an explicit L1-to-L2 drill-down connector.
+
+
+## 2026-10-28 — Process Map workbook import
+
+- [x] DONE MAP-WORKBOOK-001 — Inspect Process Map.xlsx and scope the import to 34 rows classified as Quy Trình; exclude the other 902 document rows.
+- [x] DONE MAP-WORKBOOK-002 — Reconcile the installment process by updating the existing TG-L1 identity in place, preserving its UUID and document links.
+- [x] DONE MAP-WORKBOOK-003 — Add a version-controlled, rollback-tested migration for 33 new Draft processes plus source-backed metadata and Proposed APQC mappings.
+- [x] DONE MAP-WORKBOOK-004 — Show mapped L2 processes without requiring document evidence; preserve dark highlighting only for direct document links.
+- [ ] MAP-WORKBOOK-005 — Apply and verify the migration on Supabase, complete authenticated visual/user-flow QA, merge, and verify Vercel Production.
+- [ ] PENDING MAP-WORKBOOK-006 — Process Owner validates the 34 Proposed APQC mappings, effective dates, department metadata, and missing process-content fields before publication.

@@ -274,3 +274,11 @@ Authenticated Production acceptance covers the current installment dataset acros
 - Database delivery is split into four non-destructive units: document read policy, atomic mutation RPCs, RLS/index hardening, and the three remaining foreign-key indexes.
 - All four production migrations are applied. Viewer read/denial checks, Admin rollback-only atomic workflow probes and Security/Performance Advisors passed; no probe data persisted.
 - Remaining release path: run final build and authenticated browser/visual QA, then perform one GitHub merge and one final Vercel production deployment.
+
+### Phase 13 — Process Map workbook onboarding (2026-10-28)
+
+- Import only the 34 source rows classified as enterprise processes; retain the workbook outside Git.
+- Update the existing installment process identity in place and preserve all current document links.
+- Store source-backed code/name, effective date, department/unit and APQC path; leave unsupported content blank and mappings Proposed.
+- Display every mapped L2 process while retaining evidence intensity based only on visible document links.
+- Exit: migration/data counts, RLS/security checks, authenticated Process Map QA, GitHub merge and one final Vercel Production deployment are verified.

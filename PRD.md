@@ -75,10 +75,10 @@ Authorization must be enforced by Supabase RLS. UI hiding is not sufficient.
 
 ### Enterprise sample data
 
-- MVP target: approximately 20–30 enterprise processes.
-- The end-to-end demo domain remains open until real samples are supplied.
-- Real source files may include Excel, CSV, PDF, and DOCX.
-- Import design for enterprise samples remains open pending those files.
+- Current controlled dataset after the Process Map workbook import: 44 enterprise process records, including the existing 11-node installment hierarchy and 33 additional process identities.
+- The source workbook contributes only rows classified as `Quy Trình`; non-process document rows are not converted into enterprise processes.
+- Source-backed metadata includes process code/name, drafting department/unit, effective date, source review count, and the APQC L0/L1 path. Unknown process content remains visibly incomplete.
+- The source workbook remains outside Git; the versioned migration contains only the governed process rows needed by the application.
 
 ## 6. Information architecture
 
@@ -108,10 +108,10 @@ The Action Log keeps the existing `/notifications` route, notification records, 
 
 - L0 renders APQC PCF level-1 Categories directly from the immutable reference dataset.
 - L1 renders APQC PCF level-2 Process Groups for the selected L0 Category.
-- L2 renders only enterprise process records that have at least one document-version link visible to the current user. A document-linked scope/E2E record may appear at L2, while its stored enterprise level remains unchanged in the repository.
-- L2 cards show their supporting-document count. Processes without document evidence are omitted from the landscape, not deleted from the repository.
+- L2 renders enterprise process records mapped to the selected APQC level-2 Process Group, regardless of whether a visible document is linked. A mapped scope/E2E record may appear at L2 while its stored enterprise level remains unchanged.
+- L2 cards show their supporting-document count. Processes without document evidence remain visible with the no-evidence style; only records with visible direct links use the dark evidence style.
 - The landscape visualizes document-evidence coverage without changing APQC classification: a dark block means the node has directly linked documents, a medium block means an APQC ancestor has document-backed descendants, and a pale block means no linked evidence is currently visible. A persistent legend explains all three states.
-- The default hierarchy layout uses a focus-and-context pattern: a compact L0 overview, descriptive L1 selection cards, a visible selected-path connector, and document-backed L2 process cards. The connector communicates drill-down only, never execution sequence.
+- The default hierarchy layout uses a focus-and-context pattern: a compact L0 overview, descriptive L1 selection cards, a visible selected-path connector, and mapped L2 process cards with document-evidence intensity. The connector communicates drill-down only, never execution sequence.
 
 ### Layered drill-down
 
