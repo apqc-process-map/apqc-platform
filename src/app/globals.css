@@ -660,6 +660,9 @@
 .process-level-band.l0 .process-block-code>small{display:none}
 .process-level-band.l0 .process-block-code>b{font-size:8px;text-align:center}
 .process-level-band.l1 .process-block-code{margin:-12px -11px 9px;padding:6px 9px}
+.process-level-band.l1 .process-block-code{grid-template-columns:1fr;gap:2px;text-align:center}
+.process-level-band.l1 .process-block-code>small{white-space:normal}
+.process-level-band.l1 .process-block-code>b{text-align:center;white-space:nowrap}
 .process-level-band.l2 .process-block-code{margin:-14px -13px 10px;padding:7px 10px}
 
 /* Focus-and-context hierarchy inspired by enterprise process landscapes. */
