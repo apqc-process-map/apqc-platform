@@ -147,7 +147,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
     () => [...apqcLandscapeNodes, ...categoryDocumentNodes],
     [apqcLandscapeNodes, categoryDocumentNodes],
   );
-  const [selectedId, setSelectedId] = useState(defaultCategoryId || documentedSourceNodes[0]?.id || "");
+  const [selectedId, setSelectedId] = useState(documentedSourceNodes[0]?.id || defaultCategoryId || "");
   const [referenceMode, setReferenceMode] = useState(false);
   const [query, setQuery] = useState("");
   const [activeLevels, setActiveLevels] = useState<string[]>([]);
@@ -240,9 +240,11 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
                   const tooltipId = `process-preview-${node.id}`;
                   const supportsPreview = PREVIEWABLE_LEVELS.has(band.key);
                   const isPreviewed = supportsPreview && previewId === node.id;
+                  const isPathNode = band.key === "L0" ? node.id === selectedCategoryId : band.key === "L1" ? node.id === selectedGroupId : node.id === selected.id;
+                  const isCurrentNode = node.id === selected.id;
                   return <div className="process-block-shell" key={node.id} onMouseLeave={() => setPreviewId(null)}>
-                    <button type="button" className={`process-block evidence-${node.evidenceCoverage || "none"}${node.id === selected.id ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onMouseEnter={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onFocus={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onBlur={supportsPreview ? () => setPreviewId(null) : undefined} onKeyDown={supportsPreview ? (event) => { if (event.key === "Escape") setPreviewId(null); } : undefined} aria-pressed={node.id === selected.id} aria-describedby={isPreviewed ? tooltipId : undefined}>
-                      <span>{node.sourceKind === "apqc" ? `APQC ${node.code}` : node.code}</span><strong>{node.name}</strong><small>{node.sourceKind === "apqc" ? `PCF ID ${node.sourceCode}` : `${node.relatedDocuments.length} t\u00e0i li\u1ec7u`}</small>
+                    <button type="button" className={`process-block evidence-${node.evidenceCoverage || "none"}${isPathNode ? " in-path" : ""}${isCurrentNode ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onMouseEnter={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onFocus={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onBlur={supportsPreview ? () => setPreviewId(null) : undefined} onKeyDown={supportsPreview ? (event) => { if (event.key === "Escape") setPreviewId(null); } : undefined} aria-pressed={isCurrentNode} aria-current={isPathNode ? "step" : undefined} aria-describedby={isPreviewed ? tooltipId : undefined}>
+                      <span>{node.sourceKind === "apqc" ? `APQC ${node.code}` : node.code}</span><strong>{node.name}</strong>{band.key === "L1" && node.description ? <em className="process-block-description">{node.description}</em> : null}<small>{node.sourceKind === "apqc" ? `PCF ID ${node.sourceCode}` : `${node.relatedDocuments.length} t\u00e0i li\u1ec7u`}</small>
                     </button>
                     {isPreviewed ? <div className="process-preview" id={tooltipId} role="tooltip" style={{ top: previewPosition.top, left: previewPosition.left }}>
                       <div className="process-preview-heading"><span>{band.key} · {node.code}</span><strong>{node.name}</strong></div>
