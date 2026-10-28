@@ -72,7 +72,11 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
     () => enterpriseSourceNodes.filter((node) => node.relatedDocuments.length > 0),
     [enterpriseSourceNodes],
   );
-  const evidencePathIds = useMemo(() => new Set(documentedSourceNodes.flatMap((node) => node.apqcMappings.flatMap((mapping) => [
+  const mappedPathIds = useMemo(() => new Set(enterpriseSourceNodes.flatMap((node) => node.apqcMappings.flatMap((mapping) => [
+    mapping.ancestorLevel1Id,
+    mapping.ancestorLevel2Id,
+  ].filter((id): id is string => Boolean(id))))), [enterpriseSourceNodes]);
+  const documentedPathIds = useMemo(() => new Set(documentedSourceNodes.flatMap((node) => node.apqcMappings.flatMap((mapping) => [
     mapping.ancestorLevel1Id,
     mapping.ancestorLevel2Id,
   ].filter((id): id is string => Boolean(id))))), [documentedSourceNodes]);
@@ -100,7 +104,9 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       nameEn: element.name,
       allowedRoles: [],
       sourceKind: "apqc",
-      evidenceCoverage: evidencePathIds.has(element.id) ? "descendant" : "none",
+      evidenceCoverage: documentedPathIds.has(element.id)
+        ? "direct"
+        : mappedPathIds.has(element.id) ? "descendant" : "none",
       level: element.levelNumber === 1 ? "value_chain" : "e2e",
       status: "reference",
       owner: "APQC PCF 8.0",
@@ -139,7 +145,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       approvedBy: "",
       publishedAt: null,
       publishedBy: "",
-    })), [apqcNodes, evidencePathIds, selectedCategoryId]);
+    })), [apqcNodes, documentedPathIds, mappedPathIds, selectedCategoryId]);
   const categoryProcessNodes = useMemo(() => enterpriseSourceNodes.filter((node) => node.apqcMappings.some((mapping) =>
     mapping.ancestorLevel1Id === selectedCategoryId && mapping.ancestorLevel2Id === selectedGroupId
   )), [enterpriseSourceNodes, selectedCategoryId, selectedGroupId]);
@@ -261,8 +267,8 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
           })}
           <div className="value-chain-legend" aria-label="Chú thích độ phủ dữ liệu">
             <strong>Độ phủ dữ liệu</strong>
-            <span><i className="coverage-swatch direct" aria-hidden="true" />Có tài liệu trực tiếp</span>
-            <span><i className="coverage-swatch descendant" aria-hidden="true" />Có dữ liệu ở cấp dưới</span>
+            <span><i className="coverage-swatch direct" aria-hidden="true" />Có dữ liệu cấp dưới và có tài liệu trực tiếp</span>
+            <span><i className="coverage-swatch descendant" aria-hidden="true" />Có dữ liệu cấp dưới nhưng không có tài liệu trực tiếp</span>
             <span><i className="coverage-swatch none" aria-hidden="true" />Chưa có dữ liệu liên kết</span>
           </div>
         </div></div>

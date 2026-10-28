@@ -23,7 +23,7 @@ Process Map is a desktop-first internal application for browsing and governing e
 - Authenticated route protection, role-aware navigation and database-enforced RLS.
 - APQC catalog/search/detail and data-driven Process Map with L0–L4 bands, search, selection, metadata detail/editing and linked documents.
 - Process Map landscape now uses APQC PCF level 1 as L0 and APQC PCF level 2 as L1; L2 is evidence-gated and shows only enterprise records with visible linked documents. Repository process levels and proposed mappings remain unchanged.
-- Process Map marks direct document evidence, APQC ancestors with evidenced descendants, and branches without visible evidence using distinct intensity states with an on-screen legend.
+- Process Map marks APQC L0/L1 branches with mapped lower-level process data plus document evidence, mapped lower-level data without documents, and branches without mapped data using three intensity states; L2 remains based on directly linked documents.
 - Process Map uses a focus-and-context hierarchy layout: compact L0 overview, descriptive L1 cards, selected-path highlighting and a drill-down connector to document-backed L2 cards.
 - Relationship network/table with controlled types, direction labels, document focus, governed create/edit and collapsed legend.
 - Confirmed document-process links are exposed in Relationship as proposed `documented_by` edges; document-to-document links are not inferred from names alone.
