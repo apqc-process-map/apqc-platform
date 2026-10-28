@@ -662,7 +662,7 @@
 .process-level-band.l0 .process-block span,.process-level-band.l0 .process-block small{font-size:7px}
 .process-level-band.l0 .process-block strong{display:-webkit-box;overflow:hidden;font-size:9px;line-height:1.25;-webkit-box-orient:vertical;-webkit-line-clamp:3}
 .process-level-band.l1{margin-bottom:28px;padding-top:5px}
-.process-level-band.l1 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(104px,1fr));align-items:stretch}
+.process-level-band.l1 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(96px,1fr));align-items:stretch}
 .process-level-band.l1 .process-block{position:relative;min-height:146px;align-content:start;padding:12px 11px;text-align:center}
 .process-level-band.l1 .process-block.in-path::after{content:"";position:absolute;left:50%;bottom:-22px;width:0;height:17px;border-left:2px solid #d0a800;transform:translateX(-50%)}
 .process-level-band.l1 .process-block.in-path::before{content:"";position:absolute;z-index:2;left:50%;bottom:-28px;border-top:7px solid #d0a800;border-right:6px solid transparent;border-left:6px solid transparent;transform:translateX(-50%)}
@@ -671,7 +671,7 @@
 .process-block-description{display:-webkit-box;overflow:hidden;margin:7px -11px -2px;padding:8px 10px 0;border-top:1px solid currentColor;font-size:9px;font-style:normal;font-weight:500;line-height:1.4;opacity:.78;-webkit-box-orient:vertical;-webkit-line-clamp:5}
 .process-level-band.l1 .process-block>small{align-self:end;margin-top:7px;font-size:8px}
 .process-level-band.l2{padding-top:6px}
-.process-level-band.l2 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(148px,1fr));align-items:stretch}
+.process-level-band.l2 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));align-items:stretch}
 .process-level-band.l2 .process-block{min-height:106px;padding:12px 13px;text-align:center}
 .process-level-band.l2 .process-block>span{font-size:10px;font-weight:800}
 .process-level-band.l2 .process-block>strong{font-size:12px;line-height:1.35}
@@ -686,3 +686,4 @@
 }
 
 .process-map-workspace{grid-template-columns:minmax(0,2.2fr) minmax(300px,.75fr)}
+.process-map-workspace .value-chain-map{min-width:0}

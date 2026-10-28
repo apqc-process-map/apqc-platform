@@ -147,7 +147,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
     () => [...apqcLandscapeNodes, ...categoryDocumentNodes],
     [apqcLandscapeNodes, categoryDocumentNodes],
   );
-  const [selectedId, setSelectedId] = useState(defaultCategoryId || documentedSourceNodes[0]?.id || "");
+  const [selectedId, setSelectedId] = useState(documentedSourceNodes[0]?.id || defaultCategoryId || "");
   const [referenceMode, setReferenceMode] = useState(false);
   const [query, setQuery] = useState("");
   const [activeLevels, setActiveLevels] = useState<string[]>([]);
