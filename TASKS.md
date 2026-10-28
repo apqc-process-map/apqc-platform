@@ -545,3 +545,10 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE MAP-WORKBOOK-004 — Show mapped L2 processes without requiring document evidence; preserve dark highlighting only for direct document links.
 - [ ] MAP-WORKBOOK-005 — Apply and verify the migration on Supabase, complete authenticated visual/user-flow QA, merge, and verify Vercel Production.
 - [ ] PENDING MAP-WORKBOOK-006 — Process Owner validates the 34 Proposed APQC mappings, effective dates, department metadata, and missing process-content fields before publication.
+
+## 2026-10-28 — Map tài liệu vào Relationship
+
+- [x] REL-DOC-001 — Đối soát 12 tài liệu và 12 `document_process_links`; xác nhận bảng `object_relationships` chưa có dữ liệu trước khi mapping.
+- [x] REL-DOC-002 — Bổ sung controlled type `documented_by` (Process → Document) để không gán sai nghĩa `governed_by` cho biểu mẫu, hướng dẫn và thông báo.
+- [x] REL-DOC-003 — Tạo quan hệ đề xuất từ các liên kết tài liệu–quy trình đã có, kèm evidence truy vết tới link và document version; không suy diễn quan hệ tài liệu–tài liệu từ tên.
+- [ ] PENDING REL-DOC-004 — Process Owner/Admin xác minh từng quan hệ đề xuất và cung cấp bằng chứng nếu cần thêm quan hệ giữa các tài liệu.
