@@ -687,3 +687,4 @@
 
 .process-map-workspace{grid-template-columns:minmax(0,2.2fr) minmax(300px,.75fr)}
 .process-map-workspace .value-chain-map{min-width:0}
+@media(max-width:1050px){.process-map-workspace{grid-template-columns:minmax(0,1fr)}}
