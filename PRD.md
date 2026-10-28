@@ -110,6 +110,7 @@ The Action Log keeps the existing `/notifications` route, notification records, 
 - L1 renders APQC PCF level-2 Process Groups for the selected L0 Category.
 - L2 renders enterprise process records mapped to the selected APQC level-2 Process Group, regardless of whether a visible document is linked. A mapped scope/E2E record may appear at L2 while its stored enterprise level remains unchanged.
 - L2 cards show their supporting-document count. Processes without document evidence remain visible with the no-evidence style; only records with visible direct links use the dark evidence style.
+- L2 cards must display the full process code, process name, and document count. Card rows grow to the longest visible content, and the responsive grid reduces its column count instead of clipping or ellipsizing text on narrower desktop screens.
 - The landscape visualizes document-evidence coverage without changing APQC classification: a dark block means the node has directly linked documents, a medium block means an APQC ancestor has document-backed descendants, and a pale block means no linked evidence is currently visible. A persistent legend explains all three states.
 - The default hierarchy layout uses a focus-and-context pattern: a compact L0 overview, descriptive L1 selection cards, a visible selected-path connector, and mapped L2 process cards with document-evidence intensity. The connector communicates drill-down only, never execution sequence.
 

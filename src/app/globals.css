@@ -671,11 +671,12 @@
 .process-block-description{display:-webkit-box;overflow:hidden;margin:7px -11px -2px;padding:8px 10px 0;border-top:1px solid currentColor;font-size:9px;font-style:normal;font-weight:500;line-height:1.4;opacity:.78;-webkit-box-orient:vertical;-webkit-line-clamp:5}
 .process-level-band.l1 .process-block>small{align-self:end;margin-top:7px;font-size:8px}
 .process-level-band.l2{padding-top:6px}
-.process-level-band.l2 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));align-items:stretch}
-.process-level-band.l2 .process-block{min-height:106px;padding:12px 13px;text-align:center}
-.process-level-band.l2 .process-block>span{font-size:10px;font-weight:800}
-.process-level-band.l2 .process-block>strong{font-size:12px;line-height:1.35}
-.process-level-band.l2 .process-block>small{margin-top:5px;font-size:9px}
+.process-level-band.l2 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,176px),1fr));grid-auto-rows:minmax(132px,auto);align-items:stretch}
+.process-level-band.l2 .process-block-shell{display:flex;min-height:132px}
+.process-level-band.l2 .process-block{height:auto;min-height:100%;align-content:center;padding:14px 13px;text-align:center}
+.process-level-band.l2 .process-block>span{font-size:9px;font-weight:800;line-height:1.35;overflow-wrap:anywhere;word-break:normal}
+.process-level-band.l2 .process-block>strong{font-size:12px;line-height:1.42;overflow-wrap:anywhere;word-break:normal}
+.process-level-band.l2 .process-block>small{margin-top:7px;font-size:9px;white-space:normal;overflow:visible;text-overflow:clip}
 .process-level-band .process-block.in-path{border-color:#e2b900;box-shadow:0 0 0 2px #f2c900}
 .process-level-band .process-block.in-path.selected{box-shadow:0 0 0 2px #f2c900,0 0 0 5px rgba(27,138,131,.18)}
 @media(max-width:1180px){
@@ -683,6 +684,7 @@
   .process-level-band.l1 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(100px,1fr))}
   .process-level-band.l1 .process-block{min-height:136px;padding:10px 9px}
   .process-block-description{margin-right:-9px;margin-left:-9px}
+  .process-level-band.l2 .process-level-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,164px),1fr))}
 }
 
 .process-map-workspace{grid-template-columns:minmax(0,2.2fr) minmax(300px,.75fr)}
