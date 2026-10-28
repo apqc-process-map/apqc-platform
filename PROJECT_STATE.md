@@ -1,6 +1,6 @@
 # Project State
 
-Last reviewed: 2026-10-27.
+Last reviewed: 2026-10-28.
 
 ## Product and architecture
 
@@ -14,7 +14,7 @@ Process Map is a desktop-first internal application for browsing and governing e
 ## Verified production data
 
 - APQC: 2,017 elements, 3,284 metrics, 13 categories, levels 1–5, no known orphan/duplicate import defects.
-- Controlled installment scope: 12 document identities/versions with 12 private binaries; 11 process nodes (L0, L1 and nine L2); 11 proposed APQC mappings; 35 findings; 22 corrective actions; 104 document-version links; 35 process-version links; 113 source-evidence cells. Six dangling `[DEMO]` relationship fixtures were removed after confirming that their source roles and target documents no longer existed.
+- Controlled installment scope: 12 document identities/versions with 12 private binaries; 11 process nodes (L0, L1 and nine L2); 11 proposed APQC mappings; 35 findings; 22 corrective actions; 104 document-version links; 35 process-version links; 113 source-evidence cells. Six dangling `[DEMO]` relationship fixtures were removed after confirming that their source roles and target documents no longer existed. Twelve confirmed document-process links are now represented as proposed `documented_by` relationships.
 - Six active accounts: three Admin and three Viewer; no Editor account. Credentials are not stored in Git.
 - APQC workbook and supplied business documents remain outside Git.
 
@@ -26,6 +26,7 @@ Process Map is a desktop-first internal application for browsing and governing e
 - Process Map marks direct document evidence, APQC ancestors with evidenced descendants, and branches without visible evidence using distinct intensity states with an on-screen legend.
 - Process Map uses a focus-and-context hierarchy layout: compact L0 overview, descriptive L1 cards, selected-path highlighting and a drill-down connector to document-backed L2 cards.
 - Relationship network/table with controlled types, direction labels, document focus, governed create/edit and collapsed legend.
+- Confirmed document-process links are exposed in Relationship as proposed `documented_by` edges; document-to-document links are not inferred from names alone.
 - Document library with metadata intake/editing, filter/sort/group, private direct browser upload, signed file route, PDF/image preview, Office download, lifecycle, comparison, process/applicability/tag links and role-knowledge classification.
 - “Vai trò của tôi” groups verified knowledge mappings into required, reference and not-applicable; these mappings do not grant access.
 - Finding register contains all 35 controlled workbook issues, consolidated related-document/process evidence, resizable columns, governed metadata and action workflow.
@@ -55,7 +56,7 @@ Process Map is a desktop-first internal application for browsing and governing e
 - Search helper unit tests: 3 passed (required an unsandboxed Node test runner because Windows blocked child-process spawn in the restricted sandbox).
 - Supabase production: four hardening migrations applied and migration-ledger filenames synchronized. Viewer simulation returned 12 visible non-effective documents and zero rows outside Viewer `allowed_roles`; Viewer mutation RPC was denied. Admin rollback probe passed create/update Document, create Finding and create Action atomically, with zero probe rows persisted.
 - Final Next.js 16.4.1 production build passed all 15 routes. Authenticated Preview QA at 1024 px passed for Viewer document access (including Draft metadata/private PDF), special-character search, Admin 35/35 Finding Matrix links and Relationship loading with no horizontal overflow or console errors.
-- PR #72 merged as `393aa4a`. Vercel production deployment `dpl_AJm7tSBQkkqyAFMWA17fvdRg5oEn` reached READY on `pnj-apqc-platform.vercel.app`; authenticated production smoke tests passed for Documents 12/12, Process Map L0–L2, Findings 35/35 and Relationship 0/0 empty state, with no browser-console or recent Vercel runtime error.
+- PR #72 merged as `393aa4a`. Vercel production deployment `dpl_AJm7tSBQkkqyAFMWA17fvdRg5oEn` reached READY on `pnj-apqc-platform.vercel.app`; authenticated production smoke tests passed for Documents 12/12, Process Map L0–L2, Findings 35/35 and Relationship 12/12 proposed document links, with no browser-console or recent Vercel runtime error.
 
 ## Remaining gates
 

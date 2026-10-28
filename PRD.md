@@ -881,3 +881,9 @@ Users may find a document through RLS-visible related objects such as Business P
 - User text used in raw PostgREST `.or()` expressions is trimmed, length-limited, quoted and escaped; column names come only from trusted code.
 - Page-level errors must include failed supporting metadata/link requests instead of silently rendering incomplete cards or relationship context.
 - Repository delivery runs lint, TypeScript, migration integrity, unit tests and production build in GitHub Actions. Vercel Git integration remains the only deployment path to avoid duplicate deploys.
+
+## 42. Document relationships from confirmed process links — 2026-10-28
+
+- Tab **Relationship** hiển thị mỗi `document_process_links` hiện có thành quan hệ có hướng **Quy trình → Được mô tả bởi tài liệu → Tài liệu**. Đối tượng đích là định danh tài liệu (`documents.id`), còn bằng chứng lưu mã liên kết và phiên bản nguồn để truy vết.
+- Các quan hệ được tạo ở trạng thái **Đề xuất**. Process Owner/Admin phải xác minh trước khi chuyển sang **Đã xác minh**; tên hoặc mã tài liệu đơn lẻ không đủ để tự xác minh ý nghĩa nghiệp vụ.
+- Không tự tạo quan hệ tài liệu–tài liệu chỉ vì cùng chủ đề, có tên gần giống, hoặc cùng được liên kết với một quy trình. Loại quan hệ này chỉ được thêm khi có dẫn chứng trực tiếp trong nội dung/metadata hoặc quyết định của owner.
