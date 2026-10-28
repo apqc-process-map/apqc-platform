@@ -552,3 +552,8 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] REL-DOC-002 — Bổ sung controlled type `documented_by` (Process → Document) để không gán sai nghĩa `governed_by` cho biểu mẫu, hướng dẫn và thông báo.
 - [x] REL-DOC-003 — Tạo quan hệ đề xuất từ các liên kết tài liệu–quy trình đã có, kèm evidence truy vết tới link và document version; không suy diễn quan hệ tài liệu–tài liệu từ tên.
 - [ ] PENDING REL-DOC-004 — Process Owner/Admin xác minh từng quan hệ đề xuất và cung cấp bằng chứng nếu cần thêm quan hệ giữa các tài liệu.
+
+## 2026-10-28 — Process Map coverage legend từ L0
+
+- [x] MAP-COVERAGE-001 — Phân biệt APQC L0/L1 có process cấp dưới và có tài liệu trong nhánh với process cấp dưới chưa có tài liệu.
+- [x] MAP-COVERAGE-002 — Cập nhật legend ba trạng thái bằng wording nghiệp vụ; giữ trạng thái L2 có tài liệu trực tiếp.
