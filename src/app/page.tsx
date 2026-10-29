@@ -2,7 +2,6 @@ import Link from "next/link";
 import WorkspaceShell from "@/components/workspace-shell";
 import HomeReport, { type HomeSummary } from "@/components/home-report";
 import HomeExecutiveHeader from "@/components/home-executive-header";
-import HomeApqcExplorer, { type HomeHierarchySummary } from "@/components/home-apqc-explorer";
 import { getCurrentAccount } from "@/lib/auth";
 
 export const instant = false;
@@ -37,7 +36,7 @@ export default async function Home({searchParams}:{searchParams:Promise<{period?
     }
   }
   const from=isoFromDay(fromDay),to=isoFromDay(toDay);
-  const [processes,documents,reviews,notifications,ownedDrafts,assignedFindings,report,hierarchy]=await Promise.all([
+  const [processes,documents,reviews,notifications,ownedDrafts,assignedFindings,report,frameworkResult]=await Promise.all([
     supabase.from("processes").select("id",{count:"exact",head:true}),
     supabase.from("documents").select("id",{count:"exact",head:true}),
     supabase.from("review_requests").select("id",{count:"exact",head:true}).eq("status","open"),
@@ -45,25 +44,36 @@ export default async function Home({searchParams}:{searchParams:Promise<{period?
     supabase.from("process_versions").select("id",{count:"exact",head:true}).eq("created_by",profile.id).in("status",["draft","rejected"]),
     supabase.from("findings").select("id",{count:"exact",head:true}).eq("assignee_id",profile.id).not("status","in","(resolved,closed)"),
     supabase.rpc("home_document_finding_summary",{p_from_date:from,p_to_date:to}),
-    supabase.rpc("home_apqc_hierarchy_summary"),
+    supabase.from("apqc_frameworks").select("id").eq("name","APQC catalogue with controlled PNJ interpretation").eq("version","Process Map workbook 2026-10-29").maybeSingle(),
   ]);
   const isAdmin=profile.role==="admin";
   const isEditor=profile.role==="editor";
   const workspaceLabel=isAdmin?"ADMIN CONTROL CENTER":isEditor?"EDITOR WORKSPACE":"VIEWER HOME";
   const description=isAdmin?"Theo dõi reference data, governance và các hàng đợi cần xử lý.":isEditor?"Tiếp tục bản nháp, finding được giao và các action cần xử lý.":"Khám phá nội dung đã xuất bản và Action Log dành cho bạn.";
   const summary=report.error?null:report.data as HomeSummary|null;
-  const apqc=hierarchy.error?null:hierarchy.data as HomeHierarchySummary|null;
+  // Only the compact header totals remain. Do not load the L1-L3 explorer or its
+  // document-mapping aggregation on Home after removing the distribution panel.
+  const {data:apqcLevels,error:apqcLevelsError}=frameworkResult.data?.id
+    ? await supabase.from("apqc_elements").select("level_number")
+        .eq("framework_id",frameworkResult.data.id).lte("level_number",3).limit(1000)
+    : {data:null,error:frameworkResult.error};
+  const apqcCounts=!frameworkResult.error&&!apqcLevelsError&&apqcLevels
+    ? {
+        l1:apqcLevels.filter(node=>node.level_number===1).length,
+        l2:apqcLevels.filter(node=>node.level_number===2).length,
+        l3:apqcLevels.filter(node=>node.level_number===3).length,
+      }
+    : null;
   const currentQueueCount=isAdmin?reviews.count||0:isEditor?assignedFindings.count||0:notifications.count||0;
   const currentQueueLabel=isAdmin?"yêu cầu chờ duyệt":isEditor?"finding được giao":"thông báo chưa đọc";
   const currentQueueHref=isAdmin?"/governance":isEditor?"/findings?assigned=me":"/notifications";
   return <WorkspaceShell active="/" eyebrow={workspaceLabel} title="Tổng quan" description={description}
     userName={profile.display_name} role={profile.role}
     headerContent={<HomeExecutiveHeader roleLabel={workspaceLabel} period={period}
-      from={from} to={to} today={today} summary={summary} hierarchy={apqc}
+      from={from} to={to} today={today} summary={summary} apqcCounts={apqcCounts}
       processCount={processes.count||0} documentCount={documents.count||0}
       queueCount={currentQueueCount} queueLabel={currentQueueLabel} queueHref={currentQueueHref}/>}>
     {warning&&<div className="home-insight-error" role="alert">{warning}</div>}
-    <HomeApqcExplorer data={apqc} error={hierarchy.error?.message}/>
     <HomeReport summary={summary} from={from} to={to} error={report.error?.message}/>
     {isEditor ? <section className="editor-home-queue"><div><p className="section-kicker">CÔNG VIỆC CỦA TÔI</p><h2>Công việc đang xử lý</h2><p>Bản nháp do bạn tạo và finding được giao được tổng hợp theo quyền RLS hiện tại.</p></div><div><Link href="/catalog?type=enterprise&status=draft"><strong>{ownedDrafts.count||0}</strong><span>Bản nháp của tôi</span></Link><Link href="/findings?assigned=me"><strong>{assignedFindings.count||0}</strong><span>Finding được giao</span></Link><Link href="/notifications"><strong>{notifications.count||0}</strong><span>Action chưa đọc</span></Link></div></section> : null}
     <section className="home-actions"><div><p className="section-kicker">TRUY CẬP NHANH</p><h2>{isAdmin?"Quản trị tài liệu & quy trình":isEditor?"Biên tập & xử lý":"Tra cứu tri thức"}</h2><p>{isAdmin?"APQC baseline đã sẵn sàng. Tiếp tục review publication gates và findings.":isEditor?"Quản lý draft, documents, relationships và findings trong phạm vi được giao.":"Duyệt Process Map, Catalog và Documents theo quyền Viewer."}</p></div><div><Link href="/catalog">Mở Catalog</Link><Link href="/findings">Xem Findings</Link>{isEditor&&<Link href="/documents">Documents</Link>}{isAdmin&&<Link href="/governance">Governance</Link>}</div></section>
