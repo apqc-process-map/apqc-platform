@@ -595,3 +595,16 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [ ] HOME-REMOVE-QA-001 — Real signed-in browser check: removed block no longer displays, reports renumbered, compact header still renders and no mobile overflow.
 - [ ] HOME-REMOVE-QA-002 — Verify date presets/custom periods and Admin/Viewer visibility in actual sessions.
 - [x] HOME-REMOVE-DEPLOY-001 — PR #89 merged to `main` as `c6afa12295ecefee31f9cf6c9665b5b4cbf2563b`; Vercel Production deployment `dpl_4iZf6cFgiPXiV7V17QfSKhn543BZ` READY and official `pnj-apqc-platform.vercel.app` alias verified. Browser QA remains separate.
+
+## 2026-10-29 — CEO/COO Home information hierarchy and redundant finding block removal
+
+- [x] HOME-CEO-001 — Identify and remove duplicate Finding blocks from Home: current backlog/status/metadata card, status chips and "Điểm cần lưu ý" notice strip.
+- [x] HOME-CEO-002 — Retain four in-period KPIs at top; reorganize body into section 02 Document activity and section 03 Finding time trend at the bottom.
+- [x] HOME-CEO-003 — Present document registration vs actual uploads together; top five issuing departments, other sum, top-three share and zero-file caveat based only on true source values.
+- [x] HOME-CEO-004 — Show current open findings and overdue corrective actions only in a short **caption** under the finding trend (not a separate card), with explicit time scope.
+- [x] HOME-CEO-005 — Clean unused Home CSS and preserve mobile/tablet readability, role-specific work queues and navigational links.
+- [x] HOME-CEO-006 — No DB migration or data mutation; preserve existing RLS-scoped aggregation, period semantics and metrics.
+- [x] HOME-CEO-007 — Latest code Preview build READY / Next.js TypeScript checks passed.
+- [ ] HOME-CEO-QA-001 — Authenticated browser QA for absence of duplicate finding block, correct report order, chart legends and cross-tab links.
+- [ ] HOME-CEO-QA-002 — Check 375/768/1024/1440 px alignment, empty periods, date range/preset changes and Admin/Viewer visibility.
+- [ ] HOME-CEO-DEPLOY-001 — Verify merged main commit Vercel Production READY with official alias before marking released.

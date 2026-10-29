@@ -110,3 +110,11 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - PR [#89](https://github.com/apqc-process-map/apqc-platform/pull/89) merged to `main` as `c6afa12295ecefee31f9cf6c9665b5b4cbf2563b`.
 - Vercel Production `dpl_4iZf6cFgiPXiV7V17QfSKhn543BZ` reached **READY**, and the `pnj-apqc-platform.vercel.app` alias was verified. The complete APQC distribution panel is no longer part of Home.
 - Remaining QA: authenticated interactive browser acceptance, mobile layout and filters; READY confirms deployment/build, not that every click path has been tested.
+
+## 2026-10-29 — CEO Home simplification (current UI scope)
+
+- Home now answers three executive questions: what document activity was recorded, which issuing departments contributed, and whether document findings were discovered or remedied. Only four period KPIs appear in the top control center. Body **02** combines document registration/upload time trend with a top-five issuing-department ranking and source-backed top-three share; body **03** ends with **one** Finding discovered/remedied trend and one concise footer showing current unresolved/overdue stocks.
+- The separate **"Tồn đọng và chất lượng dữ liệu"** block (three large numbers, detailed status chips and metadata-completeness note) and duplicated **"Điểm cần lưu ý"** strip are **removed**. There is no row-level finding list in Home. Detailed finding/action operations continue in Tab 06.
+- The UI uses existing `home_document_finding_summary(date,date)` data with caller RLS; no schema, Supabase function or business records modified. Data definitions and historic status/role views are preserved. One-period zero uploaded-file caveat avoids claiming metadata registrations are binaries.
+- Responsive layout favors a paired document-activity/issuing-department report and full-width bottom Finding chart. The removed executive card CSS is not loaded. New period-based KPI targets or comparative rates were not invented.
+- Pending gates: exact Production commit/alias and authenticated browser QA after final Preview; see TASKS.

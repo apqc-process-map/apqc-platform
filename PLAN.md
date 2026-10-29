@@ -311,3 +311,13 @@ Authenticated Production acceptance covers the current installment dataset acros
 - [DONE] Update README, PRD, DATA_MODEL, PLAN, TASKS and PROJECT_STATE; leave existing Supabase reporting function untouched (no destructive migration).
 - [DONE] PR #89 merged at `c6afa12295ecefee31f9cf6c9665b5b4cbf2563b`; Vercel Production `dpl_4iZf6cFgiPXiV7V17QfSKhn543BZ` READY with official site alias verified.
 - [PENDING] Authenticated desktop/mobile UI QA and preset/custom period checks remain separate.
+
+### Phase 17 — CEO Home report de-duplication and visual prioritization (2026-10-29)
+
+- [DONE] Review Home against executive questions: scale/activity, source department contribution and finding remediation trajectory.
+- [DONE] Remove the redundant "Tồn đọng và chất lượng dữ liệu" card, detailed status chips, second finding action link and "Điểm cần lưu ý" strip.
+- [DONE] Recompose the report into 02 Document activity (paired trend plus top five departments and grounded top-three concentration) and 03 Finding trend (last chart, with a compact current-backlog footer).
+- [DONE] Keep four filtered KPI cards in the unified top header, cohort/period semantics, role-based access, and existing work queue/quick links.
+- [DONE] Refine responsive executive styling and discard unused legacy Home card CSS; no Supabase data/schema changes.
+- [DONE] Verify Next/TypeScript Vercel Preview build after UI source and style changes.
+- [PENDING] Merge/release verification against exact GitHub/Vercel Production commit, then authenticated browser and responsive QA.
