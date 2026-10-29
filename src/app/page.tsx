@@ -38,7 +38,7 @@ export default async function Home({searchParams}:{searchParams:Promise<{period?
   const from=isoFromDay(fromDay),to=isoFromDay(toDay);
   const [processes,documents,reviews,notifications,ownedDrafts,assignedFindings,report,frameworkResult]=await Promise.all([
     supabase.from("processes").select("id",{count:"exact",head:true}),
-    supabase.from("documents").select("id",{count:"exact",head:true}),
+    supabase.from("documents").select("id",{count:"exact",head:true}).is("archived_at",null).is("replaced_at",null),
     supabase.from("review_requests").select("id",{count:"exact",head:true}).eq("status","open"),
     supabase.from("notifications").select("id",{count:"exact",head:true}).is("read_at",null),
     supabase.from("process_versions").select("id",{count:"exact",head:true}).eq("created_by",profile.id).in("status",["draft","rejected"]),

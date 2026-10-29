@@ -35,7 +35,8 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   const currentPage=Math.max(1,Number.parseInt(page,10)||1);
   const { supabase, profile } = await requireActiveAccount();
   const requestNow=await getServerTimestamp();
-  let query = supabase.from("document_versions").select("id, document_id, version_number, status, title_vi, title_en, document_group, language, document_abstract, change_summary, valid_from, valid_until, review_due_at, access_level, risk_rating, issuing_department, applicability_note, keywords, legal_reference, retention_note, created_at, updated_at, owner_id, designated_approver_id, created_by, document_type_value_id, vocabulary_values(label_vi), documents(document_code), document_files(id, original_file_name, mime_type, size_bytes)", { count: "exact" });
+  let query = supabase.from("document_versions").select("id, document_id, version_number, status, title_vi, title_en, document_group, language, document_abstract, change_summary, valid_from, valid_until, review_due_at, access_level, risk_rating, issuing_department, applicability_note, keywords, legal_reference, retention_note, created_at, updated_at, owner_id, designated_approver_id, created_by, document_type_value_id, vocabulary_values(label_vi), documents!inner(document_code,archived_at), document_files(id, original_file_name, mime_type, size_bytes)", { count: "exact" });
+  query = query.is("documents.archived_at", null).is("replaced_at", null);
   const documentSearch = buildOrIlikeFilter(["title_vi", "title_en", "document_abstract", "keywords", "issuing_department"], q);
   if (documentSearch) query = query.or(documentSearch);
   if (status !== "all") query = query.eq("status", status);

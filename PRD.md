@@ -67,21 +67,21 @@ Authorization must be enforced by Supabase RLS. UI hiding is not sufficient.
 
 ### APQC baseline
 
-- Source: licensed APQC Cross-Industry PCF Excel v8.0 supplied outside the repository.
-- Verified source shape: 2,017 APQC elements across five levels, 13 top-level categories, complete descriptions, and 3,284 metric definitions.
-- Keep the source workbook outside Git.
-- Preserve PCF IDs, hierarchy IDs, source names, descriptions, version, metrics, and attribution.
-- APQC reference data is read-only in the product.
+- Active source: controlled `APQC_CAT_ver2_Chi tiết Level 3` sheet in `Process Map.xlsx`; the private workbook remains outside Git.
+- Verified active shape: 13 L0 Categories, 74 L1 Process Groups and 362 controlled L2/APQC-L3 records. The former 2,017-element APQC import remains inactive for audit and rollback.
+- Preserve source English APQC wording and IDs where supplied. Controlled interpretation fields include PNJ description, trigger, output, selection rule, exclusion rule, example, verification/status and source location.
+- Only one framework may be active. Catalog, Process Map, Home and Governance must query that active framework rather than combining historical frameworks.
+- APQC reference data is read-only in the product; unsupported or invalid source classifications remain visible for review and are never inferred.
 
 ### Enterprise sample data
 
-- Current controlled dataset after the Process Map workbook import: 44 enterprise process records, including the existing 11-node installment hierarchy and 33 additional process identities.
-- The source workbook contributes only rows classified as `Quy Trình`; non-process document rows are not converted into enterprise processes.
-- Source-backed metadata includes process code/name, drafting department/unit, effective date, source review count, and the APQC L0/L1 path. Unknown process content remains visibly incomplete.
-- The source workbook remains outside Git; the versioned migration contains only the governed process rows needed by the application.
+- Active company-document source: `Process_MAP_VBC1009` in `Process Map.xlsx`, replacing the previous 12-document installment sample in the live library while preserving superseded records for audit.
+- Verified import: 1,837 document identities, 1,844 versions and 1,154 exact links to active APQC L2 records. Seven duplicate document codes are represented as versions of one identity.
+- Source-backed metadata includes document code/name, document type/group, drafting department/unit, effective date, controlled business-content fields and raw classification evidence. Missing fields remain blank and visibly incomplete.
+- Twenty invalid/non-code APQC classifications remain in `source_metadata` for owner review; the importer does not infer a replacement mapping.
+- The workbook and generated business payload remain outside Git. Git stores only schema, validation/import logic, checksum/audit metadata and product behavior.
 
 ## 6. Information architecture
-
 Primary workspace navigation is numbered and appears in this order:
 
 1. **01. Home** (`/`) — role-specific dashboard.
@@ -112,7 +112,7 @@ The Action Log keeps the existing `/notifications` route, notification records, 
 - L2 cards show their supporting-document count. Processes without document evidence remain visible with the no-evidence style; only records with visible direct links use the dark evidence style.
 - L2 cards must display the full process code, process name, and document count. Card rows grow to the longest visible content, and the responsive grid reduces its column count instead of clipping or ellipsizing text on narrower desktop screens.
 - Process cards separate classification/identity from the title: L0 uses an APQC Category code header, L1 uses an APQC reference code header, and L2 uses an enterprise process-code header.
-- Card headers use one aligned visual system: L0 shows `Category` and `APQC {code}` on separate lines, L1 shows `APQC tham chiếu` and its code on separate lines, while L2 shows only the enterprise process code.
+- Card headers use one aligned visual system: L0 shows `Category` and `APQC {code}` on separate lines; L1 shows only the APQC reference code and process name, without description or PCF ID; L2 shows only the enterprise process code.
 - The Process Detail panel is hidden by default. A persistent show/hide control restores the selected process detail; while hidden, the landscape uses the full workspace width.
 - L0 and L2 cards use fixed header/body/footer grid rows so every code header remains top-aligned regardless of title length. The toolbar remains visible and exposes only the Process Detail show/hide control; it has no separate collapse control.
 - The landscape visualizes branch coverage without changing APQC classification: a dark L0/L1 block has mapped lower-level process data and document evidence in its branch; a medium L0/L1 block has mapped lower-level process data but no direct document evidence; a pale block has no linked lower-level data. At L2, dark still means the process itself has directly linked documents.

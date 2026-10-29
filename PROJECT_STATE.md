@@ -1,6 +1,6 @@
 # Project State
 
-Last reviewed: 2026-10-28.
+Last reviewed: 2026-10-29.
 
 ## Product and architecture
 
@@ -13,8 +13,8 @@ Process Map is a desktop-first internal application for browsing and governing e
 
 ## Verified production data
 
-- APQC: 2,017 elements, 3,284 metrics, 13 categories, levels 1–5, no known orphan/duplicate import defects.
-- Controlled installment scope: 12 document identities/versions with 12 private binaries; 11 process nodes (L0, L1 and nine L2); 11 proposed APQC mappings; 35 findings; 22 corrective actions; 104 document-version links; 35 process-version links; 113 source-evidence cells. Six dangling `[DEMO]` relationship fixtures were removed after confirming that their source roles and target documents no longer existed. Twelve confirmed document-process links are now represented as proposed `documented_by` relationships.
+- Active controlled APQC framework: 449 elements total (13 L0, 74 L1, 362 L2/APQC-L3) from `APQC_CAT_ver2_Chi tiết Level 3`; the former 2,017-element framework is inactive and retained for audit.
+- Active document library: 1,837 identities and 1,844 versions imported from `Process_MAP_VBC1009`, with seven duplicate codes represented as versions and 1,154 exact links to the active APQC framework. Twenty invalid/non-code classifications remain in source metadata for owner review. The former 12 installment documents are archived/superseded, not deleted.
 - Six active accounts: three Admin and three Viewer; no Editor account. Credentials are not stored in Git.
 - APQC workbook and supplied business documents remain outside Git.
 
@@ -22,9 +22,9 @@ Process Map is a desktop-first internal application for browsing and governing e
 
 - Authenticated route protection, role-aware navigation and database-enforced RLS.
 - APQC catalog/search/detail and data-driven Process Map with L0–L4 bands, search, selection, metadata detail/editing and linked documents.
-- Process Map landscape now uses APQC PCF level 1 as L0 and APQC PCF level 2 as L1; L2 is evidence-gated and shows only enterprise records with visible linked documents. Repository process levels and proposed mappings remain unchanged.
+- Process Map landscape uses active APQC level 1 as L0 and active APQC level 2 as L1. L1 cards show reference code and process name only; description and PCF ID are omitted. L2 enterprise records remain separate from APQC classification.
 - Process Map marks APQC L0/L1 branches with mapped lower-level process data plus document evidence, mapped lower-level data without documents, and branches without mapped data using three intensity states; L2 remains based on directly linked documents.
-- Process Map uses a focus-and-context hierarchy layout: compact L0 overview, descriptive L1 cards, selected-path highlighting and a drill-down connector to document-backed L2 cards.
+- Process Map uses a focus-and-context hierarchy layout: compact L0 overview, concise L1 cards, selected-path highlighting and a drill-down connector to L2 cards.
 - Relationship network/table with controlled types, direction labels, document focus, governed create/edit and collapsed legend.
 - Confirmed document-process links are exposed in Relationship as proposed `documented_by` edges; document-to-document links are not inferred from names alone.
 - Document library with metadata intake/editing, filter/sort/group, private direct browser upload, signed file route, PDF/image preview, Office download, lifecycle, comparison, process/applicability/tag links and role-knowledge classification.
@@ -50,14 +50,10 @@ Process Map is a desktop-first internal application for browsing and governing e
 
 ## Verification in this worktree
 
-- TypeScript: passed.
-- ESLint: passed with zero warnings after replacing the raw image element and fixing dead bindings.
-- Migration integrity: 45 SQL files with unique 14-digit versions, no UTF-8 BOM and no detected credentials.
-- Search helper unit tests: 3 passed (required an unsandboxed Node test runner because Windows blocked child-process spawn in the restricted sandbox).
-- Supabase production: four hardening migrations applied and migration-ledger filenames synchronized. Viewer simulation returned 12 visible non-effective documents and zero rows outside Viewer `allowed_roles`; Viewer mutation RPC was denied. Admin rollback probe passed create/update Document, create Finding and create Action atomically, with zero probe rows persisted.
-- Final Next.js 16.4.1 production build passed all 15 routes. Authenticated Preview QA at 1024 px passed for Viewer document access (including Draft metadata/private PDF), special-character search, Admin 35/35 Finding Matrix links and Relationship loading with no horizontal overflow or console errors.
-- PR #72 merged as `393aa4a`. Vercel production deployment `dpl_AJm7tSBQkkqyAFMWA17fvdRg5oEn` reached READY on `pnj-apqc-platform.vercel.app`; authenticated production smoke tests passed for Documents 12/12, Process Map L0–L2, Findings 35/35 and Relationship 12/12 proposed document links, with no browser-console or recent Vercel runtime error.
-
+- Supabase migrations `20261029013000` and `20261029014500` are applied to project `eksftbalhnqpguecdcaj`.
+- Workbook checksum `bcf6c1e3f5f3950c4fe02cf190ab5d2e3834c97f522b475b2b1e53494b9da41f` passed controlled import validation: 362 APQC L2 rows, 1,837 documents, 1,844 versions and 1,154 active mappings.
+- `pnpm quality` passes: ESLint, TypeScript, 51-migration integrity check and all three Node unit tests.
+- Next.js 16.4.1 production build passes all 15 routes. Supabase Security Advisor reports only the existing leaked-password-protection setting; Performance Advisor reports no unindexed foreign keys after `20261029020000` was applied; governance coverage is active-framework-only via `20261029021000`. Browser/visual QA, Git merge and final Vercel deployment remain pending for this branch.
 ## Remaining gates
 
 1. Process Owner must still validate proposed APQC mappings, unknown metadata/effective dates and 113 evidence cells; source binaries 13–14 remain unavailable.
@@ -66,6 +62,11 @@ Process Map is a desktop-first internal application for browsing and governing e
 ## Deferred scope
 
 Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editing, mobile-specific UI, fine-grained ACLs, full immutable relationship history and operational KPI observations remain outside the MVP unless explicitly approved.
+## Recent substantial changes
+
+- Replaced the active APQC reference and company document library from the two controlled workbook sheets while preserving prior frameworks/documents for audit.
+- Added active-framework enforcement, controlled APQC interpretation metadata, source-row audit metadata, exact document/APQC mappings and workbook checksum logging.
+- Scoped product reads to active/current records and added controlled interpretation to APQC detail.
 
 ## 2026-10-29 — Home operational quick-insight dashboard
 

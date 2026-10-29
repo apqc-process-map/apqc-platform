@@ -558,6 +558,20 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] MAP-COVERAGE-001 — Phân biệt APQC L0/L1 có process cấp dưới và có tài liệu trong nhánh với process cấp dưới chưa có tài liệu.
 - [x] MAP-COVERAGE-002 — Cập nhật legend ba trạng thái bằng wording nghiệp vụ; giữ trạng thái L2 có tài liệu trực tiếp.
 
+## 2026-10-29 — Controlled APQC and VBC workbook replacement
+
+- [x] DONE WB-REF-001 — Validate `APQC_CAT_ver2_Chi tiết Level 3`: 362 unique controlled L2/APQC-L3 rows with interpretation fields; retain the former APQC framework inactive for audit.
+- [x] DONE WB-REF-002 — Add active-framework control, APQC interpretation columns, document source metadata, replacement lifecycle, document-to-APQC mapping and workbook-import audit tables with RLS.
+- [x] DONE WB-REF-003 — Import `Process_MAP_VBC1009` as 1,837 document identities / 1,844 versions; represent seven duplicate codes as versions and preserve missing fields.
+- [x] DONE WB-REF-004 — Create 1,154 exact active APQC mappings; retain 20 invalid/non-code source classifications for owner review without inference.
+- [x] DONE WB-REF-005 — Archive the previous 12 installment document identities and supersede their versions without deleting findings, relationships, binaries or audit history.
+- [x] DONE WB-REF-006 — Scope Catalog, Home, Governance and Process Map reads to the single active framework; hide archived/replaced documents from active library/map reads.
+- [x] DONE WB-REF-007 — Process Map L1 retains APQC reference code and process name only; description and PCF ID are removed from L1 cards.
+- [x] DONE WB-REF-008 — APQC detail displays workbook interpretation, trigger, output, selection/exclusion rules, example, verification status and source location.
+- [ ] PENDING WB-REF-009 — Process Owner resolves the 20 invalid/non-code classifications and validates controlled interpretation text before marking it authoritative.
+- [ ] DELIVERY WB-REF-010 — Complete browser QA, merge the pull request and verify the single final Vercel production deployment.
+
+This milestone supersedes the live-data assumptions in the 2026-10-28 34-process/12-document import. Those records remain historical where retained by the schema; the active document library and APQC reference now come from the workbook sheets above.
 ## 2026-10-29 — Home quick insight dashboard
 
 - [x] HOME-REPORT-001 — Audit live Supabase data, roles and date semantics. Distinguish metadata creation from actual file uploads and document findings from general findings.
