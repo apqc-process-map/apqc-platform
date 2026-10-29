@@ -290,4 +290,5 @@ Authenticated Production acceptance covers the current installment dataset acros
 - [DONE] Add RLS-scoped PostgreSQL report function and validate signed-in Admin/Viewer visibility, date boundaries, and reconcilable totals.
 - [DONE] Build period picker, headline metric cards, document/finding time charts, top issuing-department report, operational attention panel and links on 01 Home. Preserve existing overall catalog/process/work queues below.
 - [DONE] Compile Vercel Preview with Next.js and TypeScript. No new privileged table or public materialization is introduced.
-- [PENDING] Verify latest Production deployment of the merged change; real authenticated browser E2E for filters, empty states, responsive charts and per-role permissions remains an acceptance gate.
+- [DONE] Verified Vercel Production commit `b5cae354e9410fc4de7d350d799f7f613128fe0d` READY with official `pnj-apqc-platform.vercel.app` alias on 2026-10-29.
+- [PENDING] Real authenticated browser E2E for filters, empty states, responsive charts, source drill-through and per-role permissions remains an acceptance gate.
