@@ -77,6 +77,20 @@ Assign users to governed object roles.
 - `unit text nullable`
 - unique `(framework_version_id, metric_id)`
 
+### Active workbook reference additions
+
+The implemented schema uses `apqc_frameworks` and `apqc_elements`. `apqc_frameworks.is_active` is protected by a partial unique index so only one framework is active. Historical frameworks remain queryable for audit but product reads must join the active framework.
+
+`apqc_elements` also stores controlled workbook interpretation fields: `pnj_description`, `trigger_text`, `output_text`, `select_when`, `do_not_select_when`, `pnj_example`, `verification_status`, `pnj_status`, `priority`, `metrics_available`, and `source_location`.
+
+### Workbook document replacement
+
+- `document_versions.source_metadata jsonb` preserves source sheet/row, raw APQC classification, drafting metadata and controlled business-content fields without inventing missing values.
+- `document_versions.replaced_at timestamptz nullable` distinguishes current imported versions from superseded versions retained for audit.
+- `document_apqc_mappings` links a document version to an APQC element with `source_name` and `source_row`; RLS follows the readable document version and active-account boundary.
+- `workbook_imports` records source name, SHA-256 checksum, row counts, import time and audit notes; only Admin may read the import ledger.
+- The importer treats duplicate document codes as multiple versions of one stable document identity. Invalid raw classifications stay in `source_metadata` and do not create mappings.
+
 ## 4. Enterprise process model
 
 ### `processes`

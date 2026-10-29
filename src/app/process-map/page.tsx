@@ -78,7 +78,8 @@ type DocumentVersionRelation = {
   title_vi: string;
   version_number: number;
   status: string;
-  documents: { document_code: string } | { document_code: string }[] | null;
+  documents: { document_code: string; archived_at: string | null } | { document_code: string; archived_at: string | null }[] | null;
+  replaced_at: string | null;
   document_files: Array<{ id: string; original_file_name: string; mime_type: string }> | null;
 };
 type DocumentProcessLinkRow = {
@@ -144,11 +145,12 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
       : Promise.resolve({ data: [], error: null }),
     processes.length
       ? supabase.from("document_process_links")
-          .select("process_id,link_role,document_versions!inner(id,title_vi,version_number,status,documents(document_code),document_files(id,original_file_name,mime_type))")
+          .select("process_id,link_role,document_versions!inner(id,title_vi,version_number,status,replaced_at,documents(document_code,archived_at),document_files(id,original_file_name,mime_type))")
           .in("process_id", processes.map((process) => process.id))
       : Promise.resolve({ data: [], error: null }),
     supabase.from("apqc_elements")
-      .select("id,pcf_id,hierarchy_id,level_number,name,description,parent_id,display_order")
+      .select("id,pcf_id,hierarchy_id,level_number,name,description,parent_id,display_order,apqc_frameworks!inner(is_active)")
+      .eq("apqc_frameworks.is_active", true)
       .lte("level_number", 3)
       .order("display_order"),
   ]);
@@ -198,7 +200,7 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
   const documentsByProcess = new Map<string, ProcessMapRelatedDocument[]>();
   for (const row of (relatedDocumentsResult.data || []) as unknown as DocumentProcessLinkRow[]) {
     const version = firstRelation(row.document_versions);
-    if (!version) continue;
+    if (!version || version.replaced_at || firstRelation(version.documents)?.archived_at) continue;
     const related = documentsByProcess.get(row.process_id) || [];
     if (related.some((item) => item.versionId === version.id)) continue;
     const documentIdentity = firstRelation(version.documents);
@@ -233,7 +235,7 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
     const owner = assignments.find((assignment) => assignment.role === "owner")?.profileName || "";
     const apqcMappings: ProcessMapApqcMapping[] = (version?.process_apqc_mappings || []).flatMap((mapping) => {
       const element = firstRelation(mapping.apqc_elements);
-      return element ? [{
+      return element && apqcById.has(element.id) ? [{
         pcfId: element.pcf_id,
         name: element.name,
         role: mapping.mapping_role,

@@ -21,7 +21,8 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
     .select("id, process_id, version_number, status, name_vi, name_en, purpose, updated_at, processes!inner(process_code, level_type)")
     .limit(150);
   let apqcQuery = supabase.from("apqc_elements")
-    .select("id, pcf_id, hierarchy_id, level_number, name, description, display_order")
+    .select("id, pcf_id, hierarchy_id, level_number, name, description, pnj_description, display_order, apqc_frameworks!inner(is_active)")
+    .eq("apqc_frameworks.is_active", true)
     .limit(150);
 
   const processSearch = buildOrIlikeFilter(["name_vi", "name_en", "purpose"], term);
@@ -46,7 +47,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
       const process = item.processes as unknown as { process_code: string; level_type: string } | null;
       return { id: item.id, processId: item.process_id, kind: "Enterprise", code: process?.process_code || "—", name: item.name_vi, detail: item.purpose, level: process?.level_type || "—", status: item.status, updatedAt: item.updated_at, order: Number.MAX_SAFE_INTEGER };
     }),
-    ...(apqcResult.data || []).map((item) => ({ id: item.id, processId: null, kind: "APQC", code: item.pcf_id, name: item.name, detail: item.description || "Chưa có mô tả", level: `Level ${item.level_number}`, status: "reference", updatedAt: "", order: item.display_order })),
+    ...(apqcResult.data || []).map((item) => ({ id: item.id, processId: null, kind: "APQC", code: item.pcf_id, name: item.name, detail: item.pnj_description || item.description || "Chưa có diễn giải", level: `Level ${item.level_number}`, status: "reference", updatedAt: "", order: item.display_order })),
   ].sort((a, b) => {
     if (sort === "name_asc") return a.name.localeCompare(b.name, "vi");
     if (sort === "code_asc") return a.code.localeCompare(b.code, "vi", { numeric: true });
@@ -62,7 +63,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
         <label className="catalog-filter-search">Từ khóa<input name="q" defaultValue={q} placeholder="Mã, tên hoặc mô tả…" /></label>
         <label>Nguồn<select name="type" defaultValue={type}><option value="all">Enterprise + APQC</option><option value="enterprise">Enterprise</option><option value="apqc">APQC</option></select></label>
         <label>Trạng thái<select name="status" defaultValue={status}><option value="all">Tất cả</option>{processStatuses.map(value => <option key={value}>{value}</option>)}</select></label>
-        <label>Cấp độ<select name="level" defaultValue={level}><option value="all">Tất cả</option><optgroup label="Enterprise">{processLevels.map(value => <option key={value}>{value}</option>)}</optgroup><optgroup label="APQC">{[1,2,3,4,5].map(value => <option key={value} value={`apqc-${value}`}>Level {value}</option>)}</optgroup></select></label>
+        <label>Cấp độ<select name="level" defaultValue={level}><option value="all">Tất cả</option><optgroup label="Enterprise">{processLevels.map(value => <option key={value}>{value}</option>)}</optgroup><optgroup label="APQC">{[1,2,3].map(value => <option key={value} value={`apqc-${value}`}>Level {value}</option>)}</optgroup></select></label>
         <label>Sắp xếp<select name="sort" defaultValue={sort}><option value="updated_desc">Cập nhật mới nhất</option><option value="name_asc">Tên A → Z</option><option value="code_asc">Mã tăng dần</option><option value="level_asc">Cấp độ</option></select></label>
         <button type="submit">Áp dụng</button>
       </Form>

@@ -282,3 +282,13 @@ Authenticated Production acceptance covers the current installment dataset acros
 - Store source-backed code/name, effective date, department/unit and APQC path; leave unsupported content blank and mappings Proposed.
 - Display every mapped L2 process while retaining evidence intensity based only on visible document links.
 - Exit: migration/data counts, RLS/security checks, authenticated Process Map QA, GitHub merge and one final Vercel Production deployment are verified.
+
+### Phase 14 — Controlled workbook reference replacement (2026-10-29)
+
+- Supersede the Phase 13 live-data assumptions with the controlled `APQC_CAT_ver2_Chi tiết Level 3` and `Process_MAP_VBC1009` sheets.
+- Keep the previous APQC framework and superseded documents for audit; expose only one active APQC framework and current document versions in product reads.
+- Import 362 controlled APQC L2 records with interpretation metadata and 1,837 document identities / 1,844 versions with exact source-row traceability.
+- Create only exact APQC links present in the workbook; retain invalid classifications for owner review.
+- Verify RLS, counts, UI behavior and production deployment before closing delivery.
+
+Exit: database validation reports 362 active APQC L2 records, 1,837 active documents, 1,844 imported current versions and 1,154 active mappings; Catalog/Process Map/Governance use active/current records only.
