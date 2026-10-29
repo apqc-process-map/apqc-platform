@@ -89,3 +89,10 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - New interactive `src/components/home-apqc-explorer.tsx` shows L1 Vietnamese short labels and L2/L3 source names with drill-through; data is drawn only from the controlled PNJ APQC interpretation, not both frameworks together.
 - Migration `20261029000002_home_executive_apqc_hierarchy.sql` is applied, with RLS-scoped, invoker-rights `home_apqc_hierarchy_summary()` returning document mapping coverage: **13 L1, 74 L2, 362 L3; 68 mapped L3; 1,149 distinct linked document identities**. These numbers are cumulative inventory links, not compliance or process effectiveness. Admin and Viewer read tests pass, anon denied, L1/L2/L3 mapped counts reconcile.
 - Implementation is built and type checked in Vercel Preview. Signed-in browser/visual QA and Production verification tracked in `TASKS.md`.
+
+### Executive Home Production verification — 2026-10-29
+
+- GitHub PR [#87](https://github.com/apqc-process-map/apqc-platform/pull/87) merged to `main` as commit `ab895bcb2751650a0040174217f44d7f4910ae5c`.
+- Vercel Production deployment `dpl_5ZHdGPyJtAQpqLRx5JEVhFw8r1bp` reached **READY** for this feature commit; `pnj-apqc-platform.vercel.app` confirmed as its alias.
+- SQL execution cost checked under simulated authenticated Admin (execution ~95 ms on sample, not an end-user page-latency guarantee). Admin/Viewer data and anon permissions validated. Browser-authenticated end-to-end and visual acceptance remain outstanding.
+- Current evidence is insufficient to allocate the 35 open document findings reliably across APQC L1–L3; no finding-by-APQC metric was fabricated. Only supported linked-document mappings are shown in hierarchy.
