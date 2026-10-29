@@ -893,7 +893,7 @@ Users may find a document through RLS-visible related objects such as Business P
 
 ### 43.1 Purpose and layout
 
-Tab 01 Home (/) leads with a small operational dashboard rather than only cumulative repository totals. Place the period selector above four headline KPI cards, then two trend panels, then the new-document-by-department distribution and an operational-attention panel. Existing APQC/process/document cumulative counts and role-specific work queues remain available below the period-filtered report, explicitly marked as **current totals**.
+Tab 01 Home (/) leads with a small operational dashboard rather than only cumulative repository totals. Place the period selector above four headline KPI cards, then two trend panels, then the new-document-by-department distribution and an operational-attention panel. Current APQC L1–L3, enterprise process, document identity, and role-specific workload totals are consolidated into the top control strip; role-specific detail queues remain below the analytical sections.
 
 - Period options: trailing **7 calendar days including today by default**, 30 days, 90 days, and custom inclusive From/To dates (maximum 366 calendar days, no future date); dates are interpreted in **Asia/Ho_Chi_Minh** rather than UTC. Example: 2026-10-29 defaults to **2026-10-23…2026-10-29**.
 - Report headings, cards, labels and microcopy are Vietnamese, with responsive desktop/tablet/mobile CSS and numeric counts, zero-data messages, inline source/meaning explanations and links to relevant Document/Finding pages.
@@ -921,3 +921,29 @@ User-specific report values must not be fabricated or inferred from sample figur
 - Sum of daily new documents equals headline new-document count; sum of department subtotals equals that count; sum of daily findings found equals the finding headline. Multiple document versions or multiple attachments may not inflate the distinct-document KPIs.
 - Default 7-day snapshot on 2026-10-29 (Admin simulation): 1,837 new document identities, 0 attachments uploaded, 0 newly created document findings and 0 remediated findings; there are 35 unresolved document findings **currently** visible to Admin. The imported metadata-only records must not be described as 1,837 uploaded PDFs.
 - Admin/Viewer simulated database read succeeded; Viewer is not shown restricted document findings. Transactional and RLS tests plus Vercel Next/TypeScript build do not replace authenticated browser layout, filter and drillthrough acceptance tests.
+
+## 44. Executive Home visual hierarchy and APQC drill-down — 2026-10-29
+
+**Audience:** CEO / COO for portfolio direction, departmental activity and exceptions; consistent role-restricted behavior for Editor/Viewer.
+
+### 44.1 One unified top control center
+
+- Replace the visually detached report header with one `WorkspaceShell.headerContent` for Home. The block contains **ADMIN CONTROL CENTER** (or the logged-in role label), the page purpose, the **7/30/90/custom-day selector**, a concise **cumulative portfolio strip**, and **four period KPIs**. Do not repeat the date filter and metric cards in the body.
+- A clearly dated **01 / Kết quả trong kỳ** group keeps the four existing metric definitions intact (new document identities, document identities with file upload, new document findings, remediated document findings).
+- The portfolio strip immediately above period KPIs displays **APQC L1/L2/L3 totals from one chosen reference framework**, enterprise process identities, overall document identities, and the logged-in role's current review/assigned-work/notification count. Explicitly label this strip **“Toàn bộ danh mục — không phụ thuộc bộ lọc ngày.”**
+- Minimize unnecessary colors and repetitive frames. Use typography, compact dividers, whitespace, progressive hierarchy, and responsive 4→2-column KPI layout. Keep numerical values readable and distinguish time-scoped flows from current stocks.
+
+### 44.2 L1 → L2 → L3 executive APQC explorer
+
+- **Source:** only **“APQC catalogue with controlled PNJ interpretation”**, version **“Process Map workbook 2026-10-29”**. The database also has PCF Cross-Industry 8.0; combining both would double-count these levels and is **not allowed**.
+- Default portfolio includes **13 L1 categories, 74 L2 process groups and 362 L3 processes**; mapped document counts are sourced solely from `document_apqc_mappings` joined to RLS-visible `document_versions`. Each stable `documents.id` is counted once within each group/process.
+- First column selects an L1 category using a short controlled Vietnamese label; the middle column lists and selects its L2 children, ordered by linked document volume; the right column lists its L3 children, source APQC names, mapped-document counts, and clickable links to individual APQC Catalog pages. Selected nodes are visually clear, keyboard accessible and responsive (3 columns desktop, stacked on phones).
+- The headline `mapped_l3 / total_l3` is an **APQC classification coverage ratio**, not process maturity, control compliance, process documentation completeness, policy effectiveness, or a target/actual KPI. The number of **mapped_documents** counts distinct document identities across all L3 nodes, while per-L1/L2 subtotals are individually deduplicated but **must not be blindly added across categories**.
+- L1/L2/L3 coverage is a **cumulative, current inventory snapshot**, unchanged by Home's activity-period filter; source and semantic boundaries appear next to the report.
+
+### 44.3 Operational depth and validation
+
+- Section **03 / Diễn biến & ưu tiên xử lý** presents meaningful exception text derived from real data, followed by new-document distribution by issuing department, current unresolved finding/overdue-action signals, and document/finding time trends. All historical metrics continue to obey the selected Vietnam date window.
+- Existing editor work queue and role-specific quick links stay below the executive report. Error/loading and zero-data states must not invent counts.
+- Applied `supabase/migrations/20261029000002_home_executive_apqc_hierarchy.sql`: `home_apqc_hierarchy_summary()` returns `total_l1,total_l2,total_l3,mapped_l3,mapped_documents,level1[],level2[],level3[]`, under authenticated user RLS. No service key, bypass or public summary table.
+- **Verification:** Admin and Viewer SQL simulations show 13/74/362, **68 mapped L3**, **1,149 distinct mapped document identities**. Summed L1 and L2 mapped L3 and counted nonempty L3 each reconcile to 68. Anonymous EXECUTE is denied; the returned measure is not proof of document effectiveness. Browser-authenticated/visual QA remains a separate gate.
