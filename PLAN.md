@@ -302,3 +302,11 @@ Authenticated Production acceptance covers the current installment dataset acros
 - [DONE] Vercel Preview Next.js/TypeScript build after final feature changes.
 - [DONE] GitHub PR #87 merged to main; Vercel Production deployment `dpl_5ZHdGPyJtAQpqLRx5JEVhFw8r1bp` built READY for commit `ab895bcb2751650a0040174217f44d7f4910ae5c`; official alias verified.
 - [PENDING] Signed-in visual and interactive browser QA at desktop, tablet and phone, with keyboard and per-role validation.
+
+### Phase 16 — Remove APQC distribution block from Home (2026-10-29)
+
+- [DONE] Remove the entire L1→L2→L3 interactive distribution section from Home, leaving the compact APQC total in the top portfolio strip only.
+- [DONE] Remove the retired explorer's source component and CSS and stop executing the full mapping hierarchy RPC on Home.
+- [DONE] Renumber the operational report to section 02; preserve all in-period Document/Finding KPIs, department breakout, issue/status panels and quick links.
+- [DONE] Update README, PRD, DATA_MODEL, PLAN, TASKS and PROJECT_STATE; leave existing Supabase reporting function untouched (no destructive migration).
+- [PENDING] Verify final Production READY with exact commit and alias; authenticated desktop/mobile UI QA and preset/custom period checks remain separate.
