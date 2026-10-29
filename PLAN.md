@@ -309,4 +309,5 @@ Authenticated Production acceptance covers the current installment dataset acros
 - [DONE] Remove the retired explorer's source component and CSS and stop executing the full mapping hierarchy RPC on Home.
 - [DONE] Renumber the operational report to section 02; preserve all in-period Document/Finding KPIs, department breakout, issue/status panels and quick links.
 - [DONE] Update README, PRD, DATA_MODEL, PLAN, TASKS and PROJECT_STATE; leave existing Supabase reporting function untouched (no destructive migration).
-- [PENDING] Verify final Production READY with exact commit and alias; authenticated desktop/mobile UI QA and preset/custom period checks remain separate.
+- [DONE] PR #89 merged at `c6afa12295ecefee31f9cf6c9665b5b4cbf2563b`; Vercel Production `dpl_4iZf6cFgiPXiV7V17QfSKhn543BZ` READY with official site alias verified.
+- [PENDING] Authenticated desktop/mobile UI QA and preset/custom period checks remain separate.

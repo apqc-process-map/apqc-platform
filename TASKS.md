@@ -594,4 +594,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] HOME-REMOVE-005 — Update six canonical Markdown docs without rewriting historical deployment or business-data records.
 - [ ] HOME-REMOVE-QA-001 — Real signed-in browser check: removed block no longer displays, reports renumbered, compact header still renders and no mobile overflow.
 - [ ] HOME-REMOVE-QA-002 — Verify date presets/custom periods and Admin/Viewer visibility in actual sessions.
-- [ ] HOME-REMOVE-DEPLOY-001 — Confirm merged commit READY on Vercel Production and the official alias.
+- [x] HOME-REMOVE-DEPLOY-001 — PR #89 merged to `main` as `c6afa12295ecefee31f9cf6c9665b5b4cbf2563b`; Vercel Production deployment `dpl_4iZf6cFgiPXiV7V17QfSKhn543BZ` READY and official `pnj-apqc-platform.vercel.app` alias verified. Browser QA remains separate.
