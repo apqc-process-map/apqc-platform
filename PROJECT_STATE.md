@@ -96,3 +96,11 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - Vercel Production deployment `dpl_5ZHdGPyJtAQpqLRx5JEVhFw8r1bp` reached **READY** for this feature commit; `pnj-apqc-platform.vercel.app` confirmed as its alias.
 - SQL execution cost checked under simulated authenticated Admin (execution ~95 ms on sample, not an end-user page-latency guarantee). Admin/Viewer data and anon permissions validated. Browser-authenticated end-to-end and visual acceptance remain outstanding.
 - Current evidence is insufficient to allocate the 35 open document findings reliably across APQC L1–L3; no finding-by-APQC metric was fabricated. Only supported linked-document mappings are shown in hierarchy.
+
+## 2026-10-29 — Home APQC distribution section removed (latest UI decision)
+
+- At the user's request, **“02 / PHÂN BỔ DANH MỤC THEO APQC”** was removed entirely from Tab 01 Home. This supersedes the interactive hierarchy layout described in the earlier Executive Home section of this file; it is historical implementation detail, not current Home scope.
+- Current Home reading path: integrated control-center header with date filter, four period KPIs and compact portfolio totals (including PNJ APQC L1/L2/L3 inventory counts) → **02 / Diễn biến & ưu tiên xử lý** (department distribution, finding/action indicators and trends) → role queue and quick links.
+- Removed the Home L1/L2/L3 React explorer and its CSS. Home now reads only the PNJ framework's L1/L2/L3 node levels, not the former JSON mapping RPC/linked-document payload. If the count query fails, the header renders a dash in place of an invented zero.
+- The pre-existing `home_apqc_hierarchy_summary()` Supabase function and migration remain installed; no data, permission or schema rollback. APQC details remain reachable in the existing Process Map and Catalog.
+- Final build/deploy and signed-in browser validation are separate evidence gates; record them in TASKS after verification.
