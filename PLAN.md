@@ -292,3 +292,12 @@ Authenticated Production acceptance covers the current installment dataset acros
 - [DONE] Compile Vercel Preview with Next.js and TypeScript. No new privileged table or public materialization is introduced.
 - [DONE] Verified Vercel Production commit `b5cae354e9410fc4de7d350d799f7f613128fe0d` READY with official `pnj-apqc-platform.vercel.app` alias on 2026-10-29.
 - [PENDING] Real authenticated browser E2E for filters, empty states, responsive charts, source drill-through and per-role permissions remains an acceptance gate.
+
+### Phase 15 — Executive Home / L1–L3 APQC insight (2026-10-29)
+
+- [DONE] Move Home period selector, executive role label, all four in-period KPIs and current portfolio totals into one integrated header; remove duplicate report header and lower-page summary cards.
+- [DONE] Reorder content: 01 executive period KPIs → 02 cumulative APQC L1/L2/L3 inventory mapping → 03 exceptions/department distribution/time trends, preserving editor work queues and role-based quick links.
+- [DONE] Build an interactive L1→L2→L3 APQC category explorer with source names, direct Catalog links and distinct linked-document counts. Show mapping coverage honestly and keep it separate from time-filtered activity.
+- [DONE] Apply security-invoker reporting RPC scoped to the controlled PNJ framework. Reconcile mapped L3 across levels and test Admin/Viewer and anon denial.
+- [DONE] Vercel Preview Next.js/TypeScript build after final feature changes.
+- [PENDING] Signed-in visual QA and accessibility at desktop, tablet, phone, keyboard and per-role filters, followed by Production commit/alias verification.

@@ -81,3 +81,11 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - GitHub PR [#85](https://github.com/apqc-process-map/apqc-platform/pull/85) was merged into `main` as `b5cae354e9410fc4de7d350d799f7f613128fe0d`.
 - Vercel Production deployment `dpl_Hgy9xAYGFxmsu738MsZEwwcqtEkc` reached **READY** and the official `pnj-apqc-platform.vercel.app` alias was verified on that deployment.
 - The report's Supabase aggregation was tested against Admin and Viewer RLS and reconciled at the daily/department grain. Actual authenticated browser filter/render/E2E tests remain pending; Production READY does not prove these workflows.
+
+## 2026-10-29 — Executive Home hierarchy and APQC coverage
+
+- Home top header integrates the current user's control-center label, scoped time filters, four in-period KPIs, and compact cumulative APQC L1/L2/L3, enterprise-process, document-identity and role-workload context. Redundant lower summary/report filter was removed.
+- Executive reading path is now **01 — in-period outcomes**, **02 — APQC L1→L2→L3 linked-document coverage**, **03 — operational exceptions, department distribution, finding/document trends**. Role-specific work queues and quick links are preserved below.
+- New interactive `src/components/home-apqc-explorer.tsx` shows L1 Vietnamese short labels and L2/L3 source names with drill-through; data is drawn only from the controlled PNJ APQC interpretation, not both frameworks together.
+- Migration `20261029000002_home_executive_apqc_hierarchy.sql` is applied, with RLS-scoped, invoker-rights `home_apqc_hierarchy_summary()` returning document mapping coverage: **13 L1, 74 L2, 362 L3; 68 mapped L3; 1,149 distinct linked document identities**. These numbers are cumulative inventory links, not compliance or process effectiveness. Admin and Viewer read tests pass, anon denied, L1/L2/L3 mapped counts reconcile.
+- Implementation is built and type checked in Vercel Preview. Signed-in browser/visual QA and Production verification tracked in `TASKS.md`.

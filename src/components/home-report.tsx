@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Form from "next/form";
 
 export type HomeSummary = {
   from_date:string; to_date:string;
@@ -52,9 +51,8 @@ function Trends({rows,kind}:{rows:Interval[];kind:"documents"|"findings"}){
     {rows.every(row=>keys.every(key=>row[key]===0))&&<p className="home-trend-empty">Không phát sinh trong kỳ đã chọn.</p>}
   </div>;
 }
-export default function HomeReport({summary,period,from,to,today,error}:{
-  summary:HomeSummary|null;period:"7d"|"30d"|"90d"|"custom";
-  from:string;to:string;today:string;error?:string;
+export default function HomeReport({summary,from,to,error}:{
+  summary:HomeSummary|null;from:string;to:string;error?:string;
 }){
   const dates=`${d(from)}–${d(to)}/${to.slice(0,4)}`;
   const timeline=groupedTrend(summary?.timeline||[]);
@@ -63,48 +61,23 @@ export default function HomeReport({summary,period,from,to,today,error}:{
   const rest=departments.slice(8).reduce((sum,item)=>sum+item.count,0);
   const maxDept=Math.max(1,...top.map(item=>item.count));
   const completeDept=summary?Math.max(0,summary.new_documents-summary.without_department):0;
-  const kpis=[
-    {title:"Hồ sơ tài liệu mới",value:summary?.new_documents??0,detail:"Theo ngày tạo hồ sơ; gồm metadata chưa có tệp",href:"/documents",tone:"primary"},
-    {title:"Tài liệu có tệp tải lên",value:summary?.documents_with_files??0,detail:`${n(summary?.files_uploaded??0)} tệp tải lên trong kỳ`,href:"/documents",tone:"neutral"},
-    {title:"Finding phát hiện",value:summary?.findings_found??0,detail:"Finding về tài liệu tạo trong kỳ",href:"/findings",tone:"amber"},
-    {title:"Finding đã khắc phục",value:summary?.findings_remedied??0,detail:"Đã xử lý/đóng và có quyết định cần khắc phục",href:"/findings",tone:"teal"},
-  ];
+  const watch=summary?[
+    summary.open_findings_now>0?`${n(summary.open_findings_now)} finding chưa xử lý`:null,
+    summary.new_documents>0&&summary.files_uploaded===0?"Hồ sơ tăng nhưng chưa có tệp tải lên trong kỳ":null,
+    summary.without_department>0?`${n(summary.without_department)} hồ sơ mới thiếu đơn vị ban hành`:null,
+  ].filter(Boolean):[];
   return <section className="home-insights" aria-labelledby="home-report-heading">
-    <div className="home-report-header">
-      <div><p className="section-kicker">TỔNG QUAN TÀI LIỆU & FINDING</p><h2 id="home-report-heading">Báo cáo nhanh</h2>
-        <p className="home-report-subtitle">Từ {dates} · theo ngày Việt Nam (GMT+7) · dữ liệu theo quyền truy cập</p></div>
-      <Form action="/" scroll={false} className="home-period-form">
-        <label>Khung thời gian
-          <select name="period" defaultValue={period}>
-            <option value="7d">7 ngày gần nhất</option><option value="30d">30 ngày gần nhất</option>
-            <option value="90d">90 ngày gần nhất</option><option value="custom">Tùy chọn ngày</option>
-          </select>
-        </label>
-        <label>Từ ngày<input name="from" type="date" defaultValue={from} max={today}/></label>
-        <label>Đến ngày<input name="to" type="date" defaultValue={to} max={today}/></label>
-        <button type="submit">Xem báo cáo</button>
-        <small>Chọn “Tùy chọn ngày” để sử dụng hai ô ngày.</small>
-      </Form>
+    <div className="executive-section-heading">
+      <div><p className="section-kicker">03 / DIỄN BIẾN & ƯU TIÊN XỬ LÝ</p>
+        <h2 id="home-report-heading">Điểm cần điều hành chú ý</h2>
+        <p>Phân bổ theo đơn vị, tồn đọng hiện tại và xu hướng từ ${dates}.</p></div>
+      <Link className="executive-catalog-note" href="/findings">Xem danh sách finding</Link>
     </div>
     {error||!summary?<div role="alert" className="home-insight-error">Không thể tải dữ liệu tổng quan: {error||"Không có dữ liệu trả về."}</div>:<>
-      <div className="home-kpi-grid">{kpis.map(kpi=><Link className={`home-kpi-card ${kpi.tone}`} href={kpi.href} key={kpi.title}>
-        <span>{kpi.title}</span><strong>{n(kpi.value)}</strong><small>{kpi.detail}</small>
-      </Link>)}</div>
-      <div className="home-insight-panels">
-        <article className="home-insight-panel">
-          <div className="home-panel-head"><h3>Xu hướng tài liệu</h3><Link href="/documents">Xem thư viện</Link></div>
-          <p>Hồ sơ tạo mới so với số tệp thực sự tải lên theo từng ngày hoặc cụm ngày.</p>
-          <Trends kind="documents" rows={timeline}/>
-        </article>
-        <article className="home-insight-panel">
-          <div className="home-panel-head"><h3>Xu hướng finding</h3><Link href="/findings">Xem findings</Link></div>
-          <p>Finding phát hiện trong kỳ và finding hoàn tất khắc phục trong kỳ.</p>
-          <Trends kind="findings" rows={timeline}/>
-        </article>
-      </div>
+      {watch.length>0&&<div className="executive-focus-line"><strong>ĐIỂM CẦN LƯU Ý</strong><span>{watch.join(" · ")}</span></div>}
       <div className="home-insight-panels secondary">
         <article className="home-insight-panel">
-          <div className="home-panel-head"><h3>Hồ sơ mới theo đơn vị ban hành</h3><Link href="/documents">Tra cứu tài liệu</Link></div>
+          <div className="home-panel-head"><h3>Đơn vị có hồ sơ mới</h3><Link href="/documents">Tra cứu tài liệu</Link></div>
           <p>Phân bổ {n(summary.new_documents)} hồ sơ trong kỳ. Tên đơn vị khác nhau về chữ hoa/thường được gộp.</p>
           {top.length?<div className="home-department-list">{top.map((row,i)=><div className="home-department-item" key={`${row.name}-${i}`}>
             <div className="home-department-heading"><span title={row.name}>{row.name}</span><strong>{n(row.count)}</strong></div>
@@ -114,7 +87,7 @@ export default function HomeReport({summary,period,from,to,today,error}:{
             <div className="home-empty">Chưa có hồ sơ mới trong kỳ.</div>}
         </article>
         <article className="home-insight-panel">
-          <div className="home-panel-head"><h3>Điểm cần theo dõi</h3><Link href="/findings">Xử lý findings</Link></div>
+          <div className="home-panel-head"><h3>Tồn đọng và chất lượng dữ liệu</h3><Link href="/findings">Xử lý findings</Link></div>
           <div className="home-watch-grid">
             <div><strong>{n(summary.open_findings_now)}</strong><span>Finding chưa xử lý <em>(hiện tại)</em></span></div>
             <div><strong>{n(summary.overdue_actions_now)}</strong><span>Hành động khắc phục quá hạn <em>(hiện tại)</em></span></div>
@@ -126,6 +99,19 @@ export default function HomeReport({summary,period,from,to,today,error}:{
             {summary.finding_statuses.length?<div>{summary.finding_statuses.map(item=><span key={item.status}>{statuses[item.status]||item.status}: <b>{n(item.count)}</b></span>)}</div>:
               <small>Không có finding mới trong kỳ.</small>}
           </div>
+        </article>
+      </div>
+
+      <div className="home-insight-panels">
+        <article className="home-insight-panel">
+          <div className="home-panel-head"><h3>Xu hướng tài liệu</h3><Link href="/documents">Xem thư viện</Link></div>
+          <p>Hồ sơ tạo mới so với số tệp thực sự tải lên theo từng ngày hoặc cụm ngày.</p>
+          <Trends kind="documents" rows={timeline}/>
+        </article>
+        <article className="home-insight-panel">
+          <div className="home-panel-head"><h3>Xu hướng finding</h3><Link href="/findings">Xem findings</Link></div>
+          <p>Finding phát hiện trong kỳ và finding hoàn tất khắc phục trong kỳ.</p>
+          <Trends kind="findings" rows={timeline}/>
         </article>
       </div>
       <p className="home-report-footnote">Định nghĩa: “Hồ sơ mới” đếm tài liệu theo ngày tạo danh mục, kể cả hồ sơ chỉ có metadata; “Có tệp tải lên” đếm tài liệu duy nhất có tệp đính kèm được tải trong kỳ (một tài liệu có thể có nhiều tệp). “Đã khắc phục” chỉ đếm finding có quyết định cần hành động và đã xử lý xong/đóng, theo ngày giải quyết. Tồn đọng phản ánh trạng thái hiện tại, không phải số dư lịch sử. Các thống kê tuân theo RLS.</p>
