@@ -104,3 +104,9 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - Removed the Home L1/L2/L3 React explorer and its CSS. Home now reads only the PNJ framework's L1/L2/L3 node levels, not the former JSON mapping RPC/linked-document payload. If the count query fails, the header renders a dash in place of an invented zero.
 - The pre-existing `home_apqc_hierarchy_summary()` Supabase function and migration remain installed; no data, permission or schema rollback. APQC details remain reachable in the existing Process Map and Catalog.
 - Final build/deploy and signed-in browser validation are separate evidence gates; record them in TASKS after verification.
+
+### Home APQC panel removal — Production verification (2026-10-29)
+
+- PR [#89](https://github.com/apqc-process-map/apqc-platform/pull/89) merged to `main` as `c6afa12295ecefee31f9cf6c9665b5b4cbf2563b`.
+- Vercel Production `dpl_4iZf6cFgiPXiV7V17QfSKhn543BZ` reached **READY**, and the `pnj-apqc-platform.vercel.app` alias was verified. The complete APQC distribution panel is no longer part of Home.
+- Remaining QA: authenticated interactive browser acceptance, mobile layout and filters; READY confirms deployment/build, not that every click path has been tested.
