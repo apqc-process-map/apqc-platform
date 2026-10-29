@@ -22,6 +22,8 @@ Desktop-first internal process-governance application aligned to APQC PCF 8.0. E
 
 01 Home · 02 Document · 03 Process Map · 04 Relationship · 05 Vai trò của tôi · 06 Finding & Action · 07 Catalog · 08 Governance · 09 Action Log.
 
+**01 Home reporting (2026-10-29):** a date-filtered, RLS-aware quick insight dashboard (7 days inclusive by default, 30/90 days or custom dates). It separates new document records from actual uploaded file attachments, counts document findings discovered/remediated, displays two time trends and new documents by issuing department, and exposes current document-finding backlog, overdue actions and missing department metadata. The SQL aggregation is in `supabase/migrations/20261029000001_home_document_finding_summary.sql`; see PRD and DATA_MODEL for precise measures.
+
 Document intake supports governed metadata, private direct-to-Storage upload, signed file access, lifecycle states, process links, applicability, tags and role-knowledge classification. Finding displays the full controlled issue register and evidence consolidation; Action Log tracks corrective-action work and notification history. Automated AI/OCR document comparison is not implemented.
 
 ## Development
