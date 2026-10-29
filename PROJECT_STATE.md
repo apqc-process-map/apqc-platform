@@ -118,3 +118,9 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - The UI uses existing `home_document_finding_summary(date,date)` data with caller RLS; no schema, Supabase function or business records modified. Data definitions and historic status/role views are preserved. One-period zero uploaded-file caveat avoids claiming metadata registrations are binaries.
 - Responsive layout favors a paired document-activity/issuing-department report and full-width bottom Finding chart. The removed executive card CSS is not loaded. New period-based KPI targets or comparative rates were not invented.
 - Pending gates: exact Production commit/alias and authenticated browser QA after final Preview; see TASKS.
+
+### CEO Home management layout — Production verification (2026-10-29)
+
+- PR [#91](https://github.com/apqc-process-map/apqc-platform/pull/91) merged as commit `d0c3e3668442c56239436220d1b7357b98de42cb`.
+- Vercel Production deployment `dpl_216PrtUr4woUDi4j4RurdEhFdrSS` reached **READY**; the `pnj-apqc-platform.vercel.app` alias was verified for that exact release.
+- Final production build and TypeScript checks passed. Actual interactive signed-in browser visual E2E remains unverified, tracked separately in TASKS.
