@@ -570,3 +570,17 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [ ] HOME-REPORT-QA-002 — Exercise date presets, valid/invalid custom dates, upload and finding daily counts, department grouping and live data updates.
 - [ ] HOME-REPORT-QA-003 — Verify keyboard/responsive layout at 375/1024/1280/1600px and report links to Documents/Findings.
 - [x] HOME-REPORT-DEPLOY-001 — Vercel Production deployment `dpl_Hgy9xAYGFxmsu738MsZEwwcqtEkc` for commit `b5cae354e9410fc4de7d350d799f7f613128fe0d` is READY; official alias `pnj-apqc-platform.vercel.app` verified. Signed-in browser E2E remains tracked separately.
+
+## 2026-10-29 — Executive Home layout and APQC L1–L3 analysis
+
+- [x] HOME-EXEC-001 — Merge Admin/Editor/Viewer control-center label, date controls, four period KPIs, portfolio totals and role workload into one top section; remove repetitive lower summary.
+- [x] HOME-EXEC-002 — Separate in-period flows from cumulative APQC/process/doc identity totals and current-state finding stocks, with explicit captions.
+- [x] HOME-EXEC-003 — Identify two APQC frameworks sharing L1–L3; scope executive analysis to PNJ interpretation rather than double-counting both.
+- [x] HOME-EXEC-004 — Apply `20261029000002_home_executive_apqc_hierarchy.sql` and verify Admin/Viewer calls, mapped totals and anonymous execute denial. Snapshot: L1=13, L2=74, L3=362, mapped L3=68, unique mapped documents=1,149.
+- [x] HOME-EXEC-005 — Build responsive three-column APQC drill-down with selected L1→L2→L3, document counts, source APQC names and detail links.
+- [x] HOME-EXEC-006 — Reorder operational attention and issuing departments above the time trends; preserve existing Editor queue/quick links.
+- [x] HOME-EXEC-007 — Final feature Vercel Preview build and TypeScript check READY.
+- [ ] HOME-EXEC-QA-001 — Real signed-in browser end-to-end: selection L1, L2, L3, Catalog deep link and keyboard focus/scrolling.
+- [ ] HOME-EXEC-QA-002 — Check mobile/tablet/desktop responsive alignment, date filter applied only to period KPIs, and clarity for zero-file / unmapped APQC states.
+- [ ] HOME-EXEC-QA-003 — Verify data access on real Admin/Editor/Viewer browser sessions and current/period caption semantics.
+- [ ] HOME-EXEC-DEPLOY-001 — Verify main GitHub merge and Vercel Production READY with official site alias before claiming release.
