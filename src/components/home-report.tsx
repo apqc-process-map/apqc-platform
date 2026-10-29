@@ -68,7 +68,7 @@ export default function HomeReport({summary,from,to,error}:{
   ].filter(Boolean):[];
   return <section className="home-insights" aria-labelledby="home-report-heading">
     <div className="executive-section-heading">
-      <div><p className="section-kicker">03 / DIỄN BIẾN & ƯU TIÊN XỬ LÝ</p>
+      <div><p className="section-kicker">02 / DIỄN BIẾN & ƯU TIÊN XỬ LÝ</p>
         <h2 id="home-report-heading">Điểm cần điều hành chú ý</h2>
         <p>Phân bổ theo đơn vị, tồn đọng hiện tại và xu hướng từ ${dates}.</p></div>
       <Link className="executive-catalog-note" href="/findings">Xem danh sách finding</Link>
