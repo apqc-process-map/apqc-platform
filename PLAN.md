@@ -282,3 +282,12 @@ Authenticated Production acceptance covers the current installment dataset acros
 - Store source-backed code/name, effective date, department/unit and APQC path; leave unsupported content blank and mappings Proposed.
 - Display every mapped L2 process while retaining evidence intensity based only on visible document links.
 - Exit: migration/data counts, RLS/security checks, authenticated Process Map QA, GitHub merge and one final Vercel Production deployment are verified.
+
+### Phase 14 — Home document/finding quick insights (2026-10-29)
+
+- [DONE] Confirm data grain and actual sources for document identity creation, file upload, finding discovery, remediation, action overdue and issuing department (do not conflate metadata-only files).
+- [DONE] Define 7/30/90-day and custom calendar dates (Vietnam time), default trailing seven calendar days including today, maximum 366 days.
+- [DONE] Add RLS-scoped PostgreSQL report function and validate signed-in Admin/Viewer visibility, date boundaries, and reconcilable totals.
+- [DONE] Build period picker, headline metric cards, document/finding time charts, top issuing-department report, operational attention panel and links on 01 Home. Preserve existing overall catalog/process/work queues below.
+- [DONE] Compile Vercel Preview with Next.js and TypeScript. No new privileged table or public materialization is introduced.
+- [PENDING] Verify latest Production deployment of the merged change; real authenticated browser E2E for filters, empty states, responsive charts and per-role permissions remains an acceptance gate.

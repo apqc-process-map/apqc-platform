@@ -557,3 +557,16 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 
 - [x] MAP-COVERAGE-001 — Phân biệt APQC L0/L1 có process cấp dưới và có tài liệu trong nhánh với process cấp dưới chưa có tài liệu.
 - [x] MAP-COVERAGE-002 — Cập nhật legend ba trạng thái bằng wording nghiệp vụ; giữ trạng thái L2 có tài liệu trực tiếp.
+
+## 2026-10-29 — Home quick insight dashboard
+
+- [x] HOME-REPORT-001 — Audit live Supabase data, roles and date semantics. Distinguish metadata creation from actual file uploads and document findings from general findings.
+- [x] HOME-REPORT-002 — Implement and apply migration `20261029000001_home_document_finding_summary.sql` with security-invoker RLS-scoped SQL aggregation; no source data modified.
+- [x] HOME-REPORT-003 — Implement 7/30/90-day/custom picker (Asia/Ho_Chi_Minh, default 7 inclusive days ending today, bounded date validation).
+- [x] HOME-REPORT-004 — Render four KPIs, two time trends, issuing-department ranking and current attention metrics on 01 Home; retain old cumulative APQC/process catalog metrics separately.
+- [x] HOME-REPORT-005 — Test Admin/Viewer read access and validate that daily and department counts reconcile with totals. In Admin 2026-10-23…29 snapshot, 1,837 new metadata document records but 0 new file uploads and 0 newly discovered/remediated document findings; current unresolved finding stock is 35.
+- [x] HOME-REPORT-006 — Vercel Preview build / TypeScript READY.
+- [ ] HOME-REPORT-QA-001 — Verify actual authenticated Admin and Viewer Home rendering, no private finding leakage and empty/error states in browsers.
+- [ ] HOME-REPORT-QA-002 — Exercise date presets, valid/invalid custom dates, upload and finding daily counts, department grouping and live data updates.
+- [ ] HOME-REPORT-QA-003 — Verify keyboard/responsive layout at 375/1024/1280/1600px and report links to Documents/Findings.
+- [ ] HOME-REPORT-DEPLOY-001 — Verify merged main commit has a READY Vercel Production deployment and official alias before calling the feature released.
