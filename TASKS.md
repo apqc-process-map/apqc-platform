@@ -607,4 +607,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] HOME-CEO-007 — Latest code Preview build READY / Next.js TypeScript checks passed.
 - [ ] HOME-CEO-QA-001 — Authenticated browser QA for absence of duplicate finding block, correct report order, chart legends and cross-tab links.
 - [ ] HOME-CEO-QA-002 — Check 375/768/1024/1440 px alignment, empty periods, date range/preset changes and Admin/Viewer visibility.
-- [ ] HOME-CEO-DEPLOY-001 — Verify merged main commit Vercel Production READY with official alias before marking released.
+- [x] HOME-CEO-DEPLOY-001 — PR #91 merged into main as `d0c3e3668442c56239436220d1b7357b98de42cb`; Vercel Production `dpl_216PrtUr4woUDi4j4RurdEhFdrSS` READY, official alias `pnj-apqc-platform.vercel.app` confirmed. Real signed-in browser QA remains pending.

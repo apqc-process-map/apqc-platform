@@ -320,4 +320,5 @@ Authenticated Production acceptance covers the current installment dataset acros
 - [DONE] Keep four filtered KPI cards in the unified top header, cohort/period semantics, role-based access, and existing work queue/quick links.
 - [DONE] Refine responsive executive styling and discard unused legacy Home card CSS; no Supabase data/schema changes.
 - [DONE] Verify Next/TypeScript Vercel Preview build after UI source and style changes.
-- [PENDING] Merge/release verification against exact GitHub/Vercel Production commit, then authenticated browser and responsive QA.
+- [DONE] PR #91 merged into `main` as `d0c3e3668442c56239436220d1b7357b98de42cb`. Vercel Production `dpl_216PrtUr4woUDi4j4RurdEhFdrSS` READY, with official site alias verified.
+- [PENDING] Signed-in authenticated browser and responsive QA (separate from successful build/deployment).
