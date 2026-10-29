@@ -956,3 +956,27 @@ User-specific report values must not be fabricated or inferred from sample figur
 - **Performance:** Home stops requesting the comprehensive `home_apqc_hierarchy_summary()` RPC and its L1/L2/L3 mapping payload. It uses a lightweight read of the PNJ-controlled `apqc_frameworks` entry plus `apqc_elements.level_number` up to level 3 to derive 13/74/362 header totals without reading document mappings. Failed/unavailable APQC header counts show em-dashes, not fabricated zeros.
 - Delete the unused Home hierarchy React component and CSS. Existing database function/migration remains installed (no destructive rollback) but is no longer consumed by Home; Process Map and Catalog remain the navigation destinations for APQC details.
 - **QA:** Confirm the section does not appear on desktop/mobile, the lower report is numbered 02, date filters and KPI counts still work, RLS is preserved, and the header's APQC totals match the PNJ reference. Actual authenticated browser QA must be tracked separately from compilation.
+
+## 46. CEO/COO management reporting simplification — 2026-10-29 (current Home specification)
+
+**Decision:** Executive Home is a decision overview, not a second Finding register. Section 45's single-page layout is retained, but its detailed finding/action/metadata panel is **superseded** by this section.
+
+### Information hierarchy
+
+1. **Header / 01 — Kết quả trong kỳ:** one role-aware control center, 7/30/90/custom date picker, compact *cumulative* APQC/process/document portfolio totals and exactly four *period-flow* KPIs: registered document identities, identities with real file uploads, newly created document findings, and findings remedied during the period.
+2. **02 — Hoạt động tài liệu:** one primary visual comparing document registrations and real uploaded file objects over time; a companion horizontal ranked bar chart for the **top five issuing departments**, plus a combined "other departments" row. Add only meaningful, source-backed context: the share of the top three issuing departments among all new document identities; a restrained note when there are registered records but zero uploaded file objects; and a missing-department disclosure only if the selected-period count is nonzero.
+3. **03 — Theo dõi Finding (last chart):** **one** time trend for finding created versus remedied in the selected period. In its *footer caption*, not another box, show current unresolved finding total and currently overdue corrective actions, explicitly labeled *current state* (not period end). Link to Tab 06 /findings for details.
+
+### What not to show
+
+- Remove the **"Tồn đọng và chất lượng dữ liệu"** card entirely: three large operational counters, the duplicate metadata-completeness numerator/denominator and the finding-status chips.
+- Remove the **"Điểm cần lưu ý"** strip and upper "Xem danh sách finding" action: they restate information already in the top KPIs and bottom Finding visual.
+- Do not add a row-level Finding list, action owner/RACI/status register, arbitrary traffic-light warning, invented KPI target or fake period-over-period comparison to the CEO summary.
+- Leave all actual Finding records and detailed investigation in Tab 06; leave file/metadata governance workflows in Tab 02. The Editor personal queue and role-based quick links still appear below the executive report.
+
+### Visual and validation contract
+
+- Reading flow: headline KPIs → Document trend and department contribution side-by-side → **single Finding trend at bottom** → brief definition note. Neutral editorial colors, clear units, compact spacing and responsively stacked columns; use bars for quantity and sorted department ranking, not pie charts or repeated KPI cards.
+- Preserve the Supabase `home_document_finding_summary(date,date)` **SECURITY INVOKER / RLS** data contract. No migration needed: all new values are derived from existing response keys. The "top three share" is `round(100 * sum(top 3 issuing-department document counts) / new_documents)` when denominator is positive. The report's current unresolved and overdue numbers do **not** inherit the period filter.
+- There must be no duplicate finding-status blocks or attention strip; the bottom Finding chart is the only Finding detail visualization on Home. Zero-activity states must remain understandable. Do not describe metadata registrations as uploaded binaries.
+- Build/TypeScript, deployment/alias and authenticated browser QA are **separate evidence gates**; do not claim browser acceptance without an actual test.
