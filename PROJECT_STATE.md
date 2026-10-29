@@ -75,3 +75,9 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - **Verified date snapshot (2026-10-29):** Admin, 2026-10-23…29 inclusive: 1,837 new document identities, 0 file objects uploaded, 0 newly discovered or remediated document findings, **35 unresolved document findings at time of observation**. Most new records are metadata registrations, **not** files. For 2026-09-30…10-29, total documents 1,849; files uploaded 12; findings discovered 35. The daily and department sums exactly reconcile to headline totals.
 - **Role test:** Admin and Viewer SQL simulations passed; Viewer does not see restricted document findings. Build: latest tested Vercel Preview for Home report compiled and passed TypeScript.
 - **Remaining gate:** Verified Production deployment after main merge and authenticated browser QA for filters, responsiveness and navigation. Keep runtime verification separate from compilation/database tests.
+
+### Home report Production verification — 2026-10-29
+
+- GitHub PR [#85](https://github.com/apqc-process-map/apqc-platform/pull/85) was merged into `main` as `b5cae354e9410fc4de7d350d799f7f613128fe0d`.
+- Vercel Production deployment `dpl_Hgy9xAYGFxmsu738MsZEwwcqtEkc` reached **READY** and the official `pnj-apqc-platform.vercel.app` alias was verified on that deployment.
+- The report's Supabase aggregation was tested against Admin and Viewer RLS and reconciled at the daily/department grain. Actual authenticated browser filter/render/E2E tests remain pending; Production READY does not prove these workflows.
