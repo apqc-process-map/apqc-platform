@@ -66,6 +66,7 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 
 - Replaced the active APQC reference and company document library from the two controlled workbook sheets while preserving prior frameworks/documents for audit.
 - Added active-framework enforcement, controlled APQC interpretation metadata, source-row audit metadata, exact document/APQC mappings and workbook checksum logging.
+- Process Map L1 cards now use a compact content-based minimum and show APQC plus hierarchy number; coverage legend samples and branch-scoped wording match the actual evidence styles.
 - Scoped product reads to active/current records and added controlled interpretation to APQC detail.
 
 ## 2026-10-29 — Home operational quick-insight dashboard
