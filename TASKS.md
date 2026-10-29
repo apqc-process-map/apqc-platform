@@ -580,7 +580,18 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] HOME-EXEC-005 — Build responsive three-column APQC drill-down with selected L1→L2→L3, document counts, source APQC names and detail links.
 - [x] HOME-EXEC-006 — Reorder operational attention and issuing departments above the time trends; preserve existing Editor queue/quick links.
 - [x] HOME-EXEC-007 — Final feature Vercel Preview build and TypeScript check READY.
-- [ ] HOME-EXEC-QA-001 — Real signed-in browser end-to-end: selection L1, L2, L3, Catalog deep link and keyboard focus/scrolling.
-- [ ] HOME-EXEC-QA-002 — Check mobile/tablet/desktop responsive alignment, date filter applied only to period KPIs, and clarity for zero-file / unmapped APQC states.
+- [~] HOME-EXEC-QA-001 — Superseded by user-requested removal of the Home APQC explorer; L1/L2/L3 selection QA is no longer applicable to Tab 01.
+- [ ] HOME-EXEC-QA-002 — Check mobile/tablet/desktop responsive alignment, date filter applied only to in-period KPIs and clarity for zero-file or unclassified entries; the removed APQC explorer is no longer part of this QA.
 - [ ] HOME-EXEC-QA-003 — Verify data access on real Admin/Editor/Viewer browser sessions and current/period caption semantics.
 - [x] HOME-EXEC-DEPLOY-001 — PR #87 merged as `ab895bcb2751650a0040174217f44d7f4910ae5c`; Vercel Production `dpl_5ZHdGPyJtAQpqLRx5JEVhFw8r1bp` READY and official `pnj-apqc-platform.vercel.app` alias confirmed. Interactive authenticated browser QA remains pending.
+
+## 2026-10-29 — User-requested removal of Home APQC distribution
+
+- [x] HOME-REMOVE-001 — Remove entire “02 / Phân bổ danh mục theo APQC” section, including L1→L2→L3 columns, percentages, and its UI controls.
+- [x] HOME-REMOVE-002 — Change “03 / Diễn biến & ưu tiên xử lý” to section “02”.
+- [x] HOME-REMOVE-003 — Keep compact APQC L1/L2/L3 totals in the header; replace heavy hierarchy mapping RPC with lightweight, framework-filtered node counts. If unavailable, do not silently show zero.
+- [x] HOME-REMOVE-004 — Delete unused explorer component and obsolete CSS; retain existing DB function/migration but stop consuming it on Home.
+- [x] HOME-REMOVE-005 — Update six canonical Markdown docs without rewriting historical deployment or business-data records.
+- [ ] HOME-REMOVE-QA-001 — Real signed-in browser check: removed block no longer displays, reports renumbered, compact header still renders and no mobile overflow.
+- [ ] HOME-REMOVE-QA-002 — Verify date presets/custom periods and Admin/Viewer visibility in actual sessions.
+- [ ] HOME-REMOVE-DEPLOY-001 — Confirm merged commit READY on Vercel Production and the official alias.

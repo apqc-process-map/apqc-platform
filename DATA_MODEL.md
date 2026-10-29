@@ -586,3 +586,9 @@ Production migrations `20261027004304`–`20261027004641` establish the current 
 - **Metric note:** `mapped_l3 / total_l3` is direct document-to-L3 mapping coverage. It says nothing about compliance, review status or policy application. `mapped_documents` counts each document identity only once overall; L1/L2 document totals may overlap across categories where one document maps to multiple nodes.
 - **Temporal separation:** this is a **current cumulative** APQC reporting surface independent of `home_document_finding_summary(date,date)` and its selected activity period.
 - **Validation:** Admin + Viewer transaction-scoped SQL read, 13/74/362 levels, 68 mapped L3 and 1,149 mapped document identities. L1/L2/L3 mapped-level totals reconcile; anon function EXECUTE is denied. No source business rows mutated.
+
+### Home APQC distribution retirement (2026-10-29)
+
+- The previously applied `public.home_apqc_hierarchy_summary()` and its migration remain in PostgreSQL to avoid a destructive production rollback, but **Tab 01 no longer calls this function** or loads the full hierarchy and its RLS-scoped mapping totals.
+- The compact APQC inventory line in the executive header now performs an RLS-aware read of `apqc_frameworks.id`, strictly filtered to `name='APQC catalogue with controlled PNJ interpretation'` and `version='Process Map workbook 2026-10-29'`, followed by `apqc_elements.level_number <= 3`. This is *only* a count of reference nodes at L1/L2/L3; it does not join `document_apqc_mappings` or expose mapping counts.
+- No schema changes, data deletes, permission changes, or changes to `home_document_finding_summary()`. The Document/Finding time-series still uses the period filter and the existing RLS policies.

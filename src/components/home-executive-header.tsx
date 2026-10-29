@@ -1,17 +1,16 @@
 import Link from "next/link";
 import Form from "next/form";
 import type { HomeSummary } from "@/components/home-report";
-import type { HomeHierarchySummary } from "@/components/home-apqc-explorer";
 
 const num=(value:number)=>value.toLocaleString("vi-VN");
 const day=(date:string)=>date.slice(8,10)+"/"+date.slice(5,7)+"/"+date.slice(0,4);
 type Period="7d"|"30d"|"90d"|"custom";
 
 export default function HomeExecutiveHeader({
-  roleLabel,period,from,to,today,summary,hierarchy,processCount,documentCount,queueCount,queueLabel,queueHref
+  roleLabel,period,from,to,today,summary,apqcCounts,processCount,documentCount,queueCount,queueLabel,queueHref
 }:{
   roleLabel:string;period:Period;from:string;to:string;today:string;
-  summary:HomeSummary|null;hierarchy:HomeHierarchySummary|null;
+  summary:HomeSummary|null;apqcCounts:{l1:number;l2:number;l3:number}|null;
   processCount:number;documentCount:number;
   queueCount:number;queueLabel:string;queueHref:string;
 }){
@@ -26,7 +25,7 @@ export default function HomeExecutiveHeader({
       <div className="executive-heading">
         <p className="executive-eyebrow"><span>{roleLabel}</span><span className="executive-eyebrow-divider">/</span> GÓC NHÌN ĐIỀU HÀNH</p>
         <h1>Tổng quan quản trị quy trình & tài liệu</h1>
-        <p>Diễn biến trong kỳ, mức độ gắn tài liệu vào APQC và việc cần ưu tiên xử lý.</p>
+        <p>Diễn biến tài liệu, finding và các ưu tiên xử lý trong kỳ.</p>
       </div>
       <Form action="/" scroll={false} className="executive-period-form">
         <label>Khung thời gian
@@ -42,7 +41,7 @@ export default function HomeExecutiveHeader({
     </div>
     <div className="executive-scope-strip">
       <div className="executive-scope-context"><strong>TOÀN BỘ DANH MỤC</strong><small>Không phụ thuộc bộ lọc ngày</small></div>
-      <Link href="/process-map"><b>{num(hierarchy?.total_l1??0)}</b> APQC L1 <span>/</span> <b>{num(hierarchy?.total_l2??0)}</b> L2 <span>/</span> <b>{num(hierarchy?.total_l3??0)}</b> L3</Link>
+      <Link href="/process-map"><b>{apqcCounts?num(apqcCounts.l1):"—"}</b> APQC L1 <span>/</span> <b>{apqcCounts?num(apqcCounts.l2):"—"}</b> L2 <span>/</span> <b>{apqcCounts?num(apqcCounts.l3):"—"}</b> L3</Link>
       <Link href="/process-map"><b>{num(processCount)}</b> quy trình nội bộ</Link>
       <Link href="/documents"><b>{num(documentCount)}</b> hồ sơ tài liệu</Link>
       <Link href={queueHref}><b>{num(queueCount)}</b> {queueLabel}</Link>

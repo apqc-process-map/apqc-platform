@@ -922,7 +922,7 @@ User-specific report values must not be fabricated or inferred from sample figur
 - Default 7-day snapshot on 2026-10-29 (Admin simulation): 1,837 new document identities, 0 attachments uploaded, 0 newly created document findings and 0 remediated findings; there are 35 unresolved document findings **currently** visible to Admin. The imported metadata-only records must not be described as 1,837 uploaded PDFs.
 - Admin/Viewer simulated database read succeeded; Viewer is not shown restricted document findings. Transactional and RLS tests plus Vercel Next/TypeScript build do not replace authenticated browser layout, filter and drillthrough acceptance tests.
 
-## 44. Executive Home visual hierarchy and APQC drill-down — 2026-10-29
+## 44. Executive Home visual hierarchy and APQC drill-down — 2026-10-29 *(historical design; section 45 supersedes the Home drill-down)*
 
 **Audience:** CEO / COO for portfolio direction, departmental activity and exceptions; consistent role-restricted behavior for Editor/Viewer.
 
@@ -947,3 +947,12 @@ User-specific report values must not be fabricated or inferred from sample figur
 - Existing editor work queue and role-specific quick links stay below the executive report. Error/loading and zero-data states must not invent counts.
 - Applied `supabase/migrations/20261029000002_home_executive_apqc_hierarchy.sql`: `home_apqc_hierarchy_summary()` returns `total_l1,total_l2,total_l3,mapped_l3,mapped_documents,level1[],level2[],level3[]`, under authenticated user RLS. No service key, bypass or public summary table.
 - **Verification:** Admin and Viewer SQL simulations show 13/74/362, **68 mapped L3**, **1,149 distinct mapped document identities**. Summed L1 and L2 mapped L3 and counted nonempty L3 each reconcile to 68. Anonymous EXECUTE is denied; the returned measure is not proof of document effectiveness. Browser-authenticated/visual QA remains a separate gate.
+
+## 45. Home simplification — remove APQC distribution section (2026-10-29)
+
+- **Current scope overrides section 44:** Remove the entire three-column **“02 / PHÂN BỔ DANH MỤC THEO APQC”** Home section (L1 selector, L2 selector, L3 list, mapping coverage headline, explanatory footer and deep links within the retired panel). Do not replace it with another distribution chart or an empty placeholder.
+- Retain one consolidated Home top panel: role-aware control-center heading, period picker, four **in-period** KPIs, and compact **cumulative** repository totals. The small APQC L1/L2/L3 count string in the portfolio strip is retained; it is *not* the retired drill-down.
+- Renumber the former **03 / DIỄN BIẾN & ƯU TIÊN XỬ LÝ** body section to **02**. Its issuing-department distribution, current finding/action backlog, data completeness, time trends, dates and existing permission semantics remain unchanged.
+- **Performance:** Home stops requesting the comprehensive `home_apqc_hierarchy_summary()` RPC and its L1/L2/L3 mapping payload. It uses a lightweight read of the PNJ-controlled `apqc_frameworks` entry plus `apqc_elements.level_number` up to level 3 to derive 13/74/362 header totals without reading document mappings. Failed/unavailable APQC header counts show em-dashes, not fabricated zeros.
+- Delete the unused Home hierarchy React component and CSS. Existing database function/migration remains installed (no destructive rollback) but is no longer consumed by Home; Process Map and Catalog remain the navigation destinations for APQC details.
+- **QA:** Confirm the section does not appear on desktop/mobile, the lower report is numbered 02, date filters and KPI counts still work, RLS is preserved, and the header's APQC totals match the PNJ reference. Actual authenticated browser QA must be tracked separately from compilation.
