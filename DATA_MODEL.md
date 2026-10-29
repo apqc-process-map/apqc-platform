@@ -576,3 +576,40 @@ Production migrations `20261027004304`–`20261027004641` establish the current 
 - `create_finding_action_atomic(uuid, text, text, uuid, date)` locks the Finding, records the required-action decision and creates the Action atomically.
 - All four functions are `SECURITY INVOKER`, have `search_path = ''`, are executable by `authenticated` only, and retain RLS/role checks. No service-role path is used by the application.
 - Foreign-key covering indexes reported by Supabase are present. Newly created indexes may be reported as unused until normal traffic exercises their query paths; removal requires measured evidence, not an immediate post-create Advisor result.
+
+## Home dashboard aggregate contract — 2026-10-29
+
+**Migration:** `supabase/migrations/20261029000001_home_document_finding_summary.sql` registers `public.home_document_finding_summary(p_from_date date,p_to_date date) RETURNS jsonb`.
+
+- **Security:** `STABLE SECURITY INVOKER` with empty `search_path`, explicit active authenticated profile check through `auth.uid()` and `current_profile_role()`. EXECUTE granted to `authenticated` only, revoked from PUBLIC and anon. Reads base tables via their RLS policies; no service-role access, materialized public report table or elevated rights. Viewer can receive different totals than Admin.
+- **Bounds:** dates are inclusive in `Asia/Ho_Chi_Minh`; the API converts the end date to an exclusive next-day timestamp. Reject missing, reversed, future and >366-day windows.
+- **Grain and joins:** new document count uses a distinct `documents.id` created in the period with one RLS-visible `document_versions` row selected by ascending version. Uploaded-file count uses `document_files.id` and distinct uploaded document count uses `document_versions.document_id`. Both use the actual file upload timestamp. Department count uses the first RLS-visible version's `issuing_department`; group by lowercased trimmed name and retain an explicit missing bucket.
+- **Finding measures:** detected uses `findings.created_at`, `finding_domain='document'`. Remediated uses `status IN ('resolved','closed')` with `action_decision='required'` and date `COALESCE(resolved_at,closed_at)`. Current backlog uses unresolved document-finding statuses, while action-overdue is based on `finding_actions.due_at` and unfinished action status at query time.
+- **JSON keys:** `from_date`, `to_date`, `new_documents`, `files_uploaded`, `documents_with_files`, `findings_found`, `findings_remedied`, `without_department`, `open_findings_now`, `overdue_actions_now`, `departments:[{name,count}]`, `finding_statuses:[{status,count}]`, `timeline:[{date,documents,files,found,remedied}]`. Aggregates are source-backed and do not include restricted file names or finding text.
+- **No semantic conflation:** `documents.created_at` is metadata registration, NOT binary upload; `document_files.uploaded_at` represents actual files. A finding resolved with no remedial action is not a "khắc phục" event. Current unresolved counts are not period-end historical stock levels.
+- **Validation:** 2026-10-29 simulation under Admin and Viewer; counts reconcile for daily trend and by department. Existing document/finding records are not mutated by the reporting migration.
+
+## Executive APQC L1–L3 hierarchy report — 2026-10-29
+
+**Migration:** `supabase/migrations/20261029000002_home_executive_apqc_hierarchy.sql`; **function:** `public.home_apqc_hierarchy_summary() RETURNS jsonb`, `STABLE SECURITY INVOKER`, `search_path=''`, `EXECUTE` for authenticated only (not anon/PUBLIC). Uses the caller's RLS policy on `document_versions`, `document_apqc_mappings` and `apqc_elements`.
+
+- **Canonical framework filter:** `apqc_frameworks.name='APQC catalogue with controlled PNJ interpretation'` AND `version='Process Map workbook 2026-10-29'`. Prevents combining the duplicate PCF Cross-Industry baseline with the PNJ interpretation. The two frameworks have separate UUIDs but matching L1–L3 taxonomy.
+- **Hierarchy grain:** `apqc_elements` with `level_number` 1→2→3 and `parent_id`. Levels: 13/74/362. Do not count lower-level L4/L5 for this executive APQC hierarchy report.
+- **Mapping grain:** distinct `document_versions.document_id` linked by `document_apqc_mappings.document_version_id` and `apqc_element_id` directly to a L3. A L3 is "mapped" if at least one caller-visible document identity is linked. L2/L1 report L3 coverage rolled up from their own children and distinct document counts across the child set.
+- **Output:** `framework,framework_version,total_l1,total_l2,total_l3,mapped_l3,mapped_documents`; `level1:[{id,code,name,total_l2,total_l3,mapped_l3,documents}]`, `level2:[{id,parent_id,code,name,total_l3,mapped_l3,documents}]`, `level3:[{id,parent_id,code,name,documents}]`.
+- **Metric note:** `mapped_l3 / total_l3` is direct document-to-L3 mapping coverage. It says nothing about compliance, review status or policy application. `mapped_documents` counts each document identity only once overall; L1/L2 document totals may overlap across categories where one document maps to multiple nodes.
+- **Temporal separation:** this is a **current cumulative** APQC reporting surface independent of `home_document_finding_summary(date,date)` and its selected activity period.
+- **Validation:** Admin + Viewer transaction-scoped SQL read, 13/74/362 levels, 68 mapped L3 and 1,149 mapped document identities. L1/L2/L3 mapped-level totals reconcile; anon function EXECUTE is denied. No source business rows mutated.
+
+### Home APQC distribution retirement (2026-10-29)
+
+- The previously applied `public.home_apqc_hierarchy_summary()` and its migration remain in PostgreSQL to avoid a destructive production rollback, but **Tab 01 no longer calls this function** or loads the full hierarchy and its RLS-scoped mapping totals.
+- The compact APQC inventory line in the executive header now performs an RLS-aware read of `apqc_frameworks.id`, strictly filtered to `name='APQC catalogue with controlled PNJ interpretation'` and `version='Process Map workbook 2026-10-29'`, followed by `apqc_elements.level_number <= 3`. This is *only* a count of reference nodes at L1/L2/L3; it does not join `document_apqc_mappings` or expose mapping counts.
+- No schema changes, data deletes, permission changes, or changes to `home_document_finding_summary()`. The Document/Finding time-series still uses the period filter and the existing RLS policies.
+
+### Executive Home CEO/COO presentation contract — 2026-10-29
+
+- The executive UI now consumes the same `home_document_finding_summary(date,date)` JSON. **No new SQL migration, permission or write operation is needed.** It no longer renders the separate status/missing-metadata/overdue-action tiles or the repeated finding status breakdown. The unused `finding_statuses` field can remain in the response contract for other potential consumers.
+- Top-three department concentration = `round(100 * sum(first 3 normalized departments.count)/new_documents)` only for positive denominator, with the existing departments ranking returned by the RPC. Top-five named issuers are shown, and all remaining issuer counts aggregate into "Các đơn vị khác"; totals and denominator are unchanged.
+- `new_documents` remains metadata registration and `files_uploaded` remains binary object uploads, measured at separate grains. A caution appears for periods with `new_documents > 0 AND files_uploaded = 0`; no attachment coverage ratio is inferred without an appropriate cohort.
+- `open_findings_now` and `overdue_actions_now` remain current snapshots and are displayed only as a concise caption under the **single** finding trend. No period-to-period comparison or KPI targets are fabricated.

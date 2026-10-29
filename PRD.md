@@ -888,3 +888,95 @@ Users may find a document through RLS-visible related objects such as Business P
 - Tab **Relationship** hiển thị mỗi `document_process_links` hiện có thành quan hệ có hướng **Quy trình → Được mô tả bởi tài liệu → Tài liệu**. Đối tượng đích là định danh tài liệu (`documents.id`), còn bằng chứng lưu mã liên kết và phiên bản nguồn để truy vết.
 - Các quan hệ được tạo ở trạng thái **Đề xuất**. Process Owner/Admin phải xác minh trước khi chuyển sang **Đã xác minh**; tên hoặc mã tài liệu đơn lẻ không đủ để tự xác minh ý nghĩa nghiệp vụ.
 - Không tự tạo quan hệ tài liệu–tài liệu chỉ vì cùng chủ đề, có tên gần giống, hoặc cùng được liên kết với một quy trình. Loại quan hệ này chỉ được thêm khi có dẫn chứng trực tiếp trong nội dung/metadata hoặc quyết định của owner.
+
+## 43. Home quick-insight reporting — 2026-10-29
+
+### 43.1 Purpose and layout
+
+Tab 01 Home (/) leads with a small operational dashboard rather than only cumulative repository totals. Place the period selector above four headline KPI cards, then two trend panels, then the new-document-by-department distribution and an operational-attention panel. Current APQC L1–L3, enterprise process, document identity, and role-specific workload totals are consolidated into the top control strip; role-specific detail queues remain below the analytical sections.
+
+- Period options: trailing **7 calendar days including today by default**, 30 days, 90 days, and custom inclusive From/To dates (maximum 366 calendar days, no future date); dates are interpreted in **Asia/Ho_Chi_Minh** rather than UTC. Example: 2026-10-29 defaults to **2026-10-23…2026-10-29**.
+- Report headings, cards, labels and microcopy are Vietnamese, with responsive desktop/tablet/mobile CSS and numeric counts, zero-data messages, inline source/meaning explanations and links to relevant Document/Finding pages.
+- Time-series chart buckets are daily up to 14 days and aggregated into approximately 12 buckets for long periods; each chart has its own scale. Two chart pairs: **new document identities vs file objects uploaded**, and **document findings created vs document findings remediated**.
+- Department distribution uses the issuing department recorded on the first visible version for each newly created document identity; group case-only variants together, keep missing/blank values as "Chưa xác định"; show the top eight plus the remaining total.
+- Operational watch panel: **current** unresolved document findings and overdue corrective actions (these do **not** pretend to be historical period-end backlog), missing issuing-department metadata **among newly created documents in the selected period**, and the current status distribution of findings created within that period.
+
+### 43.2 Authoritative sources, units and definitions
+
+| Measure | Source / field | Population and date rule |
+|---|---|---|
+| Hồ sơ tài liệu mới | `documents.id`, `documents.created_at` + at least one version visible via RLS | Distinct stable document IDs **created within the period**; includes metadata-only records, not a claim of binary upload |
+| Tài liệu có tệp tải lên | `document_files.uploaded_at` joined to `document_versions.document_id` | Distinct stable document IDs with **at least one attachment uploaded in the period**; secondary count gives individual file objects uploaded |
+| Finding phát hiện | `findings.created_at` | Finding identity count created in the selected period, restricted to `finding_domain='document'` |
+| Finding đã khắc phục | `findings.resolved_at` (or `closed_at` if resolved time missing), `status`, `action_decision` | Finding identity counts resolved/closed with `action_decision='required'`; excluded if merely triaged, assigned, decided no action, or only an individual action is completed |
+| Finding tồn đọng hiện tại | `findings.status` | All visible document findings not in resolved/closed, **current status**, not historical snapshot |
+| Hành động quá hạn hiện tại | `finding_actions.due_at/status` joined to a visible document finding | Non-done, non-cancelled actions overdue relative to the **current** Vietnam calendar date |
+| Tài liệu mới theo đơn vị | `document_versions.issuing_department` for first visible version of each new document | Each stable document counted once; case-normalized department breakdown, missing counted separately |
+
+User-specific report values must not be fabricated or inferred from sample figures. Dashboard reads the governed PostgreSQL function `public.home_document_finding_summary(date,date)` and respects each signed-in user’s **RLS-visible** versions, files and findings. Never use the service-role key or expose restricted document details through analytics. Reader and administrator counts may legitimately differ. No materialized public aggregate of private findings is permitted.
+
+### 43.3 QA and boundary conditions
+
+- Source queries use inclusive Vietnam local start/end calendar dates with a safe exclusive next-day timestamp in filtering, including days with zero activity.
+- Sum of daily new documents equals headline new-document count; sum of department subtotals equals that count; sum of daily findings found equals the finding headline. Multiple document versions or multiple attachments may not inflate the distinct-document KPIs.
+- Default 7-day snapshot on 2026-10-29 (Admin simulation): 1,837 new document identities, 0 attachments uploaded, 0 newly created document findings and 0 remediated findings; there are 35 unresolved document findings **currently** visible to Admin. The imported metadata-only records must not be described as 1,837 uploaded PDFs.
+- Admin/Viewer simulated database read succeeded; Viewer is not shown restricted document findings. Transactional and RLS tests plus Vercel Next/TypeScript build do not replace authenticated browser layout, filter and drillthrough acceptance tests.
+
+## 44. Executive Home visual hierarchy and APQC drill-down — 2026-10-29 *(historical design; section 45 supersedes the Home drill-down)*
+
+**Audience:** CEO / COO for portfolio direction, departmental activity and exceptions; consistent role-restricted behavior for Editor/Viewer.
+
+### 44.1 One unified top control center
+
+- Replace the visually detached report header with one `WorkspaceShell.headerContent` for Home. The block contains **ADMIN CONTROL CENTER** (or the logged-in role label), the page purpose, the **7/30/90/custom-day selector**, a concise **cumulative portfolio strip**, and **four period KPIs**. Do not repeat the date filter and metric cards in the body.
+- A clearly dated **01 / Kết quả trong kỳ** group keeps the four existing metric definitions intact (new document identities, document identities with file upload, new document findings, remediated document findings).
+- The portfolio strip immediately above period KPIs displays **APQC L1/L2/L3 totals from one chosen reference framework**, enterprise process identities, overall document identities, and the logged-in role's current review/assigned-work/notification count. Explicitly label this strip **“Toàn bộ danh mục — không phụ thuộc bộ lọc ngày.”**
+- Minimize unnecessary colors and repetitive frames. Use typography, compact dividers, whitespace, progressive hierarchy, and responsive 4→2-column KPI layout. Keep numerical values readable and distinguish time-scoped flows from current stocks.
+
+### 44.2 L1 → L2 → L3 executive APQC explorer
+
+- **Source:** only **“APQC catalogue with controlled PNJ interpretation”**, version **“Process Map workbook 2026-10-29”**. The database also has PCF Cross-Industry 8.0; combining both would double-count these levels and is **not allowed**.
+- Default portfolio includes **13 L1 categories, 74 L2 process groups and 362 L3 processes**; mapped document counts are sourced solely from `document_apqc_mappings` joined to RLS-visible `document_versions`. Each stable `documents.id` is counted once within each group/process.
+- First column selects an L1 category using a short controlled Vietnamese label; the middle column lists and selects its L2 children, ordered by linked document volume; the right column lists its L3 children, source APQC names, mapped-document counts, and clickable links to individual APQC Catalog pages. Selected nodes are visually clear, keyboard accessible and responsive (3 columns desktop, stacked on phones).
+- The headline `mapped_l3 / total_l3` is an **APQC classification coverage ratio**, not process maturity, control compliance, process documentation completeness, policy effectiveness, or a target/actual KPI. The number of **mapped_documents** counts distinct document identities across all L3 nodes, while per-L1/L2 subtotals are individually deduplicated but **must not be blindly added across categories**.
+- L1/L2/L3 coverage is a **cumulative, current inventory snapshot**, unchanged by Home's activity-period filter; source and semantic boundaries appear next to the report.
+
+### 44.3 Operational depth and validation
+
+- Section **03 / Diễn biến & ưu tiên xử lý** presents meaningful exception text derived from real data, followed by new-document distribution by issuing department, current unresolved finding/overdue-action signals, and document/finding time trends. All historical metrics continue to obey the selected Vietnam date window.
+- Existing editor work queue and role-specific quick links stay below the executive report. Error/loading and zero-data states must not invent counts.
+- Applied `supabase/migrations/20261029000002_home_executive_apqc_hierarchy.sql`: `home_apqc_hierarchy_summary()` returns `total_l1,total_l2,total_l3,mapped_l3,mapped_documents,level1[],level2[],level3[]`, under authenticated user RLS. No service key, bypass or public summary table.
+- **Verification:** Admin and Viewer SQL simulations show 13/74/362, **68 mapped L3**, **1,149 distinct mapped document identities**. Summed L1 and L2 mapped L3 and counted nonempty L3 each reconcile to 68. Anonymous EXECUTE is denied; the returned measure is not proof of document effectiveness. Browser-authenticated/visual QA remains a separate gate.
+
+## 45. Home simplification — remove APQC distribution section (2026-10-29)
+
+- **Current scope overrides section 44:** Remove the entire three-column **“02 / PHÂN BỔ DANH MỤC THEO APQC”** Home section (L1 selector, L2 selector, L3 list, mapping coverage headline, explanatory footer and deep links within the retired panel). Do not replace it with another distribution chart or an empty placeholder.
+- Retain one consolidated Home top panel: role-aware control-center heading, period picker, four **in-period** KPIs, and compact **cumulative** repository totals. The small APQC L1/L2/L3 count string in the portfolio strip is retained; it is *not* the retired drill-down.
+- Renumber the former **03 / DIỄN BIẾN & ƯU TIÊN XỬ LÝ** body section to **02**. Its issuing-department distribution, current finding/action backlog, data completeness, time trends, dates and existing permission semantics remain unchanged.
+- **Performance:** Home stops requesting the comprehensive `home_apqc_hierarchy_summary()` RPC and its L1/L2/L3 mapping payload. It uses a lightweight read of the PNJ-controlled `apqc_frameworks` entry plus `apqc_elements.level_number` up to level 3 to derive 13/74/362 header totals without reading document mappings. Failed/unavailable APQC header counts show em-dashes, not fabricated zeros.
+- Delete the unused Home hierarchy React component and CSS. Existing database function/migration remains installed (no destructive rollback) but is no longer consumed by Home; Process Map and Catalog remain the navigation destinations for APQC details.
+- **QA:** Confirm the section does not appear on desktop/mobile, the lower report is numbered 02, date filters and KPI counts still work, RLS is preserved, and the header's APQC totals match the PNJ reference. Actual authenticated browser QA must be tracked separately from compilation.
+
+## 46. CEO/COO management reporting simplification — 2026-10-29 (current Home specification)
+
+**Decision:** Executive Home is a decision overview, not a second Finding register. Section 45's single-page layout is retained, but its detailed finding/action/metadata panel is **superseded** by this section.
+
+### Information hierarchy
+
+1. **Header / 01 — Kết quả trong kỳ:** one role-aware control center, 7/30/90/custom date picker, compact *cumulative* APQC/process/document portfolio totals and exactly four *period-flow* KPIs: registered document identities, identities with real file uploads, newly created document findings, and findings remedied during the period.
+2. **02 — Hoạt động tài liệu:** one primary visual comparing document registrations and real uploaded file objects over time; a companion horizontal ranked bar chart for the **top five issuing departments**, plus a combined "other departments" row. Add only meaningful, source-backed context: the share of the top three issuing departments among all new document identities; a restrained note when there are registered records but zero uploaded file objects; and a missing-department disclosure only if the selected-period count is nonzero.
+3. **03 — Theo dõi Finding (last chart):** **one** time trend for finding created versus remedied in the selected period. In its *footer caption*, not another box, show current unresolved finding total and currently overdue corrective actions, explicitly labeled *current state* (not period end). Link to Tab 06 /findings for details.
+
+### What not to show
+
+- Remove the **"Tồn đọng và chất lượng dữ liệu"** card entirely: three large operational counters, the duplicate metadata-completeness numerator/denominator and the finding-status chips.
+- Remove the **"Điểm cần lưu ý"** strip and upper "Xem danh sách finding" action: they restate information already in the top KPIs and bottom Finding visual.
+- Do not add a row-level Finding list, action owner/RACI/status register, arbitrary traffic-light warning, invented KPI target or fake period-over-period comparison to the CEO summary.
+- Leave all actual Finding records and detailed investigation in Tab 06; leave file/metadata governance workflows in Tab 02. The Editor personal queue and role-based quick links still appear below the executive report.
+
+### Visual and validation contract
+
+- Reading flow: headline KPIs → Document trend and department contribution side-by-side → **single Finding trend at bottom** → brief definition note. Neutral editorial colors, clear units, compact spacing and responsively stacked columns; use bars for quantity and sorted department ranking, not pie charts or repeated KPI cards.
+- Preserve the Supabase `home_document_finding_summary(date,date)` **SECURITY INVOKER / RLS** data contract. No migration needed: all new values are derived from existing response keys. The "top three share" is `round(100 * sum(top 3 issuing-department document counts) / new_documents)` when denominator is positive. The report's current unresolved and overdue numbers do **not** inherit the period filter.
+- There must be no duplicate finding-status blocks or attention strip; the bottom Finding chart is the only Finding detail visualization on Home. Zero-activity states must remain understandable. Do not describe metadata registrations as uploaded binaries.
+- Build/TypeScript, deployment/alias and authenticated browser QA are **separate evidence gates**; do not claim browser acceptance without an actual test.

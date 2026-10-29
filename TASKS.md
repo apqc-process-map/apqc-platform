@@ -572,3 +572,53 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [ ] DELIVERY WB-REF-010 — Complete browser QA, merge the pull request and verify the single final Vercel production deployment.
 
 This milestone supersedes the live-data assumptions in the 2026-10-28 34-process/12-document import. Those records remain historical where retained by the schema; the active document library and APQC reference now come from the workbook sheets above.
+## 2026-10-29 — Home quick insight dashboard
+
+- [x] HOME-REPORT-001 — Audit live Supabase data, roles and date semantics. Distinguish metadata creation from actual file uploads and document findings from general findings.
+- [x] HOME-REPORT-002 — Implement and apply migration `20261029000001_home_document_finding_summary.sql` with security-invoker RLS-scoped SQL aggregation; no source data modified.
+- [x] HOME-REPORT-003 — Implement 7/30/90-day/custom picker (Asia/Ho_Chi_Minh, default 7 inclusive days ending today, bounded date validation).
+- [x] HOME-REPORT-004 — Render four KPIs, two time trends, issuing-department ranking and current attention metrics on 01 Home; retain old cumulative APQC/process catalog metrics separately.
+- [x] HOME-REPORT-005 — Test Admin/Viewer read access and validate that daily and department counts reconcile with totals. In Admin 2026-10-23…29 snapshot, 1,837 new metadata document records but 0 new file uploads and 0 newly discovered/remediated document findings; current unresolved finding stock is 35.
+- [x] HOME-REPORT-006 — Vercel Preview build / TypeScript READY.
+- [ ] HOME-REPORT-QA-001 — Verify actual authenticated Admin and Viewer Home rendering, no private finding leakage and empty/error states in browsers.
+- [ ] HOME-REPORT-QA-002 — Exercise date presets, valid/invalid custom dates, upload and finding daily counts, department grouping and live data updates.
+- [ ] HOME-REPORT-QA-003 — Verify keyboard/responsive layout at 375/1024/1280/1600px and report links to Documents/Findings.
+- [x] HOME-REPORT-DEPLOY-001 — Vercel Production deployment `dpl_Hgy9xAYGFxmsu738MsZEwwcqtEkc` for commit `b5cae354e9410fc4de7d350d799f7f613128fe0d` is READY; official alias `pnj-apqc-platform.vercel.app` verified. Signed-in browser E2E remains tracked separately.
+
+## 2026-10-29 — Executive Home layout and APQC L1–L3 analysis
+
+- [x] HOME-EXEC-001 — Merge Admin/Editor/Viewer control-center label, date controls, four period KPIs, portfolio totals and role workload into one top section; remove repetitive lower summary.
+- [x] HOME-EXEC-002 — Separate in-period flows from cumulative APQC/process/doc identity totals and current-state finding stocks, with explicit captions.
+- [x] HOME-EXEC-003 — Identify two APQC frameworks sharing L1–L3; scope executive analysis to PNJ interpretation rather than double-counting both.
+- [x] HOME-EXEC-004 — Apply `20261029000002_home_executive_apqc_hierarchy.sql` and verify Admin/Viewer calls, mapped totals and anonymous execute denial. Snapshot: L1=13, L2=74, L3=362, mapped L3=68, unique mapped documents=1,149.
+- [x] HOME-EXEC-005 — Build responsive three-column APQC drill-down with selected L1→L2→L3, document counts, source APQC names and detail links.
+- [x] HOME-EXEC-006 — Reorder operational attention and issuing departments above the time trends; preserve existing Editor queue/quick links.
+- [x] HOME-EXEC-007 — Final feature Vercel Preview build and TypeScript check READY.
+- [~] HOME-EXEC-QA-001 — Superseded by user-requested removal of the Home APQC explorer; L1/L2/L3 selection QA is no longer applicable to Tab 01.
+- [ ] HOME-EXEC-QA-002 — Check mobile/tablet/desktop responsive alignment, date filter applied only to in-period KPIs and clarity for zero-file or unclassified entries; the removed APQC explorer is no longer part of this QA.
+- [ ] HOME-EXEC-QA-003 — Verify data access on real Admin/Editor/Viewer browser sessions and current/period caption semantics.
+- [x] HOME-EXEC-DEPLOY-001 — PR #87 merged as `ab895bcb2751650a0040174217f44d7f4910ae5c`; Vercel Production `dpl_5ZHdGPyJtAQpqLRx5JEVhFw8r1bp` READY and official `pnj-apqc-platform.vercel.app` alias confirmed. Interactive authenticated browser QA remains pending.
+
+## 2026-10-29 — User-requested removal of Home APQC distribution
+
+- [x] HOME-REMOVE-001 — Remove entire “02 / Phân bổ danh mục theo APQC” section, including L1→L2→L3 columns, percentages, and its UI controls.
+- [x] HOME-REMOVE-002 — Change “03 / Diễn biến & ưu tiên xử lý” to section “02”.
+- [x] HOME-REMOVE-003 — Keep compact APQC L1/L2/L3 totals in the header; replace heavy hierarchy mapping RPC with lightweight, framework-filtered node counts. If unavailable, do not silently show zero.
+- [x] HOME-REMOVE-004 — Delete unused explorer component and obsolete CSS; retain existing DB function/migration but stop consuming it on Home.
+- [x] HOME-REMOVE-005 — Update six canonical Markdown docs without rewriting historical deployment or business-data records.
+- [ ] HOME-REMOVE-QA-001 — Real signed-in browser check: removed block no longer displays, reports renumbered, compact header still renders and no mobile overflow.
+- [ ] HOME-REMOVE-QA-002 — Verify date presets/custom periods and Admin/Viewer visibility in actual sessions.
+- [x] HOME-REMOVE-DEPLOY-001 — PR #89 merged to `main` as `c6afa12295ecefee31f9cf6c9665b5b4cbf2563b`; Vercel Production deployment `dpl_4iZf6cFgiPXiV7V17QfSKhn543BZ` READY and official `pnj-apqc-platform.vercel.app` alias verified. Browser QA remains separate.
+
+## 2026-10-29 — CEO/COO Home information hierarchy and redundant finding block removal
+
+- [x] HOME-CEO-001 — Identify and remove duplicate Finding blocks from Home: current backlog/status/metadata card, status chips and "Điểm cần lưu ý" notice strip.
+- [x] HOME-CEO-002 — Retain four in-period KPIs at top; reorganize body into section 02 Document activity and section 03 Finding time trend at the bottom.
+- [x] HOME-CEO-003 — Present document registration vs actual uploads together; top five issuing departments, other sum, top-three share and zero-file caveat based only on true source values.
+- [x] HOME-CEO-004 — Show current open findings and overdue corrective actions only in a short **caption** under the finding trend (not a separate card), with explicit time scope.
+- [x] HOME-CEO-005 — Clean unused Home CSS and preserve mobile/tablet readability, role-specific work queues and navigational links.
+- [x] HOME-CEO-006 — No DB migration or data mutation; preserve existing RLS-scoped aggregation, period semantics and metrics.
+- [x] HOME-CEO-007 — Latest code Preview build READY / Next.js TypeScript checks passed.
+- [ ] HOME-CEO-QA-001 — Authenticated browser QA for absence of duplicate finding block, correct report order, chart legends and cross-tab links.
+- [ ] HOME-CEO-QA-002 — Check 375/768/1024/1440 px alignment, empty periods, date range/preset changes and Admin/Viewer visibility.
+- [x] HOME-CEO-DEPLOY-001 — PR #91 merged into main as `d0c3e3668442c56239436220d1b7357b98de42cb`; Vercel Production `dpl_216PrtUr4woUDi4j4RurdEhFdrSS` READY, official alias `pnj-apqc-platform.vercel.app` confirmed. Real signed-in browser QA remains pending.

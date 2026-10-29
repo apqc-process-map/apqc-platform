@@ -292,3 +292,42 @@ Authenticated Production acceptance covers the current installment dataset acros
 - Verify RLS, counts, UI behavior and production deployment before closing delivery.
 
 Exit: database validation reports 362 active APQC L2 records, 1,837 active documents, 1,844 imported current versions and 1,154 active mappings; Catalog/Process Map/Governance use active/current records only.
+### Phase 14 — Home document/finding quick insights (2026-10-29)
+
+- [DONE] Confirm data grain and actual sources for document identity creation, file upload, finding discovery, remediation, action overdue and issuing department (do not conflate metadata-only files).
+- [DONE] Define 7/30/90-day and custom calendar dates (Vietnam time), default trailing seven calendar days including today, maximum 366 days.
+- [DONE] Add RLS-scoped PostgreSQL report function and validate signed-in Admin/Viewer visibility, date boundaries, and reconcilable totals.
+- [DONE] Build period picker, headline metric cards, document/finding time charts, top issuing-department report, operational attention panel and links on 01 Home. Preserve existing overall catalog/process/work queues below.
+- [DONE] Compile Vercel Preview with Next.js and TypeScript. No new privileged table or public materialization is introduced.
+- [DONE] Verified Vercel Production commit `b5cae354e9410fc4de7d350d799f7f613128fe0d` READY with official `pnj-apqc-platform.vercel.app` alias on 2026-10-29.
+- [PENDING] Real authenticated browser E2E for filters, empty states, responsive charts, source drill-through and per-role permissions remains an acceptance gate.
+
+### Phase 15 — Executive Home / L1–L3 APQC insight (2026-10-29)
+
+- [DONE] Move Home period selector, executive role label, all four in-period KPIs and current portfolio totals into one integrated header; remove duplicate report header and lower-page summary cards.
+- [DONE] Reorder content: 01 executive period KPIs → 02 cumulative APQC L1/L2/L3 inventory mapping → 03 exceptions/department distribution/time trends, preserving editor work queues and role-based quick links.
+- [DONE] Build an interactive L1→L2→L3 APQC category explorer with source names, direct Catalog links and distinct linked-document counts. Show mapping coverage honestly and keep it separate from time-filtered activity.
+- [DONE] Apply security-invoker reporting RPC scoped to the controlled PNJ framework. Reconcile mapped L3 across levels and test Admin/Viewer and anon denial.
+- [DONE] Vercel Preview Next.js/TypeScript build after final feature changes.
+- [DONE] GitHub PR #87 merged to main; Vercel Production deployment `dpl_5ZHdGPyJtAQpqLRx5JEVhFw8r1bp` built READY for commit `ab895bcb2751650a0040174217f44d7f4910ae5c`; official alias verified.
+- [PENDING] Signed-in visual and interactive browser QA at desktop, tablet and phone, with keyboard and per-role validation.
+
+### Phase 16 — Remove APQC distribution block from Home (2026-10-29)
+
+- [DONE] Remove the entire L1→L2→L3 interactive distribution section from Home, leaving the compact APQC total in the top portfolio strip only.
+- [DONE] Remove the retired explorer's source component and CSS and stop executing the full mapping hierarchy RPC on Home.
+- [DONE] Renumber the operational report to section 02; preserve all in-period Document/Finding KPIs, department breakout, issue/status panels and quick links.
+- [DONE] Update README, PRD, DATA_MODEL, PLAN, TASKS and PROJECT_STATE; leave existing Supabase reporting function untouched (no destructive migration).
+- [DONE] PR #89 merged at `c6afa12295ecefee31f9cf6c9665b5b4cbf2563b`; Vercel Production `dpl_4iZf6cFgiPXiV7V17QfSKhn543BZ` READY with official site alias verified.
+- [PENDING] Authenticated desktop/mobile UI QA and preset/custom period checks remain separate.
+
+### Phase 17 — CEO Home report de-duplication and visual prioritization (2026-10-29)
+
+- [DONE] Review Home against executive questions: scale/activity, source department contribution and finding remediation trajectory.
+- [DONE] Remove the redundant "Tồn đọng và chất lượng dữ liệu" card, detailed status chips, second finding action link and "Điểm cần lưu ý" strip.
+- [DONE] Recompose the report into 02 Document activity (paired trend plus top five departments and grounded top-three concentration) and 03 Finding trend (last chart, with a compact current-backlog footer).
+- [DONE] Keep four filtered KPI cards in the unified top header, cohort/period semantics, role-based access, and existing work queue/quick links.
+- [DONE] Refine responsive executive styling and discard unused legacy Home card CSS; no Supabase data/schema changes.
+- [DONE] Verify Next/TypeScript Vercel Preview build after UI source and style changes.
+- [DONE] PR #91 merged into `main` as `d0c3e3668442c56239436220d1b7357b98de42cb`. Vercel Production `dpl_216PrtUr4woUDi4j4RurdEhFdrSS` READY, with official site alias verified.
+- [PENDING] Signed-in authenticated browser and responsive QA (separate from successful build/deployment).
