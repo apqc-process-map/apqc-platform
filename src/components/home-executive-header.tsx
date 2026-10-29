@@ -8,11 +8,12 @@ const day=(date:string)=>date.slice(8,10)+"/"+date.slice(5,7)+"/"+date.slice(0,4
 type Period="7d"|"30d"|"90d"|"custom";
 
 export default function HomeExecutiveHeader({
-  roleLabel,period,from,to,today,summary,hierarchy,processCount,documentCount
+  roleLabel,period,from,to,today,summary,hierarchy,processCount,documentCount,queueCount,queueLabel,queueHref
 }:{
   roleLabel:string;period:Period;from:string;to:string;today:string;
   summary:HomeSummary|null;hierarchy:HomeHierarchySummary|null;
   processCount:number;documentCount:number;
+  queueCount:number;queueLabel:string;queueHref:string;
 }){
   const headline=[
     {label:"Hồ sơ tài liệu mới",value:summary?.new_documents,description:"Được tạo trong kỳ · có thể chưa có tệp",href:"/documents"},
@@ -44,6 +45,7 @@ export default function HomeExecutiveHeader({
       <Link href="/process-map"><b>{num(hierarchy?.total_l1??0)}</b> APQC L1 <span>/</span> <b>{num(hierarchy?.total_l2??0)}</b> L2 <span>/</span> <b>{num(hierarchy?.total_l3??0)}</b> L3</Link>
       <Link href="/process-map"><b>{num(processCount)}</b> quy trình nội bộ</Link>
       <Link href="/documents"><b>{num(documentCount)}</b> hồ sơ tài liệu</Link>
+      <Link href={queueHref}><b>{num(queueCount)}</b> {queueLabel}</Link>
     </div>
     <div className="executive-kpi-topline">
       <strong>01 <span>/</span> KẾT QUẢ TRONG KỲ</strong>
