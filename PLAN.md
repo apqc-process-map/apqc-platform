@@ -300,4 +300,5 @@ Authenticated Production acceptance covers the current installment dataset acros
 - [DONE] Build an interactive L1→L2→L3 APQC category explorer with source names, direct Catalog links and distinct linked-document counts. Show mapping coverage honestly and keep it separate from time-filtered activity.
 - [DONE] Apply security-invoker reporting RPC scoped to the controlled PNJ framework. Reconcile mapped L3 across levels and test Admin/Viewer and anon denial.
 - [DONE] Vercel Preview Next.js/TypeScript build after final feature changes.
-- [PENDING] Signed-in visual QA and accessibility at desktop, tablet, phone, keyboard and per-role filters, followed by Production commit/alias verification.
+- [DONE] GitHub PR #87 merged to main; Vercel Production deployment `dpl_5ZHdGPyJtAQpqLRx5JEVhFw8r1bp` built READY for commit `ab895bcb2751650a0040174217f44d7f4910ae5c`; official alias verified.
+- [PENDING] Signed-in visual and interactive browser QA at desktop, tablet and phone, with keyboard and per-role validation.
