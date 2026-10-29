@@ -888,3 +888,36 @@ Users may find a document through RLS-visible related objects such as Business P
 - Tab **Relationship** hiển thị mỗi `document_process_links` hiện có thành quan hệ có hướng **Quy trình → Được mô tả bởi tài liệu → Tài liệu**. Đối tượng đích là định danh tài liệu (`documents.id`), còn bằng chứng lưu mã liên kết và phiên bản nguồn để truy vết.
 - Các quan hệ được tạo ở trạng thái **Đề xuất**. Process Owner/Admin phải xác minh trước khi chuyển sang **Đã xác minh**; tên hoặc mã tài liệu đơn lẻ không đủ để tự xác minh ý nghĩa nghiệp vụ.
 - Không tự tạo quan hệ tài liệu–tài liệu chỉ vì cùng chủ đề, có tên gần giống, hoặc cùng được liên kết với một quy trình. Loại quan hệ này chỉ được thêm khi có dẫn chứng trực tiếp trong nội dung/metadata hoặc quyết định của owner.
+
+## 43. Home quick-insight reporting — 2026-10-29
+
+### 43.1 Purpose and layout
+
+Tab 01 Home (/) leads with a small operational dashboard rather than only cumulative repository totals. Place the period selector above four headline KPI cards, then two trend panels, then the new-document-by-department distribution and an operational-attention panel. Existing APQC/process/document cumulative counts and role-specific work queues remain available below the period-filtered report, explicitly marked as **current totals**.
+
+- Period options: trailing **7 calendar days including today by default**, 30 days, 90 days, and custom inclusive From/To dates (maximum 366 calendar days, no future date); dates are interpreted in **Asia/Ho_Chi_Minh** rather than UTC. Example: 2026-10-29 defaults to **2026-10-23…2026-10-29**.
+- Report headings, cards, labels and microcopy are Vietnamese, with responsive desktop/tablet/mobile CSS and numeric counts, zero-data messages, inline source/meaning explanations and links to relevant Document/Finding pages.
+- Time-series chart buckets are daily up to 14 days and aggregated into approximately 12 buckets for long periods; each chart has its own scale. Two chart pairs: **new document identities vs file objects uploaded**, and **document findings created vs document findings remediated**.
+- Department distribution uses the issuing department recorded on the first visible version for each newly created document identity; group case-only variants together, keep missing/blank values as "Chưa xác định"; show the top eight plus the remaining total.
+- Operational watch panel: **current** unresolved document findings and overdue corrective actions (these do **not** pretend to be historical period-end backlog), missing issuing-department metadata **among newly created documents in the selected period**, and the current status distribution of findings created within that period.
+
+### 43.2 Authoritative sources, units and definitions
+
+| Measure | Source / field | Population and date rule |
+|---|---|---|
+| Hồ sơ tài liệu mới | `documents.id`, `documents.created_at` + at least one version visible via RLS | Distinct stable document IDs **created within the period**; includes metadata-only records, not a claim of binary upload |
+| Tài liệu có tệp tải lên | `document_files.uploaded_at` joined to `document_versions.document_id` | Distinct stable document IDs with **at least one attachment uploaded in the period**; secondary count gives individual file objects uploaded |
+| Finding phát hiện | `findings.created_at` | Finding identity count created in the selected period, restricted to `finding_domain='document'` |
+| Finding đã khắc phục | `findings.resolved_at` (or `closed_at` if resolved time missing), `status`, `action_decision` | Finding identity counts resolved/closed with `action_decision='required'`; excluded if merely triaged, assigned, decided no action, or only an individual action is completed |
+| Finding tồn đọng hiện tại | `findings.status` | All visible document findings not in resolved/closed, **current status**, not historical snapshot |
+| Hành động quá hạn hiện tại | `finding_actions.due_at/status` joined to a visible document finding | Non-done, non-cancelled actions overdue relative to the **current** Vietnam calendar date |
+| Tài liệu mới theo đơn vị | `document_versions.issuing_department` for first visible version of each new document | Each stable document counted once; case-normalized department breakdown, missing counted separately |
+
+User-specific report values must not be fabricated or inferred from sample figures. Dashboard reads the governed PostgreSQL function `public.home_document_finding_summary(date,date)` and respects each signed-in user’s **RLS-visible** versions, files and findings. Never use the service-role key or expose restricted document details through analytics. Reader and administrator counts may legitimately differ. No materialized public aggregate of private findings is permitted.
+
+### 43.3 QA and boundary conditions
+
+- Source queries use inclusive Vietnam local start/end calendar dates with a safe exclusive next-day timestamp in filtering, including days with zero activity.
+- Sum of daily new documents equals headline new-document count; sum of department subtotals equals that count; sum of daily findings found equals the finding headline. Multiple document versions or multiple attachments may not inflate the distinct-document KPIs.
+- Default 7-day snapshot on 2026-10-29 (Admin simulation): 1,837 new document identities, 0 attachments uploaded, 0 newly created document findings and 0 remediated findings; there are 35 unresolved document findings **currently** visible to Admin. The imported metadata-only records must not be described as 1,837 uploaded PDFs.
+- Admin/Viewer simulated database read succeeded; Viewer is not shown restricted document findings. Transactional and RLS tests plus Vercel Next/TypeScript build do not replace authenticated browser layout, filter and drillthrough acceptance tests.
