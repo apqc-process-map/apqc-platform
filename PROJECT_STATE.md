@@ -66,3 +66,12 @@ Process Map is a desktop-first internal application for browsing and governing e
 ## Deferred scope
 
 Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editing, mobile-specific UI, fine-grained ACLs, full immutable relationship history and operational KPI observations remain outside the MVP unless explicitly approved.
+
+## 2026-10-29 — Home operational quick-insight dashboard
+
+- **Implementation:** 01 Home now contains a period-filtered analytics module: 7 trailing Vietnam calendar days including today by default; 30/90-day presets and custom inclusive dates (up to 366 days); four KPI tiles, document/finding activity trends, new-document distribution by issuing department, and current unresolved finding/overdue action/missing-department indicators. Existing cumulative reference/process totals and role work queues remain separately visible.
+- **Data / definitions:** `documents.created_at` measures newly registered document identities; `document_files.uploaded_at` measures uploaded file objects, with a distinct stable-document metric to prevent double counts; `findings.created_at` measures document finding discoveries; `COALESCE(findings.resolved_at,findings.closed_at)` with resolved/closed status and action required measures actual remediation. Backlog counts are current rather than a historical ending balance.
+- **Source / security:** Applied `supabase/migrations/20261029000001_home_document_finding_summary.sql`; `home_document_finding_summary(date,date)` is `SECURITY INVOKER` and executes under authenticated user's document/file/finding RLS permissions. No service-role access or mutations of existing records.
+- **Verified date snapshot (2026-10-29):** Admin, 2026-10-23…29 inclusive: 1,837 new document identities, 0 file objects uploaded, 0 newly discovered or remediated document findings, **35 unresolved document findings at time of observation**. Most new records are metadata registrations, **not** files. For 2026-09-30…10-29, total documents 1,849; files uploaded 12; findings discovered 35. The daily and department sums exactly reconcile to headline totals.
+- **Role test:** Admin and Viewer SQL simulations passed; Viewer does not see restricted document findings. Build: latest tested Vercel Preview for Home report compiled and passed TypeScript.
+- **Remaining gate:** Verified Production deployment after main merge and authenticated browser QA for filters, responsiveness and navigation. Keep runtime verification separate from compilation/database tests.
