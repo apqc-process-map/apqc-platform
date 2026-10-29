@@ -583,4 +583,4 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [ ] HOME-EXEC-QA-001 — Real signed-in browser end-to-end: selection L1, L2, L3, Catalog deep link and keyboard focus/scrolling.
 - [ ] HOME-EXEC-QA-002 — Check mobile/tablet/desktop responsive alignment, date filter applied only to period KPIs, and clarity for zero-file / unmapped APQC states.
 - [ ] HOME-EXEC-QA-003 — Verify data access on real Admin/Editor/Viewer browser sessions and current/period caption semantics.
-- [ ] HOME-EXEC-DEPLOY-001 — Verify main GitHub merge and Vercel Production READY with official site alias before claiming release.
+- [x] HOME-EXEC-DEPLOY-001 — PR #87 merged as `ab895bcb2751650a0040174217f44d7f4910ae5c`; Vercel Production `dpl_5ZHdGPyJtAQpqLRx5JEVhFw8r1bp` READY and official `pnj-apqc-platform.vercel.app` alias confirmed. Interactive authenticated browser QA remains pending.
