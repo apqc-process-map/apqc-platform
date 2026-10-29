@@ -557,6 +557,7 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 
 - [x] MAP-COVERAGE-001 — Phân biệt APQC L0/L1 có process cấp dưới và có tài liệu trong nhánh với process cấp dưới chưa có tài liệu.
 - [x] MAP-COVERAGE-002 — Cập nhật legend ba trạng thái bằng wording nghiệp vụ; giữ trạng thái L2 có tài liệu trực tiếp.
+- [x] MAP-COVERAGE-003 — Compact L1 cards, replace APQC tham chiếu with APQC plus hierarchy number, and align the coverage legend samples/wording with rendered evidence states.
 
 ## 2026-10-29 — Controlled APQC and VBC workbook replacement
 

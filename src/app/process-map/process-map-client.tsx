@@ -247,7 +247,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
                   const isCurrentNode = node.id === selected.id;
                   return <div className="process-block-shell" key={node.id} onMouseLeave={() => setPreviewId(null)}>
                     <button type="button" className={`process-block evidence-${node.evidenceCoverage || "none"}${isPathNode ? " in-path" : ""}${isCurrentNode ? " selected" : ""}`} onClick={() => chooseNode(node.id)} onMouseEnter={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onFocus={supportsPreview ? (event) => showPreview(node.id, event.currentTarget) : undefined} onBlur={supportsPreview ? () => setPreviewId(null) : undefined} onKeyDown={supportsPreview ? (event) => { if (event.key === "Escape") setPreviewId(null); } : undefined} aria-pressed={isCurrentNode} aria-current={isPathNode ? "step" : undefined} aria-describedby={isPreviewed ? tooltipId : undefined}>
-                      <span className={`process-block-code${band.key === "L2" ? " is-code-only" : ""}`}>{band.key !== "L2" ? <small>{band.key === "L0" ? "Category" : "APQC tham chiếu"}</small> : null}<b>{band.key === "L0" ? `APQC ${node.code}` : node.code}</b></span><strong>{node.name}</strong>{band.key === "L0" && node.sourceKind === "apqc" ? <small>{`PCF ID ${node.sourceCode}`}</small> : node.sourceKind !== "apqc" ? <small>{`${node.relatedDocuments.length} t\u00e0i li\u1ec7u`}</small> : null}
+                      <span className={`process-block-code${band.key === "L2" ? " is-code-only" : ""}`}>{band.key !== "L2" ? <small>{band.key === "L0" ? "Category" : "APQC"}</small> : null}<b>{band.key === "L0" ? `APQC ${node.code}` : node.code}</b></span><strong>{node.name}</strong>{band.key === "L0" && node.sourceKind === "apqc" ? <small>{`PCF ID ${node.sourceCode}`}</small> : node.sourceKind !== "apqc" ? <small>{`${node.relatedDocuments.length} t\u00e0i li\u1ec7u`}</small> : null}
                     </button>
                     {isPreviewed ? <div className="process-preview" id={tooltipId} role="tooltip" style={{ top: previewPosition.top, left: previewPosition.left }}>
                       <div className="process-preview-heading"><span>{band.key} · {node.code}</span><strong>{node.name}</strong></div>
@@ -267,9 +267,9 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
           })}
           <div className="value-chain-legend" aria-label="Chú thích độ phủ dữ liệu">
             <strong>Độ phủ dữ liệu</strong>
-            <span><i className="coverage-swatch direct" aria-hidden="true" />Có dữ liệu cấp dưới và có tài liệu trực tiếp</span>
-            <span><i className="coverage-swatch descendant" aria-hidden="true" />Có dữ liệu cấp dưới nhưng không có tài liệu trực tiếp</span>
-            <span><i className="coverage-swatch none" aria-hidden="true" />Chưa có dữ liệu liên kết</span>
+            <span className="coverage-legend-item"><i className="coverage-swatch direct" aria-hidden="true" /><span><b>Có tài liệu</b><small>Có dữ liệu cấp dưới và tài liệu trong nhánh</small></span></span>
+            <span className="coverage-legend-item"><i className="coverage-swatch descendant" aria-hidden="true" /><span><b>Có dữ liệu cấp dưới</b><small>Chưa có tài liệu trong nhánh</small></span></span>
+            <span className="coverage-legend-item"><i className="coverage-swatch none" aria-hidden="true" /><span><b>Chưa liên kết</b><small>Chưa có dữ liệu cấp dưới hoặc tài liệu</small></span></span>
           </div>
         </div></div>
       </section>
