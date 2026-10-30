@@ -655,3 +655,4 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [x] DONE DOC-SYNC-QA-001 — TypeScript/build pass; Supabase migrations applied; policies and both triggers verified live; rollback-only authenticated submit probe created the review task and changed status together, then persisted no test data.
 - [ ] PENDING DOC-SYNC-QA-002 — Full Editor submit → separate Admin decision browser E2E requires an Editor test identity; the production account set currently contains Admin and Viewer only.
 - [ ] PENDING DOC-UPLOAD-OPS-001 — Add an operational orphan-object reconciliation job if real upload volume justifies it; current compensation handles metadata-insert failure but cannot run after browser termination/network loss.
+- [x] DONE REL-SYNC-QA-002 — Fix Relationship network intrinsic Grid width so the 1265 px laptop viewport has no document-level horizontal overflow after workflow deployment.
