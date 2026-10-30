@@ -637,3 +637,11 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [x] DONE MAP-VIEW-002 — Add Explorer, Registry and Coverage views using the existing APQC/process/document data contract and shared selection state.
 - [x] DONE MAP-VIEW-003 — Preserve governed metadata detail/editing, APQC context restoration, search and active/current data boundaries across views.
 - [x] DONE MAP-VIEW-004 — Quality/build and authenticated Preview QA pass at 1024/1280 px: Landscape remains default; Explorer, Registry, Coverage, shared search/selection and metadata detail work without horizontal overflow or console warning/error. GitHub merge and final Vercel Production verification are recorded after delivery.
+
+## 2026-10-30 — Process Map shared coverage legend and APQC Registry correction
+
+- [x] MAP-VIEW-005 — Render the same three-state coverage legend in Landscape, Explorer, APQC Registry and Coverage.
+- [x] MAP-VIEW-006 — Change View C row grain from enterprise process/document to APQC Framework nodes L0–L2.
+- [x] MAP-VIEW-007 — Show mapped-process and documented-process counts per APQC node; keep APQC wording, hierarchy code and PCF ID visible.
+- [ ] MAP-VIEW-QA-005 — Verify authenticated 1024/1280 px rendering, APQC search and legend consistency on Preview.
+- [ ] MAP-VIEW-DEPLOY-005 — Merge the focused PR and verify the resulting Production deployment.

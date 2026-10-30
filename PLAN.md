@@ -345,3 +345,10 @@ Exit: database validation reports 362 active APQC L2 records, 1,837 active docum
 - Add Explorer, Registry and Coverage presentations derived from the same loaded Process Map dataset and selection state.
 - Keep authorization, private-document access and governed metadata edits unchanged; do not import the reference HTML's sample records.
 - Exit: lint/type/build, desktop browser interaction and visual QA, GitHub merge and final Vercel Production verification pass.
+
+## Process Map registry correction (2026-10-30)
+
+- [x] Use one shared coverage legend for all four Process Map presentations.
+- [x] Make APQC nodes L0–L2 the primary records in View C.
+- [x] Keep enterprise-process/document information as coverage evidence only.
+- [ ] Complete authenticated Preview visual QA and Production delivery.

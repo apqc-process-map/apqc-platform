@@ -995,7 +995,8 @@ User-specific report values must not be fabricated or inferred from sample figur
 - Keep **Landscape** as the default view and preserve its current L0–L4 hierarchy, evidence colors, tooltip, search, selection and governed metadata detail/edit behavior.
 - Add three alternate presentations over the same RLS-scoped data already loaded by Process Map; switching view must not create duplicate business data or a separate source of truth:
   1. **Explorer:** APQC Category/Process Group → enterprise process → linked document, presented as three coordinated columns.
-  2. **Registry:** searchable process table with code, name, APQC mapping, owner, lifecycle status and linked-document count.
+  2. **APQC Registry:** searchable APQC Framework table where each row is one L0 Category, L1 Process Group or L2 Process node. Enterprise processes and linked documents appear only as mapping/coverage counts; they are not the row grain.
   3. **Coverage:** APQC Category cards with mapped/documented process counts, followed by Process Group and enterprise-process drill-down.
+- The same three-state data-coverage legend (documented branch / lower-level data without documents / no linked data) is shown in every view.
 - Selection is shared across all views. Choosing an enterprise process also restores its APQC Category and Process Group context; the existing detail panel remains optional and supports the same governed metadata workflow.
 - Alternate views are presentation-only and must honor the same active-framework, current-document, authorization and private-file boundaries as Landscape. No demo records from the reference HTML are imported.

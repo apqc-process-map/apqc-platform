@@ -140,3 +140,9 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - Landscape remains the default L0–L4 view. Explorer, Registry and Coverage are implemented as alternate presentations using the same active APQC, enterprise-process and current-document data already loaded by Process Map.
 - Shared selection restores APQC Category/Process Group context when a process is selected from a cross-category view. Existing metadata detail/editing and RLS/private-file boundaries are unchanged.
 - No database migration or sample data from the supplied HTML is introduced. Quality/build pass. Authenticated Preview QA at 1024/1280 px confirms all four views, shared search/selection/detail, no horizontal overflow and no console warning/error; merge and Production verification remain pending.
+
+## 2026-10-30 — Process Map legend/registry correction in progress
+
+- All four Process Map views now use one shared three-state coverage legend.
+- View C is an APQC Framework Registry: rows are active APQC L0–L2 nodes, while enterprise process and document data are summarized only as coverage counts.
+- No database migration or business-data mutation is involved. Build, authenticated visual QA, merge and Production verification remain delivery gates.

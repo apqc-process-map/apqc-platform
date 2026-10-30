@@ -13,6 +13,7 @@ export type ProcessMapTag = { code: string; label: string; color: string };
 export type ProcessMapAssignment = { role: string; profileName: string };
 export type ProcessMapApplicability = { dimension: string; label: string; isInherited: boolean };
 export type ProcessMapApqcMapping = {
+  apqcElementId: string;
   pcfId: string; name: string; role: string; matchType: string; status: string; rationale: string;
   apqcLevel: number; ancestorLevel1Id: string | null; ancestorLevel2Id: string | null;
 };
@@ -234,7 +235,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
     {!referenceMode && selected ? <div className="process-view-switcher" role="tablist" aria-label="Chọn cách xem Process Map">
       <button type="button" role="tab" aria-selected={activeView === "landscape"} className={activeView === "landscape" ? "active" : ""} onClick={() => setActiveView("landscape")}><b>A</b><span>Landscape<small>L0–L4 hiện tại</small></span></button>
       <button type="button" role="tab" aria-selected={activeView === "explorer"} className={activeView === "explorer" ? "active" : ""} onClick={() => setActiveView("explorer")}><b>B</b><span>Explorer<small>APQC → Process → Document</small></span></button>
-      <button type="button" role="tab" aria-selected={activeView === "registry"} className={activeView === "registry" ? "active" : ""} onClick={() => setActiveView("registry")}><b>C</b><span>Registry<small>Danh mục dạng bảng</small></span></button>
+      <button type="button" role="tab" aria-selected={activeView === "registry"} className={activeView === "registry" ? "active" : ""} onClick={() => setActiveView("registry")}><b>C</b><span>APQC Registry<small>Khung tham chiếu APQC</small></span></button>
       <button type="button" role="tab" aria-selected={activeView === "coverage"} className={activeView === "coverage" ? "active" : ""} onClick={() => setActiveView("coverage")}><b>D</b><span>Coverage<small>Độ phủ APQC</small></span></button>
     </div> : null}    {referenceMode ? <section className="reference-empty"><div className="reference-icon">◇</div><h2>APQC Reference View</h2><p>Tra cứu taxonomy APQC đã import và đối chiếu coverage với enterprise process. Hai mô hình được quản lý độc lập.</p><Link className="primary-button" href="/catalog">Mở APQC Catalog →</Link></section> : selected ? <div className={`map-layout value-chain-layout process-map-workspace process-view-${activeView}${detailVisible ? "" : " is-detail-hidden"}`}>
       <section className="scope-column panel value-chain-panel">
@@ -278,14 +279,13 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
                 }) : <div className="process-level-empty">{allBandNodes.length ? "Không có process phù hợp bộ lọc." : `Chưa có dữ liệu ${band.key}.`}</div>}
               </div>
             </section>;
-          })}
-          <div className="value-chain-legend" aria-label="Chú thích độ phủ dữ liệu">
-            <strong>Độ phủ dữ liệu</strong>
-            <span className="coverage-legend-item"><i className="coverage-swatch direct" aria-hidden="true" /><span><b>Có tài liệu</b><small>Có dữ liệu cấp dưới và tài liệu trong nhánh</small></span></span>
-            <span className="coverage-legend-item"><i className="coverage-swatch descendant" aria-hidden="true" /><span><b>Có dữ liệu cấp dưới</b><small>Chưa có tài liệu trong nhánh</small></span></span>
-            <span className="coverage-legend-item"><i className="coverage-swatch none" aria-hidden="true" /><span><b>Chưa liên kết</b><small>Chưa có dữ liệu cấp dưới hoặc tài liệu</small></span></span>
-          </div>
-        </div></div></> : <ProcessMapAlternateViews view={activeView} processes={enterpriseSourceNodes} apqcNodes={apqcNodes} selectedCategoryId={selectedCategoryId} selectedGroupId={selectedGroupId} selectedProcessId={selected.id} query={query} onSelect={chooseNode} />}
+          })}        </div></div></> : <ProcessMapAlternateViews view={activeView} processes={enterpriseSourceNodes} apqcNodes={apqcNodes} selectedCategoryId={selectedCategoryId} selectedGroupId={selectedGroupId} selectedProcessId={selected.id} query={query} onSelect={chooseNode} />}
+        <div className="value-chain-legend process-shared-legend" aria-label="Chú thích độ phủ dữ liệu">
+          <strong>Độ phủ dữ liệu</strong>
+          <span className="coverage-legend-item"><i className="coverage-swatch direct" aria-hidden="true" /><span><b>Có tài liệu</b><small>Có dữ liệu cấp dưới và tài liệu trong nhánh</small></span></span>
+          <span className="coverage-legend-item"><i className="coverage-swatch descendant" aria-hidden="true" /><span><b>Có dữ liệu cấp dưới</b><small>Chưa có tài liệu trong nhánh</small></span></span>
+          <span className="coverage-legend-item"><i className="coverage-swatch none" aria-hidden="true" /><span><b>Chưa liên kết</b><small>Chưa có dữ liệu cấp dưới hoặc tài liệu</small></span></span>
+        </div>
       </section>
       <aside className="detail-panel process-detail-panel" id="process-detail-panel" hidden={!detailVisible}>
         <div className="process-detail-heading"><div><p className="section-kicker">PROCESS DETAIL</p><span className="detail-code">{selected.code} · v{selected.versionNumber}</span><h2>{selected.name}</h2><span className="detail-level">{selected.level} · {selected.status}</span></div>{canEdit ? <button type="button" className="process-edit-toggle" onClick={() => setEditing((value) => !value)} aria-expanded={editing}>{editing ? "Đóng chỉnh sửa" : "Chỉnh sửa metadata"}</button> : null}</div>
