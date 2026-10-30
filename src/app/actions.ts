@@ -154,20 +154,27 @@ export async function removeFindingParticipant(formData: FormData) {
 export async function updateDocumentLifecycle(formData: FormData) {
   const documentVersionId = String(formData.get("document_version_id") || "");
   const status = String(formData.get("status") || "");
+  const decisionReason = String(formData.get("decision_reason") || "").trim();
   if (!documentVersionId || !documentStatuses.includes(status as typeof documentStatuses[number])) throw new Error("Trạng thái tài liệu không hợp lệ.");
-  const { supabase, user, profile } = await authenticatedContext();
+  const { supabase, profile } = await authenticatedContext();
   if (profile.role !== "admin" && profile.role !== "editor") throw new Error("Bạn không có quyền cập nhật tài liệu.");
-  if (profile.role !== "admin" && ["approved", "scheduled", "effective", "superseded", "archived"].includes(status)) throw new Error("Trạng thái này cần quyền Admin.");
+  if (decisionReason.length > 2000) throw new Error("Lý do quyết định vượt quá 2.000 ký tự.");
 
-  const auditFields: Record<string, string> = {};
-  if (status === "in_review") Object.assign(auditFields, { submitted_at: new Date().toISOString(), submitted_by: user.id });
-  if (status === "approved") Object.assign(auditFields, { approved_at: new Date().toISOString(), approved_by: user.id });
-  if (status === "effective") Object.assign(auditFields, { published_at: new Date().toISOString(), published_by: user.id });
-  const { error } = await supabase.from("document_versions").update({ status, ...auditFields }).eq("id", documentVersionId);
+  const { error } = await supabase.rpc("transition_document_version_atomic", {
+    p_version_id: documentVersionId,
+    p_status: status,
+    p_decision_reason: decisionReason || null,
+  });
   if (error) throw new Error(error.message);
-  revalidatePath("/documents");
-}
 
+  revalidatePath("/");
+  revalidatePath("/documents");
+  revalidatePath("/governance");
+  revalidatePath("/notifications");
+  revalidatePath("/process-map");
+  revalidatePath("/relationships");
+  redirect("/documents?workflow_saved=1");
+}
 
 type DocumentDraftMetadata = {
   title_vi:string; title_en:string|null; document_group:string; document_type_value_id:string|null;

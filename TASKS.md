@@ -645,3 +645,13 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [x] MAP-VIEW-007 — Show mapped-process and documented-process counts per APQC node; keep APQC wording, hierarchy code and PCF ID visible.
 - [x] MAP-VIEW-QA-005 — Authenticated Preview QA passed at 1024/1280 px: 449 APQC L0–L2 rows, APQC search/counts, one shared legend in A/B/C/D, scoped table overflow, and no console warning/error.
 - [x] MAP-VIEW-DEPLOY-005 — PR #97 merged as b21fbc227cfbcc566a0caeac1d22d00717d199f7; Vercel Production dpl_BqnBhYsKmE6xC9UKkeaTQscXmBpi reached READY on the official alias and authenticated Production QA passed.
+## 2026-10-30 — Upload-to-visual document workflow synchronization
+
+- [x] DONE DOC-SYNC-001 — Audit the actual upload, metadata, lifecycle, review task, notification, Process Map and Relationship data paths.
+- [x] DONE DOC-SYNC-002 — Add atomic lifecycle transition RPC with valid transition matrix, ownership, four-eyes rule, required rejection reason and one-open-review invariant.
+- [x] DONE DOC-SYNC-003 — Add Governance document review queue and Action Log decision notifications with exact Document deep links.
+- [x] DONE DOC-SYNC-004 — Restrict review task rows to Admin, submitter and assigned Admin through RLS.
+- [x] DONE REL-SYNC-001 — Add continuous `document_process_links` → proposed `documented_by` synchronization and reconcile active historical links without reviving archived objects.
+- [x] DONE DOC-SYNC-QA-001 — TypeScript/build pass; Supabase migrations applied; policies and both triggers verified live; rollback-only authenticated submit probe created the review task and changed status together, then persisted no test data.
+- [ ] PENDING DOC-SYNC-QA-002 — Full Editor submit → separate Admin decision browser E2E requires an Editor test identity; the production account set currently contains Admin and Viewer only.
+- [ ] PENDING DOC-UPLOAD-OPS-001 — Add an operational orphan-object reconciliation job if real upload volume justifies it; current compensation handles metadata-insert failure but cannot run after browser termination/network loss.

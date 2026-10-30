@@ -353,3 +353,10 @@ Exit: database validation reports 362 active APQC L2 records, 1,837 active docum
 - [x] Keep enterprise-process/document information as coverage evidence only.
 - [x] Complete authenticated Preview visual QA.
 - [x] Merge PR #97 and verify Vercel Production plus authenticated official-alias rendering.
+## 2026-10-30 — Document golden-flow closure
+
+- [DONE] Replace direct lifecycle row updates with an atomic database transition that creates/closes one review task and enforces the transition matrix, ownership, rejection reason and four-eyes approval.
+- [DONE] Add the RLS-scoped document review queue to Governance and decision notifications/deep links to Action Log.
+- [DONE] Continuously synchronize direct Document–Process links into the governed Relationship graph while preserving verified/audit records.
+- [DONE] Reconcile active historical links and verify functions, triggers and policies in Supabase, including a rollback-only authenticated lifecycle probe.
+- [PENDING QA] Execute the full authenticated Editor submit → different Admin approve/reject browser path when an Editor test account is available; production currently has three Admin and three Viewer accounts.

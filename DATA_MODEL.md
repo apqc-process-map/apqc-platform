@@ -617,3 +617,10 @@ Production migrations `20261027004304`–`20261027004641` establish the current 
 ## Installment active-framework restoration — 2026-10-30
 
 Migration `20261029022000_restore_installment_process_map.sql` is a non-destructive data repair. It inserts 11 `process_apqc_mappings` against the active framework using equivalent `hierarchy_id` values and six exact `document_process_links` against current document versions. Existing inactive-framework mappings and archived document/version records remain unchanged for audit. Mapping status remains `proposed`; no RLS policy, grant, table or function is changed.
+## Document workflow and relationship synchronization — 2026-10-30
+
+- `transition_document_version_atomic(uuid, process_version_status, text)` locks the version, enforces the allowed lifecycle transition and four-eyes rule, creates/closes the associated `review_requests` row and updates lifecycle audit fields in one transaction. Submission inserts the task while the version is still Draft/Rejected so ownership RLS is evaluated against the editable source state.
+- A partial unique index permits at most one open review per `(object_type, object_id)`. Review SELECT is limited to Admin, submitter, or assigned Admin; Editor/Admin submit only owned editable documents and Admin decides tasks.
+- `document_process_relationship_sync` runs after insert/delete on `document_process_links`. It materializes a current proposed Process → `documented_by` → stable Document edge in `object_relationships`; verified relationships are not downgraded, and removing the final direct source link rejects only a system-derived proposed edge.
+- `document_process_links` is authoritative for Process Map coverage. `object_relationships` is the governed graph/read model for Relationship. The migration reconciles active historical links without reviving archived Documents or Processes.
+- Review decisions create an RLS-scoped notification for the submitter with an exact Document deep link. Notifications are history/navigation; `review_requests` remains the task source of truth.
