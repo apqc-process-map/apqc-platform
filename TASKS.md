@@ -643,5 +643,5 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [x] MAP-VIEW-005 — Render the same three-state coverage legend in Landscape, Explorer, APQC Registry and Coverage.
 - [x] MAP-VIEW-006 — Change View C row grain from enterprise process/document to APQC Framework nodes L0–L2.
 - [x] MAP-VIEW-007 — Show mapped-process and documented-process counts per APQC node; keep APQC wording, hierarchy code and PCF ID visible.
-- [ ] MAP-VIEW-QA-005 — Verify authenticated 1024/1280 px rendering, APQC search and legend consistency on Preview.
+- [x] MAP-VIEW-QA-005 — Authenticated Preview QA passed at 1024/1280 px: 449 APQC L0–L2 rows, APQC search/counts, one shared legend in A/B/C/D, scoped table overflow, and no console warning/error.
 - [ ] MAP-VIEW-DEPLOY-005 — Merge the focused PR and verify the resulting Production deployment.

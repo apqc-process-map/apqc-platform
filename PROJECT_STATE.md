@@ -145,4 +145,4 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 
 - All four Process Map views now use one shared three-state coverage legend.
 - View C is an APQC Framework Registry: rows are active APQC L0–L2 nodes, while enterprise process and document data are summarized only as coverage counts.
-- No database migration or business-data mutation is involved. Build, authenticated visual QA, merge and Production verification remain delivery gates.
+- No database migration or business-data mutation is involved. Quality/build pass. Authenticated Preview QA passes at 1024/1280 px with 449 APQC rows, working search/counts, one shared legend per view, no page overflow and no console warning/error. Merge and Production verification remain delivery gates.

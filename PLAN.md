@@ -351,4 +351,5 @@ Exit: database validation reports 362 active APQC L2 records, 1,837 active docum
 - [x] Use one shared coverage legend for all four Process Map presentations.
 - [x] Make APQC nodes L0–L2 the primary records in View C.
 - [x] Keep enterprise-process/document information as coverage evidence only.
-- [ ] Complete authenticated Preview visual QA and Production delivery.
+- [x] Complete authenticated Preview visual QA.
+- [ ] Merge and verify Production delivery.
