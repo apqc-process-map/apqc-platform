@@ -164,7 +164,6 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
   }
 
   const apqcNodes: ProcessMapApqcNode[] = apqcElements
-    .filter((element) => element.level_number <= 2)
     .map((element) => ({
       id: element.id,
       pcfId: element.pcf_id,
@@ -236,6 +235,7 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
     const apqcMappings: ProcessMapApqcMapping[] = (version?.process_apqc_mappings || []).flatMap((mapping) => {
       const element = firstRelation(mapping.apqc_elements);
       return element && apqcById.has(element.id) ? [{
+        apqcElementId: element.id,
         pcfId: element.pcf_id,
         name: element.name,
         role: mapping.mapping_role,

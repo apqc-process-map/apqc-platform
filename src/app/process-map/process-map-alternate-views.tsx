@@ -23,15 +23,24 @@ const STATUS_LABELS: Record<string, string> = {
   rejected: "Từ chối",
 };
 
-function mappingFor(process: ProcessMapNode, groupId: string) {
-  return process.apqcMappings.find((mapping) => mapping.ancestorLevel2Id === groupId) || process.apqcMappings[0];
-}
-
 function containsQuery(process: ProcessMapNode, query: string) {
   const term = query.trim().toLocaleLowerCase("vi");
   if (!term) return true;
   return [process.code, process.name, process.owner, process.status, process.tags.map((tag) => tag.label).join(" ")]
     .join(" ").toLocaleLowerCase("vi").includes(term);
+}
+function apqcLevelLabel(level: number) {
+  if (level === 1) return "L0 · Category";
+  if (level === 2) return "L1 · Process Group";
+  return "L2 · Process";
+}
+
+function processMapsToNode(process: ProcessMapNode, node: ProcessMapApqcNode) {
+  return process.apqcMappings.some((mapping) => {
+    if (node.levelNumber === 1) return mapping.ancestorLevel1Id === node.id;
+    if (node.levelNumber === 2) return mapping.ancestorLevel2Id === node.id;
+    return mapping.apqcElementId === node.id;
+  });
 }
 
 export default function ProcessMapAlternateViews({ view, processes, apqcNodes, selectedCategoryId, selectedGroupId, selectedProcessId, query, onSelect }: Props) {
@@ -43,16 +52,34 @@ export default function ProcessMapAlternateViews({ view, processes, apqcNodes, s
   const groupProcesses = filteredProcesses.filter((process) => process.apqcMappings.some((mapping) => mapping.ancestorLevel2Id === selectedGroup?.id));
   const selectedProcess = processes.find((process) => process.id === selectedProcessId) || groupProcesses[0];
 
-  if (view === "registry") return <section className="process-alt-panel process-registry-view" aria-label="Danh mục quy trình và tài liệu">
-    <header className="process-alt-heading"><div><span>DOCUMENT REGISTRY</span><h2>Danh mục quy trình & tài liệu</h2><p>Tra cứu quy trình doanh nghiệp, APQC mapping, owner và tài liệu liên kết trong một bảng.</p></div><strong>{filteredProcesses.length} quy trình</strong></header>
-    <div className="process-registry-scroll"><table><thead><tr><th>Mã quy trình</th><th>Tên quy trình</th><th>APQC liên kết</th><th>Owner</th><th>Trạng thái</th><th>Tài liệu</th></tr></thead><tbody>
-      {filteredProcesses.map((process) => { const mapping = mappingFor(process, selectedGroupId); return <tr key={process.id} className={process.id === selectedProcessId ? "is-selected" : ""}>
-        <td><button type="button" onClick={() => onSelect(process.id)}>{process.code}</button></td><td><strong>{process.name}</strong></td><td>{mapping ? <span>{mapping.pcfId}<small>{mapping.name}</small></span> : "—"}</td><td>{process.owner || "Chưa xác định"}</td><td><span className={`process-status-pill status-${process.status}`}>{STATUS_LABELS[process.status] || process.status}</span></td><td><b>{process.relatedDocuments.length}</b></td>
-      </tr>; })}
-    </tbody></table></div>
-    {!filteredProcesses.length ? <div className="process-alt-empty">Không có quy trình phù hợp từ khóa.</div> : null}
-  </section>;
-
+  if (view === "registry") {
+    const term = query.trim().toLocaleLowerCase("vi");
+    const registryNodes = apqcNodes.filter((node) => node.levelNumber <= 3).filter((node) => {
+      if (!term) return true;
+      const mappedNames = processes.filter((process) => processMapsToNode(process, node)).map((process) => `${process.code} ${process.name}`).join(" ");
+      return [node.hierarchyId, node.pcfId, node.name, node.description, mappedNames].join(" ").toLocaleLowerCase("vi").includes(term);
+    });
+    return <section className="process-alt-panel process-registry-view" aria-label="Danh mục khung tham chiếu APQC">
+      <header className="process-alt-heading"><div><span>APQC FRAMEWORK REGISTRY</span><h2>Danh mục khung tham chiếu APQC</h2><p>Mỗi dòng là một node APQC L0–L2; quy trình và tài liệu chỉ được dùng để đo độ phủ mapping.</p></div><strong>{registryNodes.length} node APQC</strong></header>
+      <div className="process-registry-scroll"><table><thead><tr><th>Cấp APQC</th><th>Mã APQC</th><th>Tên chuẩn APQC</th><th>PCF ID</th><th>Quy trình map</th><th>Có tài liệu</th><th>Độ phủ</th></tr></thead><tbody>
+        {registryNodes.map((node) => {
+          const mappedProcesses = processes.filter((process) => processMapsToNode(process, node));
+          const documentedProcesses = mappedProcesses.filter((process) => process.relatedDocuments.length > 0);
+          const coverage = documentedProcesses.length ? "direct" : mappedProcesses.length ? "descendant" : "none";
+          return <tr key={node.id} className={node.id === selectedProcessId ? "is-selected" : ""}>
+            <td><span className="apqc-level-pill">{apqcLevelLabel(node.levelNumber)}</span></td>
+            <td><Link href={`/catalog/apqc/${node.id}`}>APQC {node.hierarchyId}</Link></td>
+            <td><strong>{node.name}</strong></td>
+            <td><code>{node.pcfId}</code></td>
+            <td><b>{mappedProcesses.length}</b></td>
+            <td><b>{documentedProcesses.length}</b></td>
+            <td><span className={`registry-coverage ${coverage}`}><i aria-hidden="true" />{coverage === "direct" ? "Có tài liệu" : coverage === "descendant" ? "Có dữ liệu cấp dưới" : "Chưa liên kết"}</span></td>
+          </tr>;
+        })}
+      </tbody></table></div>
+      {!registryNodes.length ? <div className="process-alt-empty">Không có node APQC phù hợp từ khóa.</div> : null}
+    </section>;
+  }
   if (view === "coverage") return <div className="process-coverage-view">
     <section className="process-alt-panel"><header className="process-alt-heading"><div><span>COVERAGE ATLAS</span><h2>Độ phủ quy trình theo APQC</h2><p>So sánh số quy trình đã map và bằng chứng tài liệu theo từng APQC Category.</p></div></header>
       <div className="process-coverage-grid">{categories.map((category) => {
