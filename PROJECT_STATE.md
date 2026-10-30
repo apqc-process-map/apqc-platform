@@ -52,7 +52,7 @@ Process Map is a desktop-first internal application for browsing and governing e
 
 - Supabase migrations `20261029013000` and `20261029014500` are applied to project `eksftbalhnqpguecdcaj`.
 - Workbook checksum `bcf6c1e3f5f3950c4fe02cf190ab5d2e3834c97f522b475b2b1e53494b9da41f` passed controlled import validation: 362 APQC L2 rows, 1,837 documents, 1,844 versions and 1,154 active mappings.
-- `pnpm quality` passes: ESLint, TypeScript, 51-migration integrity check and all three Node unit tests.
+- `pnpm quality` passes: ESLint, TypeScript, 54-migration integrity check and all three Node unit tests.
 - Next.js 16.4.1 production build passes all 15 routes. Supabase Security Advisor reports only the existing leaked-password-protection setting; Performance Advisor reports no unindexed foreign keys after `20261029020000` was applied; governance coverage is active-framework-only via `20261029021000`. Browser/visual QA, Git merge and final Vercel deployment remain pending for this branch.
 ## Remaining gates
 
@@ -126,3 +126,10 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - PR [#91](https://github.com/apqc-process-map/apqc-platform/pull/91) merged as commit `d0c3e3668442c56239436220d1b7357b98de42cb`.
 - Vercel Production deployment `dpl_216PrtUr4woUDi4j4RurdEhFdrSS` reached **READY**; the `pnj-apqc-platform.vercel.app` alias was verified for that exact release.
 - Final production build and TypeScript checks passed. Actual interactive signed-in browser visual E2E remains unverified, tracked separately in TASKS.
+
+## 2026-10-30 — Installment Process Map restoration
+
+- Root cause verified in Supabase: all 11 installment process identities remained active, but all mappings referenced the former inactive APQC framework, so active-framework Process Map reads correctly filtered them out.
+- Migration `20261029022000_restore_installment_process_map.sql` is applied. Verified result: 11 active-framework Proposed mappings, 11 historical inactive-framework mappings retained, six exact current document links restored, and 12 archived installment document identities retained.
+- Six former sources have no exact current workbook counterpart and remain intentionally unlinked rather than inferred.
+- This migration changes data links only; schema, grants, RLS and client secret boundaries are unchanged. GitHub/Production and authenticated visual verification are tracked in `TASKS.md`.

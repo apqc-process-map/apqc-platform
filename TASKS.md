@@ -623,3 +623,10 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [ ] HOME-CEO-QA-001 — Authenticated browser QA for absence of duplicate finding block, correct report order, chart legends and cross-tab links.
 - [ ] HOME-CEO-QA-002 — Check 375/768/1024/1440 px alignment, empty periods, date range/preset changes and Admin/Viewer visibility.
 - [x] HOME-CEO-DEPLOY-001 — PR #91 merged into main as `d0c3e3668442c56239436220d1b7357b98de42cb`; Vercel Production `dpl_216PrtUr4woUDi4j4RurdEhFdrSS` READY, official alias `pnj-apqc-platform.vercel.app` confirmed. Real signed-in browser QA remains pending.
+
+## 2026-10-30 — Restore installment Process Map visibility
+
+- [x] DONE TG-RESTORE-001 — Audit Supabase and confirm 11 installment process identities still exist; identify inactive-framework mappings as the reason they disappeared from Process Map.
+- [x] DONE TG-RESTORE-002 — Apply migration `20261029022000_restore_installment_process_map.sql`: add 11 equivalent Proposed mappings to the active controlled APQC framework while retaining 11 historical mappings.
+- [x] DONE TG-RESTORE-003 — Restore six exact active workbook-document links to the installment process tree; retain 12 archived source identities and avoid inferring links for the six unmatched sources.
+- [ ] TG-RESTORE-004 — Complete authenticated Process Map visual QA, merge GitHub PR and verify the final Vercel Production deployment.

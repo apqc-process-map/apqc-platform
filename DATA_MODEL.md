@@ -613,3 +613,7 @@ Production migrations `20261027004304`–`20261027004641` establish the current 
 - Top-three department concentration = `round(100 * sum(first 3 normalized departments.count)/new_documents)` only for positive denominator, with the existing departments ranking returned by the RPC. Top-five named issuers are shown, and all remaining issuer counts aggregate into "Các đơn vị khác"; totals and denominator are unchanged.
 - `new_documents` remains metadata registration and `files_uploaded` remains binary object uploads, measured at separate grains. A caution appears for periods with `new_documents > 0 AND files_uploaded = 0`; no attachment coverage ratio is inferred without an appropriate cohort.
 - `open_findings_now` and `overdue_actions_now` remain current snapshots and are displayed only as a concise caption under the **single** finding trend. No period-to-period comparison or KPI targets are fabricated.
+
+## Installment active-framework restoration — 2026-10-30
+
+Migration `20261029022000_restore_installment_process_map.sql` is a non-destructive data repair. It inserts 11 `process_apqc_mappings` against the active framework using equivalent `hierarchy_id` values and six exact `document_process_links` against current document versions. Existing inactive-framework mappings and archived document/version records remain unchanged for audit. Mapping status remains `proposed`; no RLS policy, grant, table or function is changed.
