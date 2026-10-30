@@ -1009,3 +1009,4 @@ User-specific report values must not be fabricated or inferred from sample figur
 - Review-task visibility is limited to Admin, submitter, or assigned Admin. Review creation/decision sends Action Log notifications with a deep link to the affected Document metadata.
 - Every new or removed `document_process_links` row synchronizes the current proposed `documented_by` edge used by Relationship. Verified edges are preserved; removing the final source link rejects only the system-derived proposed edge instead of deleting audit evidence.
 - Process Map reads the direct document-process link; Relationship reads the synchronized governed edge. These visuals therefore have different presentation grains but one source link.
+- Relationship network frame, controls and board must shrink to the available workspace width at 1024 px and above. Internal node text may truncate, but the network must not increase document-level horizontal width.
