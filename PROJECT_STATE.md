@@ -132,4 +132,5 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - Root cause verified in Supabase: all 11 installment process identities remained active, but all mappings referenced the former inactive APQC framework, so active-framework Process Map reads correctly filtered them out.
 - Migration `20261029022000_restore_installment_process_map.sql` is applied. Verified result: 11 active-framework Proposed mappings, 11 historical inactive-framework mappings retained, six exact current document links restored, and 12 archived installment document identities retained.
 - Six former sources have no exact current workbook counterpart and remain intentionally unlinked rather than inferred.
-- This migration changes data links only; schema, grants, RLS and client secret boundaries are unchanged. GitHub/Production and authenticated visual verification are tracked in `TASKS.md`.
+- This migration changes data links only; schema, grants, RLS and client secret boundaries are unchanged.
+- PR #94 merged to main as 38a54e619a215a3fefd96c05ccae480fa5c6d427; Vercel Production dpl_DbzHsEcNRF2QgBQofVqU3YaxHevv reached READY on the official alias. Authenticated Admin Preview/Production QA confirmed the end-to-end process and QTTG.1–QTTG.9, exact evidence counts, working search, no horizontal overflow at 1280 px and no console warning/error.

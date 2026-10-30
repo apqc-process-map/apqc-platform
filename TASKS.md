@@ -629,4 +629,4 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [x] DONE TG-RESTORE-001 — Audit Supabase and confirm 11 installment process identities still exist; identify inactive-framework mappings as the reason they disappeared from Process Map.
 - [x] DONE TG-RESTORE-002 — Apply migration `20261029022000_restore_installment_process_map.sql`: add 11 equivalent Proposed mappings to the active controlled APQC framework while retaining 11 historical mappings.
 - [x] DONE TG-RESTORE-003 — Restore six exact active workbook-document links to the installment process tree; retain 12 archived source identities and avoid inferring links for the six unmatched sources.
-- [ ] TG-RESTORE-004 — Complete authenticated Process Map visual QA, merge GitHub PR and verify the final Vercel Production deployment.
+- [x] DONE TG-RESTORE-004 — Authenticated Admin QA passed on Preview and Production: the end-to-end process plus QTTG.1–QTTG.9 render, evidence counts are 4/1/1 on supported nodes, search works, and no console warning/error was observed. PR #94 merged; Production deployment dpl_DbzHsEcNRF2QgBQofVqU3YaxHevv is READY on the official alias.
