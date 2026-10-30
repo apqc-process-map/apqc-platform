@@ -20,6 +20,22 @@ export const instant = false;
 
 const statuses = documentStatusOptions;
 const documentGroups = documentGroupOptions;
+const lifecycleTransitions: Record<string, string[]> = {
+  draft: ["in_review", "cancelled"],
+  rejected: ["draft", "in_review", "cancelled"],
+  in_review: ["approved", "rejected", "cancelled"],
+  approved: ["scheduled", "effective", "cancelled"],
+  scheduled: ["effective", "cancelled"],
+  effective: ["superseded", "archived"],
+};
+
+function lifecycleOptions(status: string, role: string) {
+  const next = role === "admin"
+    ? lifecycleTransitions[status] || []
+    : (["draft", "rejected"].includes(status) ? lifecycleTransitions[status] || [] : []);
+  return statuses.filter((option) => option.value === status || next.includes(option.value));
+}
+
 const sortOptions = [
   ["updated_desc", "Cập nhật mới nhất"],
   ["updated_asc", "Cập nhật cũ nhất"],
@@ -29,8 +45,8 @@ const sortOptions = [
   ["valid_from_desc", "Hiệu lực mới nhất"],
 ] as const;
 
-export default async function DocumentsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; type?: string; group?: string; language?: string; access?: string; risk?: string; owner?: string; sort?: string; preset?: string; group_by?: string; related_q?: string; process?: string; detail?: string; read_q?: string; read_status?: string; compare?: string; preview?: string; edit?: string; created?: string; updated?: string; page?: string }> }) {
-  const { q = "", status = "all", type = "all", group = "all", language = "all", access = "all", risk = "all", owner = "all", sort = "updated_desc", preset = "all", group_by = "none", related_q = "", process = "all", detail, read_q = "", read_status = "pending", compare, preview, edit, created, updated, page = "1" } = await searchParams;
+export default async function DocumentsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; type?: string; group?: string; language?: string; access?: string; risk?: string; owner?: string; sort?: string; preset?: string; group_by?: string; related_q?: string; process?: string; detail?: string; read_q?: string; read_status?: string; compare?: string; preview?: string; edit?: string; created?: string; updated?: string; page?: string; workflow_saved?: string }> }) {
+  const { q = "", status = "all", type = "all", group = "all", language = "all", access = "all", risk = "all", owner = "all", sort = "updated_desc", preset = "all", group_by = "none", related_q = "", process = "all", detail, read_q = "", read_status = "pending", compare, preview, edit, created, updated, page = "1", workflow_saved } = await searchParams;
   const pageSize=50;
   const currentPage=Math.max(1,Number.parseInt(page,10)||1);
   const { supabase, profile } = await requireActiveAccount();
@@ -254,6 +270,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
     updatedAt:detailItem.updated_at?new Date(detailItem.updated_at).toLocaleString("vi-VN"):null,
   },detailItem.document_group):[];
   return <WorkspaceShell active="/documents" eyebrow="QUẢN LÝ TÀI LIỆU" title="Tài liệu" description="Tìm tài liệu áp dụng cho công việc và theo dõi các tài liệu bạn phải đọc." userName={profile.display_name} role={profile.role}>
+    {workflow_saved ? <div className="success-banner" role="status">Đã cập nhật workflow; review task và Action Log đã được đồng bộ.</div> : null}
     {(created || updated) && <div className="state-message" role="status"><strong>{created ? "Đã tạo bản nháp tài liệu." : "Đã cập nhật thông tin tài liệu."}</strong><span>Thông tin đã lưu trong Supabase.</span></div>}
     {canEdit && <DocumentIntake key={editingDocument?.id||"new"} processes={availableProcesses} people={availablePeople} approvers={availableApprovers} types={availableTypes} businessRoles={businessRoles} canManageKnowledge={profile.role==="admin"} selectedKnowledge={editingDocument?selectedByDocument[editingDocument.document_id]||{}:{}} scopeOptions={availableScopeOptions} tags={availableTags} existing={editingDocument} primaryProcessId={editingDocument?primaryProcessId:null} selectedScopes={editingDocument?currentScope:{}} selectedTags={editingDocument?currentTags:[]}/>}
     <section className="reading-panel" aria-labelledby="required-reading-title">
@@ -308,7 +325,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
                 const members=Object.entries(selectedByDocument[item.document_id]||{}).filter(([,entry])=>entry===level).map(([roleId])=>roleNames.get(roleId)).filter(Boolean);
                 return members.length?<span key={level}>{labels[level]}: {members.join(", ")}</span>:null;
               })}
-              </div><footer><span className="status-badge">{documentOptionLabel(statuses,item.status)}</span><span>{item.review_due_at ? `Rà soát: ${documentDate(item.review_due_at)}` : "Chưa đặt ngày rà soát"}</span>{itemFiles.map((file) => <a key={file.id} href={"/documents/files/" + file.id} target="_blank" rel="noopener noreferrer">{file.mime_type === "application/pdf" || file.mime_type.startsWith("image/") ? "Mở " : "Tải "}{file.original_file_name}</a>)}<Link href={`/documents?detail=${item.id}#document-metadata-detail`} scroll={false}>Xem toàn bộ metadata</Link><Link href={`/documents?compare=${item.id}`} scroll={false}>So sánh thông tin</Link>{canEdit && ["draft","rejected"].includes(item.status) && <Link href={`/documents?edit=${item.id}#document-edit`}>Sửa thông tin</Link>}</footer>{canEdit ? <form className="document-lifecycle-form" action={updateDocumentLifecycle}><input type="hidden" name="document_version_id" value={item.id}/><select name="status" defaultValue={item.status} aria-label={`Trạng thái ${item.title_vi}`}>{statuses.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}</select><button type="submit" className="text-button">Cập nhật</button></form> : null}</div></article>})}</div>}</section>
+              </div><footer><span className="status-badge">{documentOptionLabel(statuses,item.status)}</span><span>{item.review_due_at ? `Rà soát: ${documentDate(item.review_due_at)}` : "Chưa đặt ngày rà soát"}</span>{itemFiles.map((file) => <a key={file.id} href={"/documents/files/" + file.id} target="_blank" rel="noopener noreferrer">{file.mime_type === "application/pdf" || file.mime_type.startsWith("image/") ? "Mở " : "Tải "}{file.original_file_name}</a>)}<Link href={`/documents?detail=${item.id}#document-metadata-detail`} scroll={false}>Xem toàn bộ metadata</Link><Link href={`/documents?compare=${item.id}`} scroll={false}>So sánh thông tin</Link>{canEdit && ["draft","rejected"].includes(item.status) && <Link href={`/documents?edit=${item.id}#document-edit`}>Sửa thông tin</Link>}</footer>{canEdit && lifecycleOptions(item.status, profile.role).length > 1 ? <form className="document-lifecycle-form" action={updateDocumentLifecycle}><input type="hidden" name="document_version_id" value={item.id}/><select name="status" defaultValue={item.status} aria-label={`Trạng thái ${item.title_vi}`}>{lifecycleOptions(item.status, profile.role).map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select>{item.status === "in_review" && profile.role === "admin" ? <input name="decision_reason" maxLength={2000} placeholder="Lý do quyết định (bắt buộc khi từ chối)" aria-label={`Lý do quyết định ${item.title_vi}`} /> : null}<button type="submit" className="text-button">Lưu workflow</button></form> : null}</div></article>})}</div>}</section>
     <Pagination pathname="/documents" currentPage={currentPage} total={totalVersions||0} pageSize={pageSize} params={{q,status,type,group,language,access,risk,owner,sort,preset,group_by,related_q,process}}/>
   </WorkspaceShell>;
 }

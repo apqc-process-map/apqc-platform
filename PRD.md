@@ -1000,3 +1000,12 @@ User-specific report values must not be fabricated or inferred from sample figur
 - The same three-state data-coverage legend (documented branch / lower-level data without documents / no linked data) is shown in every view.
 - Selection is shared across all views. Choosing an enterprise process also restores its APQC Category and Process Group context; the existing detail panel remains optional and supports the same governed metadata workflow.
 - Alternate views are presentation-only and must honor the same active-framework, current-document, authorization and private-file boundaries as Landscape. No demo records from the reference HTML are imported.
+## 46. Document workflow, task queue, and cross-tab synchronization — 2026-10-30
+
+- Upload remains a direct authenticated browser upload to private Supabase Storage. The client validates extension/MIME/25 MB size and SHA-256, then inserts `document_files`; a failed metadata insert removes the just-uploaded object. A browser/network interruption between those two operations can leave an orphan object and is an operational cleanup risk, not a public-file exposure.
+- Document create/update stores governed metadata, primary process, applicability, tags and role knowledge through atomic database functions. The primary process remains the source of truth for Process Map document coverage.
+- Lifecycle changes use `transition_document_version_atomic`: Editor/Admin may submit an owned Draft/Rejected version; Admin alone may approve/reject/publish; the submitter/creator cannot approve their own version; rejection requires a reason. Invalid transition jumps are rejected in PostgreSQL.
+- Entering `In Review` creates or refreshes one open `review_requests` task. Leaving review closes that task with decision metadata. Governance displays the RLS-visible queue and Home counts the same records.
+- Review-task visibility is limited to Admin, submitter, or assigned Admin. Review creation/decision sends Action Log notifications with a deep link to the affected Document metadata.
+- Every new or removed `document_process_links` row synchronizes the current proposed `documented_by` edge used by Relationship. Verified edges are preserved; removing the final source link rejects only the system-derived proposed edge instead of deleting audit evidence.
+- Process Map reads the direct document-process link; Relationship reads the synchronized governed edge. These visuals therefore have different presentation grains but one source link.

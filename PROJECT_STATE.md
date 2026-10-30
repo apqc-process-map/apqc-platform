@@ -1,6 +1,6 @@
 # Project State
 
-Last reviewed: 2026-10-29.
+Last reviewed: 2026-10-30.
 
 ## Product and architecture
 
@@ -147,3 +147,10 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - View C is an APQC Framework Registry: rows are active APQC L0–L2 nodes, while enterprise process and document data are summarized only as coverage counts.
 - No database migration or business-data mutation is involved. Quality/build and authenticated Preview QA pass at 1024/1280 px with 449 APQC rows, working search/counts, one shared legend per view, no page overflow and no console warning/error.
 - PR #97 merged as b21fbc227cfbcc566a0caeac1d22d00717d199f7. Vercel Production dpl_BqnBhYsKmE6xC9UKkeaTQscXmBpi is READY on pnj-apqc-platform.vercel.app; authenticated Production QA reconfirmed 449 rows, the shared legend and a clean console.
+## 2026-10-30 — Document workflow synchronization
+
+- Production Supabase migrations `20261030010000_document_workflow_relationship_sync.sql` and `20261030010500_fix_document_review_submission_order.sql` are applied. Document lifecycle changes are atomic, create/close one review task, enforce valid transitions and four-eyes approval, and notify the submitter on decision.
+- Governance reads the RLS-visible open document review queue; Action Log receives decision notifications with exact Document links. Review rows are visible only to Admin, submitter or assigned Admin.
+- Direct `document_process_links` now continuously synchronize system-derived proposed `documented_by` Relationship edges. Process Map continues to read the direct link; Relationship reads the governed graph. Archived objects are excluded from reconciliation and verified relationships are preserved.
+- Live post-migration verification found the lifecycle RPC and both triggers present. Six active direct links coexist with eighteen active `documented_by` relationships because the graph also retains governed/manual or historical active edges; the counts are not expected to be one-to-one.
+- Remaining workflow QA limitation: no Editor account exists in the six-account production set, so a true Editor-submit/different-Admin-decision browser run is still pending. Direct Storage upload also retains the low-probability orphan-object risk if the browser terminates after upload but before metadata registration.
