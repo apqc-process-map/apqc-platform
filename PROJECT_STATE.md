@@ -134,3 +134,9 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - Six former sources have no exact current workbook counterpart and remain intentionally unlinked rather than inferred.
 - This migration changes data links only; schema, grants, RLS and client secret boundaries are unchanged.
 - PR #94 merged to main as 38a54e619a215a3fefd96c05ccae480fa5c6d427; Vercel Production dpl_DbzHsEcNRF2QgBQofVqU3YaxHevv reached READY on the official alias. Authenticated Admin Preview/Production QA confirmed the end-to-end process and QTTG.1–QTTG.9, exact evidence counts, working search, no horizontal overflow at 1280 px and no console warning/error.
+
+## 2026-10-30 — Process Map multi-view work in progress
+
+- Landscape remains the default L0–L4 view. Explorer, Registry and Coverage are implemented as alternate presentations using the same active APQC, enterprise-process and current-document data already loaded by Process Map.
+- Shared selection restores APQC Category/Process Group context when a process is selected from a cross-category view. Existing metadata detail/editing and RLS/private-file boundaries are unchanged.
+- No database migration or sample data from the supplied HTML is introduced. Browser QA, merge and Production verification remain pending and are tracked in `TASKS.md`.

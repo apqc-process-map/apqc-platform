@@ -630,3 +630,10 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [x] DONE TG-RESTORE-002 — Apply migration `20261029022000_restore_installment_process_map.sql`: add 11 equivalent Proposed mappings to the active controlled APQC framework while retaining 11 historical mappings.
 - [x] DONE TG-RESTORE-003 — Restore six exact active workbook-document links to the installment process tree; retain 12 archived source identities and avoid inferring links for the six unmatched sources.
 - [x] DONE TG-RESTORE-004 — Authenticated Admin QA passed on Preview and Production: the end-to-end process plus QTTG.1–QTTG.9 render, evidence counts are 4/1/1 on supported nodes, search works, and no console warning/error was observed. PR #94 merged; Production deployment dpl_DbzHsEcNRF2QgBQofVqU3YaxHevv is READY on the official alias.
+
+## 2026-10-30 — Process Map multi-view workspace
+
+- [x] DONE MAP-VIEW-001 — Review the supplied four-view HTML and retain the existing Landscape as the default production view.
+- [x] DONE MAP-VIEW-002 — Add Explorer, Registry and Coverage views using the existing APQC/process/document data contract and shared selection state.
+- [x] DONE MAP-VIEW-003 — Preserve governed metadata detail/editing, APQC context restoration, search and active/current data boundaries across views.
+- [ ] MAP-VIEW-004 — Complete visual and user-flow QA at 1024/1280 px, run repository checks, merge GitHub PR and verify the final Vercel Production deployment.

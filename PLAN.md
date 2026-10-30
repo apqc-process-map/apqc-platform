@@ -338,3 +338,10 @@ Exit: database validation reports 362 active APQC L2 records, 1,837 active docum
 - Reconnect only the six current workbook documents whose document codes/titles exactly match the prior installment sources. Do not infer the other six links.
 - Preserve the former framework mappings and 12 archived document identities for audit.
 - Exit: database counts, security advisors, authenticated Process Map rendering, GitHub merge and one final Vercel Production deployment are verified.
+
+### Phase 19 — Process Map multi-view workspace (2026-10-30)
+
+- Preserve the current APQC-led L0–L4 Landscape as default.
+- Add Explorer, Registry and Coverage presentations derived from the same loaded Process Map dataset and selection state.
+- Keep authorization, private-document access and governed metadata edits unchanged; do not import the reference HTML's sample records.
+- Exit: lint/type/build, desktop browser interaction and visual QA, GitHub merge and final Vercel Production verification pass.

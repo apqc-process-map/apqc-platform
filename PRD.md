@@ -989,3 +989,13 @@ User-specific report values must not be fabricated or inferred from sample figur
 - Restore 11 Proposed mappings by matching the same controlled hierarchy IDs: `TG-L0` to `3.0`; the end-to-end process and QTTG.1/QTTG.5–QTTG.9 to `3.5`; QTTG.2–QTTG.4 to `3.5.4`. This is a framework-reference repair, not a claim that Process Owner validation is complete.
 - Display evidence intensity using only current, non-archived document versions. Six exact current workbook documents are linked back to the supported installment nodes. The six old sources without an exact current counterpart remain unmatched; the product must not fabricate those links.
 - Retain all old inactive-framework mappings, archived document identities, findings and audit history. Active Process Map reads remain scoped to the single active framework and current document versions.
+
+## 48. Process Map multi-view workspace — 2026-10-30
+
+- Keep **Landscape** as the default view and preserve its current L0–L4 hierarchy, evidence colors, tooltip, search, selection and governed metadata detail/edit behavior.
+- Add three alternate presentations over the same RLS-scoped data already loaded by Process Map; switching view must not create duplicate business data or a separate source of truth:
+  1. **Explorer:** APQC Category/Process Group → enterprise process → linked document, presented as three coordinated columns.
+  2. **Registry:** searchable process table with code, name, APQC mapping, owner, lifecycle status and linked-document count.
+  3. **Coverage:** APQC Category cards with mapped/documented process counts, followed by Process Group and enterprise-process drill-down.
+- Selection is shared across all views. Choosing an enterprise process also restores its APQC Category and Process Group context; the existing detail panel remains optional and supports the same governed metadata workflow.
+- Alternate views are presentation-only and must honor the same active-framework, current-document, authorization and private-file boundaries as Landscape. No demo records from the reference HTML are imported.
