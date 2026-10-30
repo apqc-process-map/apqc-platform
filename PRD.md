@@ -982,3 +982,10 @@ User-specific report values must not be fabricated or inferred from sample figur
 - Preserve the Supabase `home_document_finding_summary(date,date)` **SECURITY INVOKER / RLS** data contract. No migration needed: all new values are derived from existing response keys. The "top three share" is `round(100 * sum(top 3 issuing-department document counts) / new_documents)` when denominator is positive. The report's current unresolved and overdue numbers do **not** inherit the period filter.
 - There must be no duplicate finding-status blocks or attention strip; the bottom Finding chart is the only Finding detail visualization on Home. Zero-activity states must remain understandable. Do not describe metadata registrations as uploaded binaries.
 - Build/TypeScript, deployment/alias and authenticated browser QA are **separate evidence gates**; do not claim browser acceptance without an actual test.
+
+## 47. Restore installment landscape in the active Process Map — 2026-10-30
+
+- The installment process identities were not deleted. They became invisible because their APQC mappings referenced the former inactive framework while Process Map intentionally reads only the active controlled framework.
+- Restore 11 Proposed mappings by matching the same controlled hierarchy IDs: `TG-L0` to `3.0`; the end-to-end process and QTTG.1/QTTG.5–QTTG.9 to `3.5`; QTTG.2–QTTG.4 to `3.5.4`. This is a framework-reference repair, not a claim that Process Owner validation is complete.
+- Display evidence intensity using only current, non-archived document versions. Six exact current workbook documents are linked back to the supported installment nodes. The six old sources without an exact current counterpart remain unmatched; the product must not fabricate those links.
+- Retain all old inactive-framework mappings, archived document identities, findings and audit history. Active Process Map reads remain scoped to the single active framework and current document versions.

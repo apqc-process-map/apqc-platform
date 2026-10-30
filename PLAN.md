@@ -331,3 +331,10 @@ Exit: database validation reports 362 active APQC L2 records, 1,837 active docum
 - [DONE] Verify Next/TypeScript Vercel Preview build after UI source and style changes.
 - [DONE] PR #91 merged into `main` as `d0c3e3668442c56239436220d1b7357b98de42cb`. Vercel Production `dpl_216PrtUr4woUDi4j4RurdEhFdrSS` READY, with official site alias verified.
 - [PENDING] Signed-in authenticated browser and responsive QA (separate from successful build/deployment).
+
+### Phase 18 — Restore installment Process Map visibility (2026-10-30)
+
+- Reconnect the 11 retained installment process identities to the equivalent hierarchy IDs in the active controlled APQC framework; keep their mappings Proposed pending Process Owner validation.
+- Reconnect only the six current workbook documents whose document codes/titles exactly match the prior installment sources. Do not infer the other six links.
+- Preserve the former framework mappings and 12 archived document identities for audit.
+- Exit: database counts, security advisors, authenticated Process Map rendering, GitHub merge and one final Vercel Production deployment are verified.
