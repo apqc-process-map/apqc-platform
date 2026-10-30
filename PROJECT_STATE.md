@@ -14,7 +14,7 @@ Process Map is a desktop-first internal application for browsing and governing e
 ## Verified production data
 
 - Active controlled APQC framework: 449 elements total (13 L0, 74 L1, 362 L2/APQC-L3) from `APQC_CAT_ver2_Chi tiết Level 3`; the former 2,017-element framework is inactive and retained for audit.
-- Active document library: 1,837 identities and 1,844 versions imported from `Process_MAP_VBC1009`, with seven duplicate codes represented as versions and 1,154 exact links to the active APQC framework. Twenty invalid/non-code classifications remain in source metadata for owner review. The former 12 installment documents are archived/superseded, not deleted.
+- Active document library includes 1,837 identities and 1,844 versions imported from `Process_MAP_VBC1009`, plus 12 user-confirmed installment documents restored in place with their original `TG-DOC-001`–`TG-DOC-012` codes, files, process links and relationships. Seven workbook duplicate codes are represented as versions and 1,154 exact links target the active APQC framework. Twenty invalid/non-code classifications remain in source metadata for owner review.
 - Six active accounts: three Admin and three Viewer; no Editor account. Credentials are not stored in Git.
 - APQC workbook and supplied business documents remain outside Git.
 
@@ -63,6 +63,8 @@ Process Map is a desktop-first internal application for browsing and governing e
 
 Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editing, mobile-specific UI, fine-grained ACLs, full immutable relationship history and operational KPI observations remain outside the MVP unless explicitly approved.
 ## Recent substantial changes
+
+- Restored the 12 real installment documents in place and made Relationship resolve linked-document metadata beyond Supabase's default 1,000-row response window.
 
 - Replaced the active APQC reference and company document library from the two controlled workbook sheets while preserving prior frameworks/documents for audit.
 - Added active-framework enforcement, controlled APQC interpretation metadata, source-row audit metadata, exact document/APQC mappings and workbook checksum logging.

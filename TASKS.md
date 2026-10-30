@@ -630,6 +630,7 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [x] DONE TG-RESTORE-002 — Apply migration `20261029022000_restore_installment_process_map.sql`: add 11 equivalent Proposed mappings to the active controlled APQC framework while retaining 11 historical mappings.
 - [x] DONE TG-RESTORE-003 — Restore six exact active workbook-document links to the installment process tree; retain 12 archived source identities and avoid inferring links for the six unmatched sources.
 - [x] DONE TG-RESTORE-004 — Authenticated Admin QA passed on Preview and Production: the end-to-end process plus QTTG.1–QTTG.9 render, evidence counts are 4/1/1 on supported nodes, search works, and no console warning/error was observed. PR #94 merged; Production deployment dpl_DbzHsEcNRF2QgBQofVqU3YaxHevv is READY on the official alias.
+- [x] DONE TG-RESTORE-005 — Restore the 12 user-confirmed real installment documents in place and resolve their codes/titles in Relationship even when the active library exceeds Supabase's default 1,000-row response window.
 
 ## 2026-10-30 — Process Map multi-view workspace
 

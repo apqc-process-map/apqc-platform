@@ -79,6 +79,22 @@ export default async function RelationshipsPage({
 
   const types = (typeResult.data || []) as RelationshipTypeRow[];
   const allRelationships = relationshipResult.data || [];
+  const relationshipDocumentIds = [...new Set(allRelationships.flatMap((item) => [
+    item.source_type === "document" ? item.source_id : null,
+    item.target_type === "document" ? item.target_id : null,
+  ]).filter((id): id is string => Boolean(id)))];
+  const loadedDocumentIds = new Set((documentResult.data || []).map((document) => document.id));
+  const missingRelationshipDocumentIds = relationshipDocumentIds.filter((id) => !loadedDocumentIds.has(id));
+  const missingRelationshipDocumentsResult = missingRelationshipDocumentIds.length
+    ? await supabase.from("documents")
+      .select("id,document_code,document_versions(title_vi,version_number)")
+      .in("id", missingRelationshipDocumentIds)
+      .is("archived_at", null)
+    : { data: [] as DocumentRow[], error: null };
+  const documentRows = [
+    ...((documentResult.data || []) as unknown as DocumentRow[]),
+    ...((missingRelationshipDocumentsResult.data || []) as unknown as DocumentRow[]),
+  ];
   const relationships = allRelationships.filter((item) => {
     const relationshipType = item.relationship_types as unknown as { group_code: string } | null;
     return (status === "all" || item.status === status) && (group === "all" || relationshipType?.group_code === group);
@@ -92,7 +108,7 @@ export default async function RelationshipsPage({
       label: latest?.name_vi || process.process_code || process.id.slice(0, 8),
     });
   }
-  for (const document of (documentResult.data || []) as unknown as DocumentRow[]) {
+  for (const document of documentRows) {
     const latest = [...(document.document_versions || [])].sort((a, b) => b.version_number - a.version_number)[0];
     metadata.set(key("document", document.id), {
       code: document.document_code || "",
@@ -173,7 +189,7 @@ export default async function RelationshipsPage({
     status: selectedForEdit.status,
   } : null;
 
-  const loadError = relationshipResult.error || typeResult.error || processResult.error || documentResult.error
+  const loadError = relationshipResult.error || typeResult.error || processResult.error || documentResult.error || missingRelationshipDocumentsResult.error
     || systemResult.error || riskResult.error || kpiResult.error || roleResult.error || objectResult.error || findingResult.error;
 
   return <WorkspaceShell active="/relationships" eyebrow="MẠNG LƯỚI LIÊN KẾT" title="Quan hệ" description="Xem một đối tượng cung cấp, phụ thuộc, quản lý hoặc liên quan tới đối tượng nào." userName={profile.display_name} role={profile.role}>
