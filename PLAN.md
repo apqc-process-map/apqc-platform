@@ -352,4 +352,4 @@ Exit: database validation reports 362 active APQC L2 records, 1,837 active docum
 - [x] Make APQC nodes L0–L2 the primary records in View C.
 - [x] Keep enterprise-process/document information as coverage evidence only.
 - [x] Complete authenticated Preview visual QA.
-- [ ] Merge and verify Production delivery.
+- [x] Merge PR #97 and verify Vercel Production plus authenticated official-alias rendering.
