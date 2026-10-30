@@ -141,8 +141,9 @@ Entra SSO, custom metadata-field creation, AI/OCR document analysis, BPMN editin
 - Shared selection restores APQC Category/Process Group context when a process is selected from a cross-category view. Existing metadata detail/editing and RLS/private-file boundaries are unchanged.
 - No database migration or sample data from the supplied HTML is introduced. Quality/build pass. Authenticated Preview QA at 1024/1280 px confirms all four views, shared search/selection/detail, no horizontal overflow and no console warning/error; merge and Production verification remain pending.
 
-## 2026-10-30 — Process Map legend/registry correction in progress
+## 2026-10-30 — Process Map legend/registry correction
 
 - All four Process Map views now use one shared three-state coverage legend.
 - View C is an APQC Framework Registry: rows are active APQC L0–L2 nodes, while enterprise process and document data are summarized only as coverage counts.
-- No database migration or business-data mutation is involved. Quality/build pass. Authenticated Preview QA passes at 1024/1280 px with 449 APQC rows, working search/counts, one shared legend per view, no page overflow and no console warning/error. Merge and Production verification remain delivery gates.
+- No database migration or business-data mutation is involved. Quality/build and authenticated Preview QA pass at 1024/1280 px with 449 APQC rows, working search/counts, one shared legend per view, no page overflow and no console warning/error.
+- PR #97 merged as b21fbc227cfbcc566a0caeac1d22d00717d199f7. Vercel Production dpl_BqnBhYsKmE6xC9UKkeaTQscXmBpi is READY on pnj-apqc-platform.vercel.app; authenticated Production QA reconfirmed 449 rows, the shared legend and a clean console.
