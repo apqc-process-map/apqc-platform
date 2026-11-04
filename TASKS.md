@@ -18,9 +18,9 @@ Statuses use: TODO, BLOCKED, DONE, and PARTIAL. The EPIC sections below are the 
 - [x] DONE AUTH-002 Create profile and system-role schema.
 - [x] `DONE AUTH-003` Seed the user-approved demo mix: three Viewer and three Admin profiles securely.
 - [x] DONE AUTH-004 Implement sign-in, session refresh, and sign-out.
-- [~] PARTIAL AUTH-005 Add route/action authorization helpers.
-- [~] PARTIAL AUTH-006 Define and test the initial RLS policy matrix.
-- [~] PARTIAL AUTH-007 Verify the last author cannot approve their own draft.
+- [~] PARTIAL AUTH-005 Add route/action authorization helpers; three production Editor identities are now available for final browser evidence.
+- [~] PARTIAL AUTH-006 Define and test the initial RLS policy matrix; Admin/Viewer coverage exists and Editor browser coverage is now unblocked.
+- [~] PARTIAL AUTH-007 Verify the last author cannot approve their own draft; the required Editor/Admin account split is now available.
 
 ## EPIC 2 — APQC reference
 
