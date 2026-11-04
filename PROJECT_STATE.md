@@ -15,7 +15,7 @@ Process Map is a desktop-first internal application for browsing and governing e
 
 - Active controlled APQC framework: 449 elements total (13 L0, 74 L1, 362 L2/APQC-L3) from `APQC_CAT_ver2_Chi tiết Level 3`; the former 2,017-element framework is inactive and retained for audit.
 - Active document library includes 1,837 identities and 1,844 versions imported from `Process_MAP_VBC1009`, plus 12 user-confirmed installment documents restored in place with their original `TG-DOC-001`–`TG-DOC-012` codes, files, process links and relationships. Seven workbook duplicate codes are represented as versions and 1,154 exact links target the active APQC framework. Twenty invalid/non-code classifications remain in source metadata for owner review.
-- Six active accounts: three Admin and three Viewer; no Editor account. Credentials are not stored in Git.
+- Six active accounts: three Admin and three Editor. All six can edit; the Admin accounts retain approval and governance authority. Credentials are not stored in Git.
 - APQC workbook and supplied business documents remain outside Git.
 
 ## Implemented behavior
@@ -57,7 +57,7 @@ Process Map is a desktop-first internal application for browsing and governing e
 ## Remaining gates
 
 1. Process Owner must still validate proposed APQC mappings, unknown metadata/effective dates and 113 evidence cells; source binaries 13–14 remain unavailable.
-2. Editor-specific QA needs an approved Editor account or a temporary role change.
+2. Editor-specific QA can now run against the three active Editor accounts; full browser evidence is still pending.
 
 ## Deferred scope
 
