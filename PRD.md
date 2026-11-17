@@ -1021,3 +1021,13 @@ This requirement supersedes the L0–L4 visibility, L3/L4 tooltip, right-hand pa
 - The top of the bottom detail prioritizes **Tổng quan điều hành** (five business-summary fields) and **Vòng đời & audit** (status, owner, effective/review dates, timestamps and change summary). The complete governed metadata card, directly linked documents and their file links remain available in a secondary expandable section.
 - Authorized Admin users retain metadata editing; all backend permissions and RLS checks remain unchanged. No migration or destructive data update is part of this change.
 - Verification gate: run repository quality/build checks and desktop visual/interaction QA for L0/L1 selection, L2 selection, toggle, deep link, linked documents and metadata edit access.
+
+## 50. Process Map metadata-toggle correction — 2026-11-17
+
+This clarification **supersedes the bottom-detail/metadata-toggle coupling described in section 49** without changing the L0–L2 landscape decision.
+
+- The persistent **Hiện chi tiết / Ẩn chi tiết** button continues to control the **original Process Detail metadata sidebar** exactly as before. This includes APQC reference details for L0/L1 and full Business Process metadata, linked documents and Admin editing for L2. The sidebar is independently scrollable when visible, and the landscape expands when it is hidden.
+- Selecting a process must **not force the original metadata sidebar open or closed**. The button's toggle state remains under user control. Deep links select the referenced L2 and restore its APQC context without changing the sidebar toggle.
+- A **separate, full-width section below the map/sidebar workspace** shows **Tổng quan điều hành** and **Vòng đời & audit** **whenever an enterprise L2 is selected**, independent of sidebar visibility. Selecting L0 or L1 hides only these two bottom sections, not the existing metadata sidebar or its toggle.
+- The previous secondary expand/collapse wrapper around documents and metadata is removed; the original metadata card and document list return unchanged to the sidebar. Data, authorization, source levels and document mappings are not modified.
+- QA must verify L0/L1 metadata toggle, L2 bottom summaries while sidebar is hidden and shown, and that selecting nodes does not change the toggle state.
