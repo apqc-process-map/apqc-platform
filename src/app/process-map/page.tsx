@@ -76,25 +76,18 @@ type ApqcElementRow = {
 type DocumentVersionRelation = {
   id: string;
   title_vi: string;
+  document_abstract: string | null;
   version_number: number;
   status: string;
   document_group: string | null;
   vocabulary_values: { label_vi: string } | { label_vi: string }[] | null;
   owner_id: string | null;
-  designated_approver_id: string | null;
   issuing_department: string | null;
   valid_from: string | null;
   valid_until: string | null;
   review_due_at: string | null;
-  submitted_at: string | null;
-  approved_at: string | null;
   published_at: string | null;
   change_summary: string | null;
-  retention_note: string | null;
-  supersedes_version_id: string | null;
-  risk_rating: string | null;
-  legal_reference: string | null;
-  access_level: string | null;
   documents: { document_code: string; archived_at: string | null } | { document_code: string; archived_at: string | null }[] | null;
   replaced_at: string | null;
   document_files: Array<{ id: string; original_file_name: string; mime_type: string }> | null;
@@ -162,7 +155,7 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
       : Promise.resolve({ data: [], error: null }),
     processes.length
       ? supabase.from("document_process_links")
-          .select("process_id,link_role,document_versions!inner(id,title_vi,version_number,status,document_group,vocabulary_values(label_vi),owner_id,designated_approver_id,issuing_department,valid_from,valid_until,review_due_at,submitted_at,approved_at,published_at,change_summary,retention_note,supersedes_version_id,risk_rating,legal_reference,access_level,replaced_at,documents(document_code,archived_at),document_files(id,original_file_name,mime_type))")
+          .select("process_id,link_role,document_versions!inner(id,title_vi,document_abstract,version_number,status,document_group,vocabulary_values(label_vi),owner_id,issuing_department,valid_from,valid_until,review_due_at,published_at,change_summary,replaced_at,documents(document_code,archived_at),document_files(id,original_file_name,mime_type))")
           .in("process_id", processes.map((process) => process.id))
       : Promise.resolve({ data: [], error: null }),
     supabase.from("apqc_elements")
@@ -216,7 +209,7 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
   // Resolve only names for profiles referenced by RLS-visible linked versions.
   const linkedVersions = ((relatedDocumentsResult.data || []) as unknown as DocumentProcessLinkRow[])
     .flatMap((row) => { const version = firstRelation(row.document_versions); return version ? [version] : []; });
-  const actorIds = [...new Set(linkedVersions.flatMap((version) => [version.owner_id, version.designated_approver_id]).filter((id): id is string => Boolean(id)))];
+  const actorIds = [...new Set(linkedVersions.flatMap((version) => [version.owner_id]).filter((id): id is string => Boolean(id)))];
   const actorResult = actorIds.length
     ? await supabase.from("profiles").select("id,display_name").in("id", actorIds)
     : { data: [], error: null };
@@ -239,22 +232,14 @@ export default async function ProcessMapPage({ searchParams }: PageProps) {
       role: row.link_role,
       documentType: firstRelation(version.vocabulary_values)?.label_vi || "",
       documentGroup: version.document_group || "",
+      abstract: version.document_abstract || "",
       owner: resolveDocumentActor(version.owner_id),
-      hasOwner: Boolean(version.owner_id),
-      approver: resolveDocumentActor(version.designated_approver_id),
       issuingDepartment: version.issuing_department || "",
       validFrom: version.valid_from,
       validUntil: version.valid_until,
       reviewDueAt: version.review_due_at,
-      submittedAt: version.submitted_at,
-      approvedAt: version.approved_at,
       publishedAt: version.published_at,
       changeSummary: version.change_summary || "",
-      retentionNote: version.retention_note || "",
-      hasSupersededVersion: Boolean(version.supersedes_version_id),
-      riskRating: version.risk_rating || "",
-      legalReference: version.legal_reference || "",
-      accessLevel: version.access_level || "",
       files: (version.document_files || []).map((file) => ({
         id: file.id, name: file.original_file_name, mimeType: file.mime_type,
       })),

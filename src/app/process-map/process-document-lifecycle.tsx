@@ -1,143 +1,145 @@
 import Link from "next/link";
-import MetadataCard, { hasMetadataValue, type MetadataGroup, type MetadataProperty } from "@/components/metadata-card";
-import { documentAccessOptions, documentDate, documentGroupOptions, documentOptionLabel, documentRiskOptions, documentStatusOptions } from "@/lib/document-display";
+import { hasMetadataValue, type MetadataProperty } from "@/components/metadata-card";
+import { documentDate, documentOptionLabel, documentStatusOptions } from "@/lib/document-display";
 import { documentRequiredKeys } from "@/lib/metadata-schema";
 import type { ProcessMapRelatedDocument } from "./process-map-client";
 
-function dateOrMissing(value: string | null): string | null {
+type CoreGroup = { key: string; title: string; properties: MetadataProperty[] };
+type DocumentItem = { document: ProcessMapRelatedDocument; groups: CoreGroup[]; missingRequired: number };
+
+function documentDateOrMissing(value: string | null) {
   return value ? documentDate(value) : null;
 }
 
-function dateTimeOrMissing(value: string | null): string | null {
+function publishedDateOrMissing(value: string | null) {
   if (!value) return null;
   const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Ho_Chi_Minh" }).format(date);
+  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("vi-VN", {
+    dateStyle: "short", timeZone: "Asia/Ho_Chi_Minh",
+  }).format(date);
 }
 
-function lifecycleMetadata(document: ProcessMapRelatedDocument): MetadataGroup[] {
-  // Use exactly the required/optional rules used by the Document tab.
-  const requiredKeys = documentRequiredKeys(document.documentGroup);
-  const field = (
-    key: string, label: string, value: MetadataProperty["value"],
-    origin: MetadataProperty["origin"] = "user", alwaysRequired = false,
-  ): MetadataProperty => ({
-    key, label, value, origin, required: alwaysRequired || requiredKeys.has(key),
+/** Core fields only. Full class-specific governance remains on the Document page. */
+function documentCoreGroups(document: ProcessMapRelatedDocument): CoreGroup[] {
+  const required = documentRequiredKeys(document.documentGroup);
+  const field = (key: string, label: string, value: MetadataProperty["value"]): MetadataProperty => ({
+    key, label, value, required: required.has(key),
   });
-
   return [
     {
-      key: "identity", title: "1. Nhận diện & liên kết quy trình",
+      key: "understanding",
+      title: "Tài liệu nói về gì?",
       properties: [
-        field("documentCode", "Mã tài liệu", document.code, "system"),
-        field("documentType", "Loại tài liệu", document.documentType, "controlled"),
-        field("documentGroup", "Nhóm tài liệu", document.documentGroup ? documentOptionLabel(documentGroupOptions, document.documentGroup) : null, "derived"),
-        field("version", "Phiên bản hiện hành", `v${document.versionNumber}`, "system"),
-        field("status", "Trạng thái phê duyệt/hiệu lực", documentOptionLabel(documentStatusOptions, document.status, document.status), "system"),
-        field("processLink", "Vai trò liên kết với L2", ({
-          primary: "Quy trình chính", supporting: "Hỗ trợ", evidence: "Minh chứng", reference: "Tham khảo",
-        } as Record<string, string>)[document.role] || document.role, "relationship", true),
+        field("documentType", "Loại tài liệu", document.documentType),
+        field("abstract", "Nội dung chính / tóm tắt", document.abstract),
       ],
     },
     {
-      key: "ownership", title: "2. Trách nhiệm & phê duyệt",
+      key: "accountability",
+      title: "Ai chịu trách nhiệm?",
       properties: [
-        field("owner", "Chủ sở hữu", document.owner, "relationship"),
+        field("owner", "Chủ sở hữu tài liệu", document.owner),
         field("issuingDepartment", "Đơn vị ban hành", document.issuingDepartment),
-        field("approver", "Người phê duyệt dự kiến", document.approver, "relationship"),
-        field("submittedAt", "Trình duyệt lúc", dateTimeOrMissing(document.submittedAt), "system"),
-        field("approvedAt", "Đã phê duyệt lúc", dateTimeOrMissing(document.approvedAt), "system"),
-        field("publishedAt", "Đã xuất bản lúc", dateTimeOrMissing(document.publishedAt), "system"),
       ],
     },
     {
-      key: "control", title: "3. Hiệu lực, rà soát & lưu trữ",
+      key: "lifecycle",
+      title: "Trạng thái & vòng đời",
       properties: [
-        field("validFrom", "Hiệu lực từ", dateOrMissing(document.validFrom)),
-        field("validUntil", "Hiệu lực đến", dateOrMissing(document.validUntil)),
-        field("reviewDue", "Hạn rà soát tiếp theo", dateOrMissing(document.reviewDueAt)),
-        field("changeSummary", "Nội dung thay đổi", document.changeSummary),
-        ...(document.versionNumber > 1 ? [
-          field("supersedes", "Liên kết phiên bản bị thay thế", document.hasSupersededVersion ? "Đã ghi nhận" : null, "relationship"),
-        ] : []),
-        field("files", "Tệp đính kèm", document.files.map((file) => file.name), "system"),
-        field("retentionNote", "Yêu cầu lưu trữ", document.retentionNote),
-        field("accessLevel", "Phân loại truy cập", document.accessLevel ? documentOptionLabel(documentAccessOptions, document.accessLevel) : null, "controlled"),
-        field("riskRating", "Mức độ rủi ro", document.riskRating ? documentOptionLabel(documentRiskOptions, document.riskRating) : null, "controlled"),
-        field("legalReference", "Căn cứ ban hành", document.legalReference),
+        field("publishedAt", "Xuất bản trên hệ thống", publishedDateOrMissing(document.publishedAt)),
+        field("validFrom", "Hiệu lực từ", documentDateOrMissing(document.validFrom)),
+        field("validUntil", "Hết hiệu lực", documentDateOrMissing(document.validUntil)),
+        field("reviewDue", "Hạn rà soát tiếp theo", documentDateOrMissing(document.reviewDueAt)),
+        field("changeSummary", "Nội dung thay đổi phiên bản", document.changeSummary),
       ],
     },
   ];
 }
 
-function missingMandatory(groups: MetadataGroup[]): number {
-  return groups.flatMap((group) => group.properties).filter((property) => property.required && !hasMetadataValue(property.value)).length;
+function countMissingCore(document: ProcessMapRelatedDocument, groups: CoreGroup[]) {
+  const missingFields = groups.flatMap((group) => group.properties).filter((property) =>
+    property.required && !hasMetadataValue(property.value)
+  ).length;
+  const missingHeader = [document.code, document.title, document.status].filter((value) => !value.trim()).length;
+  return missingFields + missingHeader + (document.versionNumber > 0 ? 0 : 1);
 }
 
-type Props = { documents: ProcessMapRelatedDocument[] };
+function CoreFields({ group }: { group: CoreGroup }) {
+  return <section className="process-document-core-group" aria-label={group.title}>
+    <h4>{group.title}</h4>
+    <dl>
+      {group.properties.map((property) => {
+        const missing = !hasMetadataValue(property.value);
+        return <div key={property.key} className={`process-property-row${missing ? " is-missing" : ""}`} data-metadata-state={missing ? "missing" : "complete"}>
+          <dt>{property.label}
+            {property.required ? <span className="metadata-property-flags"><small className="is-required">Bắt buộc</small></span> : null}
+          </dt>
+          <dd>{missing
+            ? <span className="process-property-missing"><span aria-hidden="true">!</span> Thiếu dữ liệu</span>
+            : property.value}
+          </dd>
+        </div>;
+      })}
+    </dl>
+  </section>;
+}
 
-export default function ProcessDocumentLifecycle({ documents }: Props) {
-  // Only RLS-visible, current document versions linked to the selected process are supplied.
-  const items = documents.map((document) => ({ document, groups: lifecycleMetadata(document) }));
-  const missingCount = items.filter(({ groups }) => missingMandatory(groups) > 0).length;
+export default function ProcessDocumentLifecycle({ documents }: { documents: ProcessMapRelatedDocument[] }) {
+  const items: DocumentItem[] = documents.map((document) => {
+    const groups = documentCoreGroups(document);
+    return { document, groups, missingRequired: countMissingCore(document, groups) };
+  });
   const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" }).format(new Date());
+  const incomplete = items.filter((item) => item.missingRequired > 0).length;
   const overdueReview = items.filter(({ document }) =>
     document.status === "effective" && Boolean(document.reviewDueAt) && document.reviewDueAt! < today
   ).length;
-  const expiredEffective = items.filter(({ document }) =>
+  const pastEndDate = items.filter(({ document }) =>
     document.status === "effective" && Boolean(document.validUntil) && document.validUntil! < today
   ).length;
 
-  if (!items.length) {
-    return <div className="process-document-lifecycle-empty">
-      <strong>Chưa có tài liệu liên kết trực tiếp với quy trình L2 này.</strong>
-      <p>Chưa thể đánh giá vòng đời tài liệu. Cần liên kết tài liệu vào quy trình để theo dõi phiên bản, trách nhiệm, hiệu lực và hạn rà soát.</p>
-    </div>;
-  }
+  if (!items.length) return <div className="process-document-lifecycle-empty">
+    <strong>Chưa có tài liệu liên kết trực tiếp với quy trình L2 này.</strong>
+    <p>Liên kết tài liệu trong tab Document để theo dõi nội dung, chủ sở hữu và vòng đời tại đây.</p>
+  </div>;
 
   return <div className="process-document-lifecycle">
-    <div className="process-document-lifecycle-stats" aria-label="Tổng hợp vòng đời tài liệu liên kết">
-      <span><b>{items.length}</b> tài liệu hiển thị</span>
-      <span className={missingCount ? "has-missing" : ""}><b>{missingCount}</b> tài liệu thiếu metadata bắt buộc</span>
-      <span className={overdueReview ? "has-missing" : ""}><b>{overdueReview}</b> tài liệu hiệu lực quá hạn rà soát</span>
-      <span className={expiredEffective ? "has-missing" : ""}><b>{expiredEffective}</b> tài liệu hiệu lực quá ngày hết hạn</span>
+    <div className="process-document-lifecycle-stats" aria-label="Tổng hợp tài liệu liên kết">
+      <span><b>{items.length}</b> tài liệu</span>
+      <span className={incomplete ? "has-missing" : ""}><b>{incomplete}</b> thiếu thông tin chính</span>
+      <span className={overdueReview ? "has-missing" : ""}><b>{overdueReview}</b> quá hạn rà soát</span>
+      <span className={pastEndDate ? "has-missing" : ""}><b>{pastEndDate}</b> đã qua ngày hết hiệu lực</span>
     </div>
     <p className="process-document-lifecycle-note">
-      Chỉ tính tài liệu và phiên bản hiện hành mà tài khoản có quyền xem. Màu vàng đánh dấu trường chưa có dữ liệu; nhãn “Bắt buộc” theo cấu hình metadata của tab Document. Ngày hết hiệu lực có thể để trống theo chính sách; không tự kết luận vi phạm.
+      Chỉ hiển thị tài liệu hiện hành được liên kết với L2 mà bạn có quyền xem. Màu vàng là dữ liệu chưa cập nhật; ngày hết hiệu lực bỏ trống không mặc định là vi phạm.
     </p>
     <div className="process-document-lifecycle-items">
-      {items.map(({ document, groups }, index) => {
-        const missing = missingMandatory(groups);
+      {items.map(({ document, groups, missingRequired }, index) => {
+        const firstFile = document.files[0];
         return <details className="process-document-lifecycle-item" key={document.versionId} open={index === 0}>
           <summary>
             <span className="process-document-lifecycle-identity">
-              <small>{document.code || "Chưa có mã"} · v{document.versionNumber}</small>
-              <strong>{document.title}</strong>
-              <span>{documentOptionLabel(documentStatusOptions, document.status, document.status)}</span>
+              <small>{document.code || <span className="process-document-core-missing">Thiếu mã tài liệu</span>} · v{document.versionNumber || "?"}</small>
+              <strong>{document.title || <span className="process-document-core-missing">Thiếu tên tài liệu</span>}</strong>
+              <span>{documentOptionLabel(documentStatusOptions, document.status, document.status || "Thiếu trạng thái")}</span>
             </span>
-            <span className={missing ? "process-document-lifecycle-warning" : "process-document-lifecycle-complete"}>
-              {missing ? `${missing} trường bắt buộc thiếu` : "Đủ trường bắt buộc"}
+            <span className={missingRequired ? "process-document-lifecycle-warning" : "process-document-lifecycle-complete"}>
+              {missingRequired ? `Thiếu ${missingRequired} thông tin chính` : "Đủ thông tin chính"}
             </span>
           </summary>
           <div className="process-document-lifecycle-body">
-            <MetadataCard
-              objectType="Document"
-              className={document.documentType || "Chưa phân loại"}
-              groups={groups}
-              testId="process-document-lifecycle-metadata"
-            />
+            <div className="process-document-core-groups">
+              {groups.map((group) => <CoreFields key={group.key} group={group} />)}
+            </div>
             <div className="process-document-lifecycle-links">
-              <Link href={`/documents?detail=${document.versionId}#document-metadata-detail`}>Mở toàn bộ metadata trong Document</Link>
-              {document.files.length > 0 ? <span>{document.files.length} tệp đính kèm</span> : null}
+              <Link href={`/documents?detail=${document.versionId}#document-metadata-detail`}>Xem metadata đầy đủ</Link>
+              {firstFile ? <a href={`/documents/files/${firstFile.id}`} target="_blank" rel="noopener noreferrer">
+                {firstFile.mimeType === "application/pdf" || firstFile.mimeType.startsWith("image/") ? "Mở tài liệu" : "Tải tệp tài liệu"}
+              </a> : <span className="process-document-core-missing">Chưa có tệp đính kèm</span>}
             </div>
           </div>
         </details>;
       })}
-    </div>
-    <div className="process-document-lifecycle-next">
-      <strong>Trường đề xuất bổ sung ở giai đoạn tiếp theo</strong>
-      <span>Chu kỳ rà soát; ngày/kết quả rà soát gần nhất; người rà soát; nguyên nhân thu hồi/thay thế. Các trường này chưa nằm trong bộ dữ liệu đang truy vấn, nên không được tính là tài liệu thiếu metadata hiện có.</span>
     </div>
   </div>;
 }
