@@ -54,7 +54,7 @@ const LANDSCAPE_LEVEL_BANDS = LEVEL_BANDS.map((band) => ({
     ? "APQC Category"
     : band.key === "L1"
       ? "APQC Process Group"
-      : band.key === "L2" ? "Quy tr\u00ecnh doanh nghi\u1ec7p" : band.label,
+      : "Quy tr\u00ecnh doanh nghi\u1ec7p",
 }));
 
 const PROCESS_STATUS_LABELS: Record<string, string> = {
