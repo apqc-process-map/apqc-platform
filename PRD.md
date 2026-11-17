@@ -1041,3 +1041,19 @@ This refinement builds on section 50. Only the bottom **Tổng quan điều hàn
 - The two panels remain independent from the original upper **Hiện chi tiết / Ẩn chi tiết** control. That original control continues to manage only the legacy right-hand APQC/Business Process metadata sidebar, with unchanged document links, metadata, edit permissions and visibility state.
 - L0/L1 selection hides these L2-only bottom rows. Only presentation changes; no record deletions, permissions, or backend schema changes.
 - Accordion buttons expose `aria-expanded` and stable `aria-controls` targets; their content remains addressable but hidden when collapsed. Verify keyboard and desktop responsiveness.
+
+## 52. Linked-document lifecycle metadata under enterprise L2 — 2026-11-17
+
+**Decision:** Preserve the L2 Process lifecycle/audit block, the separate executive block, and the original toolbar-controlled sidebar. Add a third full-width horizontal accordion **Vòng đời tài liệu liên kết** under the selected enterprise L2.
+
+### Scope and information model
+- The display grain is one **RLS-visible, current (not replaced, not archived) document version** linked directly through `document_process_links.process_id`; do not mislabel process validity/owner as document validity/owner. The existing private file access URLs and Document metadata links remain unchanged.
+- For each linked version show a clickable document header and grouped metadata: **(1) identity** (code, type/group, version, workflow status, L2 link role), **(2) responsibility & approval** (owner, issuing department, designated approver, submission/approval/publication timestamps), **(3) lifecycle** (validity start/end, next review date, change summary, prior version linkage for v2+, attachments, retention instruction, access, risk and legal basis). Names are resolved through readable profiles, not fabricated.
+- Reuse the existing `MetadataCard` status indicators: every missing value gets the yellow **Thiếu dữ liệu** style. Mandatory flags follow `documentRequiredKeys(document_group)`, the same rules as the Document tab; proposed/optional fields do not silently become mandatory.
+- Provide visible, scope-qualified counts of linked versions, versions missing at least one **required** value, effective versions overdue for review, and versions marked effective whose stated end date has passed. Time comparisons use business dates in `Asia/Ho_Chi_Minh`. A blank end date is **not automatically overdue or a compliance violation**.
+- If no linked document is visible, show a clear empty state; do not invent lifecycle information. Current RLS restrictions are respected. Show a separate next-phase proposal for review frequency, last review date/result/actor, and withdrawal/supersession reason: not yet modeled in this view and **excluded** from required-field counts.
+- Existing `Hiện chi tiết / Ẩn chi tiết` upper toolbar button controls only the legacy process-metadata sidebar. The new linked-document accordion independently expands/collapses and auto-expands on selecting another L2, alongside the existing executive and process audit accordions.
+
+### Validation
+- Confirm page query fields exist, CI/build passes, and the client displays source data without invented defaults.
+- Authenticated browser checks: L2 selection, process sidebar independent visibility, zero-linked-doc state, missing required/optional states, document navigation and accessible accordion interactions.

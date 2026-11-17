@@ -6,6 +6,7 @@ import { updateProcessMetadata } from "@/app/actions";
 import WorkspaceShell from "@/components/workspace-shell";
 import ProcessMapAlternateViews, { type ProcessMapView } from "./process-map-alternate-views";
 import ProcessMetadataCard from "./process-metadata-card";
+import ProcessDocumentLifecycle from "./process-document-lifecycle";
 import "./process-documents.css";
 import "./process-map-views.css";
 
@@ -23,6 +24,11 @@ export type ProcessMapApqcNode = {
 };
 export type ProcessMapRelatedDocument = {
   versionId: string; code: string; title: string; versionNumber: number; status: string; role: string;
+  documentType: string; documentGroup: string; owner: string; hasOwner: boolean; approver: string; issuingDepartment: string;
+  validFrom: string | null; validUntil: string | null; reviewDueAt: string | null;
+  submittedAt: string | null; approvedAt: string | null; publishedAt: string | null;
+  changeSummary: string; retentionNote: string; hasSupersededVersion: boolean;
+  riskRating: string; legalReference: string; accessLevel: string;
   files: Array<{ id: string; name: string; mimeType: string }>;
 };
 export type ProcessMapNode = {
@@ -176,6 +182,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
   const [detailVisible, setDetailVisible] = useState(false);
   const [executiveExpanded, setExecutiveExpanded] = useState(true);
   const [auditExpanded, setAuditExpanded] = useState(true);
+  const [documentLifecycleExpanded, setDocumentLifecycleExpanded] = useState(true);
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("selected");
@@ -219,6 +226,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
     if (processSelection) {
       setExecutiveExpanded(true);
       setAuditExpanded(true);
+      setDocumentLifecycleExpanded(true);
     }
     setEditing(false);
     const url = new URL(window.location.href);
@@ -409,6 +417,17 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
               <div><dt>Xuất bản</dt><dd>{formatProcessDate(selected.publishedAt, true)}</dd></div>
               <div><dt>Tóm tắt thay đổi</dt><dd>{selected.changeSummary || "Chưa cập nhật"}</dd></div>
             </dl>
+          </div>
+        </section>
+        <section className={`process-summary-horizontal-tab${documentLifecycleExpanded ? " is-expanded" : ""}`} aria-labelledby="process-document-lifecycle-title">
+          <h3 id="process-document-lifecycle-title">
+            <button type="button" className="process-summary-horizontal-trigger" aria-expanded={documentLifecycleExpanded} aria-controls="process-document-lifecycle-content" onClick={() => setDocumentLifecycleExpanded((value) => !value)}>
+              <span className="process-summary-horizontal-label"><strong>Vòng đời tài liệu liên kết</strong><small>Phiên bản, trách nhiệm, hiệu lực, rà soát và dữ liệu còn thiếu · {selected.relatedDocuments.length} tài liệu</small></span>
+              <span className="process-summary-horizontal-action">{documentLifecycleExpanded ? "Thu gọn" : "Hiện chi tiết"}<span className="process-summary-horizontal-chevron" aria-hidden="true">▾</span></span>
+            </button>
+          </h3>
+          <div id="process-document-lifecycle-content" className="process-summary-horizontal-content" role="region" aria-labelledby="process-document-lifecycle-title" hidden={!documentLifecycleExpanded}>
+            <ProcessDocumentLifecycle key={selected.id} documents={selected.relatedDocuments} />
           </div>
         </section>
       </div>

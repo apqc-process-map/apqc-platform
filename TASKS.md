@@ -678,3 +678,11 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [x] MAP-L2-ACCORDION-002 — Auto-expand both panels on L2 selection and reset on new L2 selection. Keep original metadata sidebar and Hiện/Ẩn chi tiết button unchanged.
 - [x] MAP-L2-ACCORDION-003 — Preserve keyboard-accessible buttons, expansion state and stable content references.
 - [ ] MAP-L2-ACCORDION-QA — Verify GitHub quality/build, Vercel Preview and authenticated browser behavior at desktop widths.
+
+## 2026-11-17 — Linked-document lifecycle governance within L2 Process Map
+
+- [x] MAP-DOC-LIFECYCLE-001 — Read RLS-visible linked document-version metadata from existing Postgres fields and resolve readable owner/approver names, with no migration.
+- [x] MAP-DOC-LIFECYCLE-002 — Add a third independent L2 accordion with per-document metadata groups and links to Document metadata.
+- [x] MAP-DOC-LIFECYCLE-003 — Reuse the exact missing-field highlight and required-field definition from Document metadata; show qualified summary counts for missing required values, overdue review and end-dated effective versions.
+- [x] MAP-DOC-LIFECYCLE-004 — Explain optional or unmodeled lifecycle fields without inventing values or treating a blank end date as overdue.
+- [ ] MAP-DOC-LIFECYCLE-QA — Validate CI, Vercel Preview/Production and logged-in browser interactions; reconcile any source-query errors discovered.
