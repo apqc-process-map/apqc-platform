@@ -1057,3 +1057,17 @@ This refinement builds on section 50. Only the bottom **Tổng quan điều hàn
 ### Validation
 - Confirm page query fields exist, CI/build passes, and the client displays source data without invented defaults.
 - Authenticated browser checks: L2 selection, process sidebar independent visibility, zero-linked-doc state, missing required/optional states, document navigation and accessible accordion interactions.
+
+## 53. Minimal linked-document metadata in L2 — 2026-11-17
+
+This user clarification **supersedes the exhaustive linked-document metadata view in section 52**. The L2 goal is to understand what each document is about and retain only operationally useful lifecycle controls.
+
+- Keep the third L2 horizontal accordion, independent of the legacy Hiện/Ẩn chi tiết sidebar and process-only Executive/Audit accordions.
+- Document header shows **document code, title, version and workflow status** once (do not repeat them in inner metadata).
+- Inner fields are limited to nine properties in three groups:
+  1. **Tài liệu nói về gì?** Type and **actual document abstract** from `document_versions.document_abstract`, never an AI-generated substitute.
+  2. **Ai chịu trách nhiệm?** Document owner and issuing department.
+  3. **Trạng thái & vòng đời:** publication timestamp (label **Xuất bản trên hệ thống**, distinct from authoring/issuance date), effective-from, valid-until, next review due, and change summary.
+- Omit group/category duplication, designated approver, raw submission/approval timestamps, risk/access/retention/legal extras, supersession foreign-key detail and per-field technical origin labels. They remain available in the full Document metadata, and document file links remain accessible.
+- Reuse the existing yellow missing-property styles for any missing displayed values (including optional validity end). Determine **required** flags with the existing `documentRequiredKeys(document_group)` and count only missing required fields **in this core subset** plus missing header identity values; do not claim completeness of the full Document metadata.
+- Keep four compact figures: linked visible documents, documents missing **core** required information, effective documents overdue for review, and effective documents past their recorded end date. Do not infer violations from absent validity end dates. No changes to database, RLS, document lifecycle workflow or APQC taxonomy.
