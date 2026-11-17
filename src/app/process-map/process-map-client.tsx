@@ -259,7 +259,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       <section className="scope-column panel value-chain-panel">
         {activeView === "landscape" ? <><div className="level-filter" aria-label="Lọc theo cấp độ">
           <button type="button" className={!activeLevels.length ? "active" : ""} onClick={() => setActiveLevels([])}>Tất cả cấp</button>
-          {LANDSCAPE_LEVEL_BANDS.map((band) => <button key={band.key} type="button" className={activeLevels.includes(band.types[0]) || false ? "active" : ""} onClick={() => {
+          {LANDSCAPE_LEVEL_BANDS.map((band) => <button key={band.key} type="button" className={activeLevels.includes(band.types[0]) ? "active" : ""} onClick={() => {
             const values = band.types as readonly string[];
             const allActive = values.every((value) => activeLevels.includes(value));
             setActiveLevels((current) => allActive ? current.filter((value) => !values.includes(value)) : [...new Set([...current, ...values])]);
