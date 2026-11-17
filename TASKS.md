@@ -664,3 +664,10 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [x] MAP-L2-BOTTOM-002 — Expand Landscape to full width; move process detail below it, with Executive Summary and Lifecycle/Audit featured.
 - [x] MAP-L2-BOTTOM-003 — Preserve show/hide, governed metadata editing, full metadata drill-down and directly linked documents; show details only when a company L2 process is selected and restore eligible L2 deep links.
 - [ ] MAP-L2-BOTTOM-QA — Confirm CI quality/build and perform authenticated desktop browser QA of selection, deep links, metadata and file access.
+
+## 2026-11-17 — Preserve original metadata toggle, separate L2 bottom information
+
+- [x] MAP-L2-INDEPENDENT-001 — Restore the original metadata sidebar content, document links and governed editing outside the new bottom summaries.
+- [x] MAP-L2-INDEPENDENT-002 — Keep the original Hiện/Ẩn chi tiết toggle independent of L2 selection, deep links and the bottom summaries; retain APQC L0/L1 reference details in the sidebar.
+- [x] MAP-L2-INDEPENDENT-003 — Present Tổng quan điều hành and Vòng đời & audit as a separate full-width bottom section, shown automatically only on an enterprise L2 selection.
+- [ ] MAP-L2-INDEPENDENT-QA — Verify GitHub CI quality, Vercel build and authenticated desktop interactions for both toggle states and selections.
