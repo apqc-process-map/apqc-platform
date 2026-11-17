@@ -686,3 +686,11 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [x] MAP-DOC-LIFECYCLE-003 — Reuse the exact missing-field highlight and required-field definition from Document metadata; show qualified summary counts for missing required values, overdue review and end-dated effective versions.
 - [x] MAP-DOC-LIFECYCLE-004 — Explain optional or unmodeled lifecycle fields without inventing values or treating a blank end date as overdue.
 - [ ] MAP-DOC-LIFECYCLE-QA — Validate CI, Vercel Preview/Production and logged-in browser interactions; reconcile any source-query errors discovered.
+
+## 2026-11-17 — Reduce L2 linked-document metadata to purpose + governance essentials
+
+- [x] MAP-DOC-CORE-001 — Add document abstract to existing RLS-scoped read model and remove unnecessary selected fields.
+- [x] MAP-DOC-CORE-002 — Display core document title/code/version/status in the header and just nine fields in three compact groups: content, accountability and lifecycle.
+- [x] MAP-DOC-CORE-003 — Highlight missing displayed fields with the same yellow metadata style, keep requiredness according to Document schema, and label core-only completeness truthfully.
+- [x] MAP-DOC-CORE-004 — Preserve direct links to full Document metadata/source file and independent L2 accordion behavior.
+- [ ] MAP-DOC-CORE-QA — Record CI, Vercel build and authenticated desktop click testing.
