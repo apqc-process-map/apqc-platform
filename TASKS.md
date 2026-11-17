@@ -657,3 +657,10 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [ ] PENDING DOC-SYNC-QA-002 — Full Editor submit → separate Admin decision browser E2E requires an Editor test identity; the production account set currently contains Admin and Viewer only.
 - [ ] PENDING DOC-UPLOAD-OPS-001 — Add an operational orphan-object reconciliation job if real upload volume justifies it; current compensation handles metadata-insert failure but cannot run after browser termination/network loss.
 - [x] DONE REL-SYNC-QA-002 — Fix Relationship network intrinsic Grid width so the 1265 px laptop viewport has no document-level horizontal overflow after workflow deployment.
+
+## 2026-11-17 — Process Map L0–L2 presentation and bottom detail
+
+- [x] MAP-L2-BOTTOM-001 — Remove L3/L4 from the Landscape bands and level filters; restrict alternate enterprise-process views to L2 without deleting underlying data.
+- [x] MAP-L2-BOTTOM-002 — Expand Landscape to full width; move process detail below it, with Executive Summary and Lifecycle/Audit featured.
+- [x] MAP-L2-BOTTOM-003 — Preserve show/hide, governed metadata editing, full metadata drill-down and directly linked documents; show details only when a company L2 process is selected and restore eligible L2 deep links.
+- [ ] MAP-L2-BOTTOM-QA — Confirm CI quality/build and perform authenticated desktop browser QA of selection, deep links, metadata and file access.

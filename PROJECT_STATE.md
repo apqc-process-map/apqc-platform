@@ -1,6 +1,6 @@
 # Project State
 
-Last reviewed: 2026-10-30.
+Last reviewed: 2026-11-17.
 
 ## Product and architecture
 
@@ -21,10 +21,10 @@ Process Map is a desktop-first internal application for browsing and governing e
 ## Implemented behavior
 
 - Authenticated route protection, role-aware navigation and database-enforced RLS.
-- APQC catalog/search/detail and data-driven Process Map with L0–L4 bands, search, selection, metadata detail/editing and linked documents.
+- APQC catalog/search/detail and data-driven Process Map with L0–L2 visible bands, search, selection, bottom metadata detail/editing and linked documents. Existing L3/L4 process records are retained in storage but not displayed in the map.
 - Process Map landscape uses active APQC level 1 as L0 and active APQC level 2 as L1. L1 cards show reference code and process name only; description and PCF ID are omitted. L2 enterprise records remain separate from APQC classification.
 - Process Map marks APQC L0/L1 branches with mapped lower-level process data plus document evidence, mapped lower-level data without documents, and branches without mapped data using three intensity states; L2 remains based on directly linked documents.
-- Process Map uses a focus-and-context hierarchy layout: compact L0 overview, concise L1 cards, selected-path highlighting and a drill-down connector to L2 cards.
+- Process Map uses a focus-and-context hierarchy layout: compact L0 overview, concise L1 cards, selected-path highlighting and L2 cards. Selecting L2 opens full-width bottom detail with executive summary, lifecycle/audit and expandable complete metadata/documents; L0/L1 selections do not open process detail.
 - Relationship network/table with controlled types, direction labels, document focus, governed create/edit and collapsed legend.
 - Confirmed document-process links are exposed in Relationship as proposed `documented_by` edges; document-to-document links are not inferred from names alone.
 - Document library with metadata intake/editing, filter/sort/group, private direct browser upload, signed file route, PDF/image preview, Office download, lifecycle, comparison, process/applicability/tag links and role-knowledge classification.
@@ -32,6 +32,10 @@ Process Map is a desktop-first internal application for browsing and governing e
 - Finding register contains all 35 controlled workbook issues, consolidated related-document/process evidence, resizable columns, governed metadata and action workflow.
 - Action Log includes corrective-action progress and notification history; due-date scheduler runs daily.
 - Main Document, Finding and Relationship lists now use server pagination. Raw PostgREST search text is quoted/escaped before use in `.or()` filters.
+
+## Current UI verification
+
+- Process Map L0–L2 bottom-detail UI was updated in branch `codex/process-map-l2-bottom-detail-20261117`; CI and authenticated browser/visual QA must be recorded after execution. No database or APQC source data was altered.
 
 ## Security and data integrity
 

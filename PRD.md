@@ -1010,3 +1010,14 @@ User-specific report values must not be fabricated or inferred from sample figur
 - Every new or removed `document_process_links` row synchronizes the current proposed `documented_by` edge used by Relationship. Verified edges are preserved; removing the final source link rejects only the system-derived proposed edge instead of deleting audit evidence.
 - Process Map reads the direct document-process link; Relationship reads the synchronized governed edge. These visuals therefore have different presentation grains but one source link.
 - Relationship network frame, controls and board must shrink to the available workspace width at 1024 px and above. Internal node text may truncate, but the network must not increase document-level horizontal width.
+
+## 49. Process Map L0–L2 and bottom process detail — 2026-11-17
+
+This requirement supersedes the L0–L4 visibility, L3/L4 tooltip, right-hand panel, and click-to-open-detail instructions in earlier Process Map sections. It changes the **presentation only**, not the APQC taxonomy, enterprise process records, lifecycle history or database schema.
+
+- The primary Landscape and its level filters show **L0 APQC Category → L1 APQC Process Group → L2 enterprise process** only. L3/L4 process records are not rendered or counted in the enterprise-process choices in Explorer, Registry or Coverage. They are not deleted.
+- The process-detail section is **below the full-width process map**, not a right-hand sidebar. The toolbar preserves the **Hiện chi tiết / Ẩn chi tiết** control.
+- Process information appears only for a selected **enterprise L2** process. Selecting L0/L1 hides it; clicking an L2 automatically opens its bottom detail. Deep links to an eligible L2 restore its APQC context and open its detail.
+- The top of the bottom detail prioritizes **Tổng quan điều hành** (five business-summary fields) and **Vòng đời & audit** (status, owner, effective/review dates, timestamps and change summary). The complete governed metadata card, directly linked documents and their file links remain available in a secondary expandable section.
+- Authorized Admin users retain metadata editing; all backend permissions and RLS checks remain unchanged. No migration or destructive data update is part of this change.
+- Verification gate: run repository quality/build checks and desktop visual/interaction QA for L0/L1 selection, L2 selection, toggle, deep link, linked documents and metadata edit access.
