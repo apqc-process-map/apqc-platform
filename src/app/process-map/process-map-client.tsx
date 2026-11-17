@@ -184,7 +184,6 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       if (mapping?.ancestorLevel1Id) setSelectedCategoryId(mapping.ancestorLevel1Id);
       if (mapping?.ancestorLevel2Id) setSelectedGroupId(mapping.ancestorLevel2Id);
       setSelectedId(requestedProcess.id);
-      setDetailVisible(true);
     });
     return () => window.cancelAnimationFrame(frame);
   }, [enterpriseSourceNodes]);
@@ -215,7 +214,6 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       if (mapping?.ancestorLevel2Id) setSelectedGroupId(mapping.ancestorLevel2Id);
     }
     setSelectedId(id);
-    setDetailVisible(Boolean(processSelection));
     setEditing(false);
     const url = new URL(window.location.href);
     url.searchParams.set("selected", id);
@@ -243,7 +241,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
         <div className="map-actions"><button type="button" className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button type="button" className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
         {!referenceMode ? <div className="process-map-toolbar-search"><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Tìm process trên sơ đồ" placeholder="Tìm code, tên, owner, tag hoặc nội dung…" /></div> : null}
       </div>
-      {!referenceMode ? <button type="button" className="process-map-toolbar-button process-map-detail-toggle" onClick={() => setDetailVisible((value) => !value)} disabled={!selectedIsL2} title={!selectedIsL2 ? "Chọn quy trình L2 để xem metadata" : undefined} aria-expanded={selectedIsL2 && detailVisible} aria-controls="process-detail-panel">{selectedIsL2 && detailVisible ? "Ẩn chi tiết" : "Hiện chi tiết"}</button> : null}
+      {!referenceMode ? <button type="button" className="process-map-toolbar-button process-map-detail-toggle" onClick={() => setDetailVisible((value) => !value)} aria-expanded={detailVisible} aria-controls="process-detail-panel">{detailVisible ? "Ẩn chi tiết" : "Hiện chi tiết"}</button> : null}
     </div>
   </section>;
 
@@ -305,8 +303,68 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
           <span className="coverage-legend-item"><i className="coverage-swatch none" aria-hidden="true" /><span><b>Chưa liên kết</b><small>Chưa có dữ liệu cấp dưới hoặc tài liệu</small></span></span>
         </div>
       </section>
-      {selectedIsL2 && detailVisible ? <aside className="detail-panel process-detail-panel" id="process-detail-panel" aria-label="Chi tiết quy trình L2">
-        <div className="process-detail-heading"><div><p className="section-kicker">PROCESS DETAIL · L2</p><span className="detail-code">{selected.code} · v{selected.versionNumber}</span><h2>{selected.name}</h2><span className="detail-level">Quy trình doanh nghiệp · {PROCESS_STATUS_LABELS[selected.status] || selected.status}</span></div>{canEdit ? <button type="button" className="process-edit-toggle" onClick={() => setEditing((value) => !value)} aria-expanded={editing}>{editing ? "Đóng chỉnh sửa" : "Chỉnh sửa metadata"}</button> : null}</div>
+      <aside className="detail-panel process-detail-panel" id="process-detail-panel" hidden={!detailVisible}>
+        <div className="process-detail-heading"><div><p className="section-kicker">PROCESS DETAIL</p><span className="detail-code">{selected.code} · v{selected.versionNumber}</span><h2>{selected.name}</h2><span className="detail-level">{selected.level} · {selected.status}</span></div>{canEdit ? <button type="button" className="process-edit-toggle" onClick={() => setEditing((value) => !value)} aria-expanded={editing}>{editing ? "Đóng chỉnh sửa" : "Chỉnh sửa metadata"}</button> : null}</div>
+        {selected.sourceKind === "apqc" ? <section className="apqc-reference-detail" aria-label="APQC reference detail">
+          <span>APQC PCF 8.0 / {selected.level === "value_chain" ? "Category" : "Process Group"}</span>
+          <strong>PCF ID {selected.sourceCode} / Hierarchy {selected.code}</strong>
+          <p>{selected.description || "APQC description unavailable."}</p>
+          <small>{"D\u1eef li\u1ec7u tham chi\u1ebfu ch\u1ec9 \u0111\u1ecdc. L2 hi\u1ec3n th\u1ecb quy tr\u00ecnh doanh nghi\u1ec7p; m\u00e0u \u0111\u1eadm ch\u1ec9 d\u00f9ng cho quy tr\u00ecnh c\u00f3 t\u00e0i li\u1ec7u li\u00ean k\u1ebft."}</small>
+        </section> : null}
+        <section className={`process-documents-panel${selected.sourceKind === "apqc" ? " is-apqc-hidden" : ""}`} aria-labelledby="process-documents-title">
+          <div className="process-documents-header">
+            <div><h3 id="process-documents-title">Tài liệu liên quan <span className="count-chip">{selected.relatedDocuments.length}</span></h3>
+              <p>Các file đã gắn với quy trình này và bạn có quyền truy cập.</p></div>
+            <Link className="text-button" href={"/documents?process=" + selected.id}>Xem trong Document →</Link>
+          </div>
+          {selected.relatedDocuments.length ? <ul className="process-documents-list">
+            {selected.relatedDocuments.map((document) => <li key={document.versionId}>
+              <div className="process-document-details">
+                <strong>{document.code ? document.code + " · " : ""}{document.title}</strong>
+                <span>v{document.versionNumber} · {document.status === "effective" ? "Đang hiệu lực" : document.status === "approved" ? "Đã duyệt" : document.status === "draft" ? "Bản nháp" : document.status} · {document.role === "primary" ? "Quy trình chính" : "Quy trình liên quan"}</span>
+              </div>
+              <div className="process-document-links">
+                {document.files.length ? document.files.map((file) => <a key={file.id} href={"/documents/files/" + file.id} target="_blank" rel="noopener noreferrer" title={file.name}>
+                  {file.mimeType === "application/pdf" || file.mimeType.startsWith("image/") ? "Mở file" : "Tải file"} · {file.name}
+                </a>) : <span>Chưa có file đính kèm</span>}
+                <Link href={"/documents?detail=" + document.versionId + "#document-metadata-detail"}>Thông tin tài liệu</Link>
+              </div>
+            </li>)}
+          </ul> : <p className="process-documents-empty">Chưa có tài liệu được liên kết hoặc không có tài liệu bạn được phép xem.</p>}
+        </section>
+        {selected.sourceKind !== "apqc" ? <ProcessMetadataCard key={selected.versionId || selected.id} process={selected} nodes={nodes} /> : null}
+        {editing && canEdit ? <form key={selected.versionId} action={updateProcessMetadata} className="process-metadata-form">
+          <input type="hidden" name="process_id" value={selected.id} />
+          <input type="hidden" name="process_version_id" value={selected.versionId} />
+          <div className="process-edit-notice"><strong>{editableVersion ? "Đang sửa bản nháp." : "Bản hiện tại được bảo toàn."}</strong><span>{editableVersion ? "Lưu sẽ cập nhật bản draft/rejected hiện có." : "Lưu sẽ tạo bản draft v+1, sao chép liên kết hiện có; APQC mapping sẽ cần xác minh lại."}</span></div>
+          <fieldset className="process-edit-section"><legend>Tóm lược điều hành</legend>
+            <label><span>1. Mục đích kinh doanh</span><textarea name="business_purpose" defaultValue={selected.businessPurpose} required maxLength={5000} /></label>
+            <label><span>2. Phạm vi & điểm đầu–cuối</span><textarea name="scope_and_boundaries" defaultValue={selected.scopeAndBoundaries} required maxLength={5000} /></label>
+            <label><span>3. Luồng nghiệp vụ chính</span><textarea name="process_at_a_glance" defaultValue={selected.summary} required maxLength={5000} /></label>
+            <label><span>4. Ba quyết định trọng yếu</span><textarea name="critical_decision_points" defaultValue={selected.criticalDecisionPoints} required maxLength={5000} /></label>
+            <label><span>5. Trách nhiệm & quy mô tác động</span><textarea name="accountability_and_impact" defaultValue={selected.accountabilityAndImpact} required maxLength={5000} /></label>
+          </fieldset>
+          <fieldset className="process-edit-section"><legend>Metadata cơ bản</legend>
+            <div className="process-edit-grid"><label><span>Tên tiếng Việt</span><input name="name_vi" defaultValue={selected.name} required maxLength={255} /></label><label><span>Tên tiếng Anh</span><input name="name_en" defaultValue={selected.nameEn} maxLength={255} /></label></div>
+            <label><span>Purpose</span><textarea name="purpose" defaultValue={selected.purpose} required maxLength={5000} /></label>
+            <label><span>Mô tả</span><textarea name="description" defaultValue={selected.description} required maxLength={5000} /></label>
+            <div className="process-edit-grid"><label><span>Phân loại truy cập</span><select name="access_level" defaultValue={selected.accessLevel}><option value="internal">internal</option><option value="limited">limited</option><option value="confidential">confidential</option><option value="highly_restricted">highly_restricted</option></select></label><label><span>Review due</span><input type="date" name="review_due_at" defaultValue={selected.reviewDueAt || ""} /></label></div>
+          </fieldset>
+          <fieldset className="process-edit-section"><legend>Luồng và vòng đời</legend>
+            <div className="process-edit-grid"><label><span>Đầu vào</span><textarea name="scope_in" defaultValue={selected.scopeIn} required maxLength={3000} /></label><label><span>Đầu ra</span><textarea name="scope_out" defaultValue={selected.scopeOut} required maxLength={3000} /></label><label><span>Trigger</span><textarea name="trigger" defaultValue={selected.trigger} required maxLength={3000} /></label><label><span>Outcome</span><textarea name="outcome" defaultValue={selected.outcome} required maxLength={3000} /></label></div>
+            <div className="process-edit-grid"><label><span>Hiệu lực từ</span><input type="date" name="valid_from" defaultValue={selected.validFrom || ""} /></label><label><span>Hiệu lực đến</span><input type="date" name="valid_until" defaultValue={selected.validUntil || ""} /></label></div>
+            <label><span>Tóm tắt thay đổi</span><textarea name="change_summary" defaultValue={selected.changeSummary} required maxLength={2000} /></label>
+          </fieldset>
+          <div className="process-edit-actions"><button type="submit" className="primary-button">Lưu metadata</button><button type="button" className="text-button" onClick={() => setEditing(false)}>Hủy</button></div>
+        </form> : null}
+        {selected.sourceKind !== "apqc" && !canEdit ? <p className="process-readonly-note">Bạn đang ở chế độ xem. Chỉ Admin được chỉnh sửa metadata quy trình.</p> : null}
+      </aside>
+    </div> : null}
+    {!referenceMode && selectedIsL2 ? <section className="process-summary-bottom" aria-label="Tổng quan điều hành và vòng đời quy trình L2">
+      <div className="process-summary-bottom-heading">
+        <span className="section-kicker">THÔNG TIN QUY TRÌNH · L2</span>
+        <h2>{selected.code} · {selected.name}</h2>
+      </div>
         <div className="process-detail-priority-grid">
           <section className="process-detail-priority-card" aria-labelledby="process-executive-title">
             <h3 id="process-executive-title">Tổng quan điều hành</h3>
@@ -334,58 +392,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
             </dl>
           </section>
         </div>
-        <details className="process-detail-additional">
-          <summary><strong>Metadata đầy đủ & tài liệu liên quan</strong><span>{selected.relatedDocuments.length} tài liệu · Mở rộng để xem đầy đủ</span></summary>
-        <section className={`process-documents-panel${selected.sourceKind === "apqc" ? " is-apqc-hidden" : ""}`} aria-labelledby="process-documents-title">
-          <div className="process-documents-header">
-            <div><h3 id="process-documents-title">Tài liệu liên quan <span className="count-chip">{selected.relatedDocuments.length}</span></h3>
-              <p>Các file đã gắn với quy trình này và bạn có quyền truy cập.</p></div>
-            <Link className="text-button" href={"/documents?process=" + selected.id}>Xem trong Document →</Link>
-          </div>
-          {selected.relatedDocuments.length ? <ul className="process-documents-list">
-            {selected.relatedDocuments.map((document) => <li key={document.versionId}>
-              <div className="process-document-details">
-                <strong>{document.code ? document.code + " · " : ""}{document.title}</strong>
-                <span>v{document.versionNumber} · {document.status === "effective" ? "Đang hiệu lực" : document.status === "approved" ? "Đã duyệt" : document.status === "draft" ? "Bản nháp" : document.status} · {document.role === "primary" ? "Quy trình chính" : "Quy trình liên quan"}</span>
-              </div>
-              <div className="process-document-links">
-                {document.files.length ? document.files.map((file) => <a key={file.id} href={"/documents/files/" + file.id} target="_blank" rel="noopener noreferrer" title={file.name}>
-                  {file.mimeType === "application/pdf" || file.mimeType.startsWith("image/") ? "Mở file" : "Tải file"} · {file.name}
-                </a>) : <span>Chưa có file đính kèm</span>}
-                <Link href={"/documents?detail=" + document.versionId + "#document-metadata-detail"}>Thông tin tài liệu</Link>
-              </div>
-            </li>)}
-          </ul> : <p className="process-documents-empty">Chưa có tài liệu được liên kết hoặc không có tài liệu bạn được phép xem.</p>}
-        </section>
-        {selected.sourceKind !== "apqc" ? <ProcessMetadataCard key={selected.versionId || selected.id} process={selected} nodes={nodes} /> : null}
-        </details>
-        {editing && canEdit ? <form key={selected.versionId} action={updateProcessMetadata} className="process-metadata-form">
-          <input type="hidden" name="process_id" value={selected.id} />
-          <input type="hidden" name="process_version_id" value={selected.versionId} />
-          <div className="process-edit-notice"><strong>{editableVersion ? "Đang sửa bản nháp." : "Bản hiện tại được bảo toàn."}</strong><span>{editableVersion ? "Lưu sẽ cập nhật bản draft/rejected hiện có." : "Lưu sẽ tạo bản draft v+1, sao chép liên kết hiện có; APQC mapping sẽ cần xác minh lại."}</span></div>
-          <fieldset className="process-edit-section"><legend>Tóm lược điều hành</legend>
-            <label><span>1. Mục đích kinh doanh</span><textarea name="business_purpose" defaultValue={selected.businessPurpose} required maxLength={5000} /></label>
-            <label><span>2. Phạm vi & điểm đầu–cuối</span><textarea name="scope_and_boundaries" defaultValue={selected.scopeAndBoundaries} required maxLength={5000} /></label>
-            <label><span>3. Luồng nghiệp vụ chính</span><textarea name="process_at_a_glance" defaultValue={selected.summary} required maxLength={5000} /></label>
-            <label><span>4. Ba quyết định trọng yếu</span><textarea name="critical_decision_points" defaultValue={selected.criticalDecisionPoints} required maxLength={5000} /></label>
-            <label><span>5. Trách nhiệm & quy mô tác động</span><textarea name="accountability_and_impact" defaultValue={selected.accountabilityAndImpact} required maxLength={5000} /></label>
-          </fieldset>
-          <fieldset className="process-edit-section"><legend>Metadata cơ bản</legend>
-            <div className="process-edit-grid"><label><span>Tên tiếng Việt</span><input name="name_vi" defaultValue={selected.name} required maxLength={255} /></label><label><span>Tên tiếng Anh</span><input name="name_en" defaultValue={selected.nameEn} maxLength={255} /></label></div>
-            <label><span>Purpose</span><textarea name="purpose" defaultValue={selected.purpose} required maxLength={5000} /></label>
-            <label><span>Mô tả</span><textarea name="description" defaultValue={selected.description} required maxLength={5000} /></label>
-            <div className="process-edit-grid"><label><span>Phân loại truy cập</span><select name="access_level" defaultValue={selected.accessLevel}><option value="internal">internal</option><option value="limited">limited</option><option value="confidential">confidential</option><option value="highly_restricted">highly_restricted</option></select></label><label><span>Review due</span><input type="date" name="review_due_at" defaultValue={selected.reviewDueAt || ""} /></label></div>
-          </fieldset>
-          <fieldset className="process-edit-section"><legend>Luồng và vòng đời</legend>
-            <div className="process-edit-grid"><label><span>Đầu vào</span><textarea name="scope_in" defaultValue={selected.scopeIn} required maxLength={3000} /></label><label><span>Đầu ra</span><textarea name="scope_out" defaultValue={selected.scopeOut} required maxLength={3000} /></label><label><span>Trigger</span><textarea name="trigger" defaultValue={selected.trigger} required maxLength={3000} /></label><label><span>Outcome</span><textarea name="outcome" defaultValue={selected.outcome} required maxLength={3000} /></label></div>
-            <div className="process-edit-grid"><label><span>Hiệu lực từ</span><input type="date" name="valid_from" defaultValue={selected.validFrom || ""} /></label><label><span>Hiệu lực đến</span><input type="date" name="valid_until" defaultValue={selected.validUntil || ""} /></label></div>
-            <label><span>Tóm tắt thay đổi</span><textarea name="change_summary" defaultValue={selected.changeSummary} required maxLength={2000} /></label>
-          </fieldset>
-          <div className="process-edit-actions"><button type="submit" className="primary-button">Lưu metadata</button><button type="button" className="text-button" onClick={() => setEditing(false)}>Hủy</button></div>
-        </form> : null}
-        {selected.sourceKind !== "apqc" && !canEdit ? <p className="process-readonly-note">Bạn đang ở chế độ xem. Chỉ Admin được chỉnh sửa metadata quy trình.</p> : null}
-      </aside> : null}
-    </div> : null}
+    </section> : null}
     <footer className="map-note"><span className="setup-check">i</span><span><strong>Cấu trúc theo nguồn dữ liệu.</strong> Landscape là view mặc định; các view khác chỉ thay đổi cách trình bày cùng dữ liệu APQC, quy trình và tài liệu hiện có.</span></footer>
   </WorkspaceShell>;
 }
