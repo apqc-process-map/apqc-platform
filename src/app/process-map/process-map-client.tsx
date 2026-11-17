@@ -174,6 +174,8 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
   const [previewPosition, setPreviewPosition] = useState({ top: 0, left: 0 });
   const [editing, setEditing] = useState(false);
   const [detailVisible, setDetailVisible] = useState(false);
+  const [executiveExpanded, setExecutiveExpanded] = useState(true);
+  const [auditExpanded, setAuditExpanded] = useState(true);
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("selected");
@@ -214,6 +216,10 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       if (mapping?.ancestorLevel2Id) setSelectedGroupId(mapping.ancestorLevel2Id);
     }
     setSelectedId(id);
+    if (processSelection) {
+      setExecutiveExpanded(true);
+      setAuditExpanded(true);
+    }
     setEditing(false);
     const url = new URL(window.location.href);
     url.searchParams.set("selected", id);
@@ -365,9 +371,15 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
         <span className="section-kicker">THÔNG TIN QUY TRÌNH · L2</span>
         <h2>{selected.code} · {selected.name}</h2>
       </div>
-        <div className="process-detail-priority-grid">
-          <section className="process-detail-priority-card" aria-labelledby="process-executive-title">
-            <h3 id="process-executive-title">Tổng quan điều hành</h3>
+      <div className="process-summary-horizontal-tabs">
+        <section className={`process-summary-horizontal-tab${executiveExpanded ? " is-expanded" : ""}`} aria-labelledby="process-executive-title">
+          <h3 id="process-executive-title">
+            <button type="button" className="process-summary-horizontal-trigger" aria-expanded={executiveExpanded} aria-controls="process-executive-content" onClick={() => setExecutiveExpanded((value) => !value)}>
+              <span className="process-summary-horizontal-label"><strong>Tổng quan điều hành</strong><small>5 nội dung quản trị quy trình</small></span>
+              <span className="process-summary-horizontal-action">{executiveExpanded ? "Thu gọn" : "Hiện chi tiết"}<span className="process-summary-horizontal-chevron" aria-hidden="true">▾</span></span>
+            </button>
+          </h3>
+          <div id="process-executive-content" className="process-summary-horizontal-content" role="region" aria-labelledby="process-executive-title" hidden={!executiveExpanded}>
             <dl>
               <div><dt>Mục đích kinh doanh</dt><dd>{selected.businessPurpose || "Chưa cập nhật"}</dd></div>
               <div><dt>Phạm vi & điểm đầu–cuối</dt><dd>{selected.scopeAndBoundaries || "Chưa cập nhật"}</dd></div>
@@ -375,9 +387,16 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
               <div><dt>Ba quyết định trọng yếu</dt><dd>{selected.criticalDecisionPoints || "Chưa cập nhật"}</dd></div>
               <div><dt>Trách nhiệm & quy mô tác động</dt><dd>{selected.accountabilityAndImpact || "Chưa cập nhật"}</dd></div>
             </dl>
-          </section>
-          <section className="process-detail-priority-card" aria-labelledby="process-audit-title">
-            <h3 id="process-audit-title">Vòng đời & audit</h3>
+          </div>
+        </section>
+        <section className={`process-summary-horizontal-tab${auditExpanded ? " is-expanded" : ""}`} aria-labelledby="process-audit-title">
+          <h3 id="process-audit-title">
+            <button type="button" className="process-summary-horizontal-trigger" aria-expanded={auditExpanded} aria-controls="process-audit-content" onClick={() => setAuditExpanded((value) => !value)}>
+              <span className="process-summary-horizontal-label"><strong>Vòng đời & audit</strong><small>Trạng thái, hiệu lực, rà soát và lịch sử</small></span>
+              <span className="process-summary-horizontal-action">{auditExpanded ? "Thu gọn" : "Hiện chi tiết"}<span className="process-summary-horizontal-chevron" aria-hidden="true">▾</span></span>
+            </button>
+          </h3>
+          <div id="process-audit-content" className="process-summary-horizontal-content" role="region" aria-labelledby="process-audit-title" hidden={!auditExpanded}>
             <dl>
               <div><dt>Trạng thái</dt><dd>{PROCESS_STATUS_LABELS[selected.status] || selected.status}</dd></div>
               <div><dt>Chủ sở hữu</dt><dd>{selected.owner || "Chưa cập nhật"}</dd></div>
@@ -390,8 +409,9 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
               <div><dt>Xuất bản</dt><dd>{formatProcessDate(selected.publishedAt, true)}</dd></div>
               <div><dt>Tóm tắt thay đổi</dt><dd>{selected.changeSummary || "Chưa cập nhật"}</dd></div>
             </dl>
-          </section>
-        </div>
+          </div>
+        </section>
+      </div>
     </section> : null}
     <footer className="map-note"><span className="setup-check">i</span><span><strong>Cấu trúc theo nguồn dữ liệu.</strong> Landscape là view mặc định; các view khác chỉ thay đổi cách trình bày cùng dữ liệu APQC, quy trình và tài liệu hiện có.</span></footer>
   </WorkspaceShell>;

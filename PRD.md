@@ -1031,3 +1031,13 @@ This clarification **supersedes the bottom-detail/metadata-toggle coupling descr
 - A **separate, full-width section below the map/sidebar workspace** shows **Tổng quan điều hành** and **Vòng đời & audit** **whenever an enterprise L2 is selected**, independent of sidebar visibility. Selecting L0 or L1 hides only these two bottom sections, not the existing metadata sidebar or its toggle.
 - The previous secondary expand/collapse wrapper around documents and metadata is removed; the original metadata card and document list return unchanged to the sidebar. Data, authorization, source levels and document mappings are not modified.
 - QA must verify L0/L1 metadata toggle, L2 bottom summaries while sidebar is hidden and shown, and that selecting nodes does not change the toggle state.
+
+## 51. L2 metadata as independent horizontal expandable sections — 2026-11-17
+
+This refinement builds on section 50. Only the bottom **Tổng quan điều hành** and **Vòng đời & audit** display is changed.
+
+- When a user selects an enterprise L2 process, both sections appear as **full-width horizontal accordion rows**, each with a clear heading and independent **Hiện chi tiết / Thu gọn** action.
+- Each section starts expanded when L2 is selected and may be collapsed/reopened independently. Selecting another L2 reopens both sections with the newly selected process data.
+- The two panels remain independent from the original upper **Hiện chi tiết / Ẩn chi tiết** control. That original control continues to manage only the legacy right-hand APQC/Business Process metadata sidebar, with unchanged document links, metadata, edit permissions and visibility state.
+- L0/L1 selection hides these L2-only bottom rows. Only presentation changes; no record deletions, permissions, or backend schema changes.
+- Accordion buttons expose `aria-expanded` and stable `aria-controls` targets; their content remains addressable but hidden when collapsed. Verify keyboard and desktop responsiveness.

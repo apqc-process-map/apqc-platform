@@ -671,3 +671,10 @@ This milestone supersedes the live-data assumptions in the 2026-10-28 34-process
 - [x] MAP-L2-INDEPENDENT-002 — Keep the original Hiện/Ẩn chi tiết toggle independent of L2 selection, deep links and the bottom summaries; retain APQC L0/L1 reference details in the sidebar.
 - [x] MAP-L2-INDEPENDENT-003 — Present Tổng quan điều hành and Vòng đời & audit as a separate full-width bottom section, shown automatically only on an enterprise L2 selection.
 - [ ] MAP-L2-INDEPENDENT-QA — Verify GitHub CI quality, Vercel build and authenticated desktop interactions for both toggle states and selections.
+
+## 2026-11-17 — L2 horizontal collapsible metadata panels
+
+- [x] MAP-L2-ACCORDION-001 — Render bottom Tổng quan điều hành and Vòng đời & audit as two full-width horizontal, independently expandable/collapsible sections.
+- [x] MAP-L2-ACCORDION-002 — Auto-expand both panels on L2 selection and reset on new L2 selection. Keep original metadata sidebar and Hiện/Ẩn chi tiết button unchanged.
+- [x] MAP-L2-ACCORDION-003 — Preserve keyboard-accessible buttons, expansion state and stable content references.
+- [ ] MAP-L2-ACCORDION-QA — Verify GitHub quality/build, Vercel Preview and authenticated browser behavior at desktop widths.
