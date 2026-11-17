@@ -25,30 +25,17 @@
 .registry-coverage.descendant i{background:#b9dfd3;border-color:#82bfb2}
 .registry-coverage.none i{background:#f4f7f8;border-color:#d6e0e4}
 
-/* L0–L2 canvas spans the full width; L2 process detail follows at the bottom. */
-.map-layout.process-map-workspace{grid-template-columns:minmax(0,1fr);align-items:start}
-.map-layout.process-map-workspace>.value-chain-panel,
-.map-layout.process-map-workspace>.process-detail-panel{grid-column:1/-1;min-width:0}
-.map-layout.process-map-workspace>.process-detail-panel{min-height:0;max-height:none;overflow:visible}
-.process-map-detail-toggle:disabled{opacity:.5;cursor:not-allowed}
-.process-detail-priority-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.9fr);gap:14px;margin:20px 0 16px}
-.process-detail-priority-card{min-width:0;padding:16px 18px;border:1px solid #e1e9eb;border-radius:8px;background:#fbfcfd}
-.process-detail-priority-card h3{margin:0 0 13px;color:#2c5160;font-size:14px}
-.process-detail-priority-card dl{display:grid;gap:0;margin:0}
-.process-detail-priority-card dl>div{display:grid;grid-template-columns:minmax(120px,.45fr) minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid #e7ecee}
-.process-detail-priority-card dt{color:#6f828b;font-size:11px;font-weight:700;line-height:1.5}
-.process-detail-priority-card dd{min-width:0;margin:0;color:#36505c;font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
-.process-detail-additional{margin-top:6px;border:1px solid #dbe6e8;border-radius:8px;background:#fff}
-.process-detail-additional>summary{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 17px;color:#296d69;cursor:pointer;list-style:revert}
-.process-detail-additional>summary strong{font-size:12px}
-.process-detail-additional>summary span{color:#7a8b94;font-size:10px}
-.process-detail-additional[open]>summary{border-bottom:1px solid #e8edef}
-.process-detail-additional>.process-documents-panel{margin:14px 17px 0}
-.process-detail-additional>.process-metadata-card{margin:16px 17px}
-@media(max-width:1050px){
-  .process-detail-priority-grid{grid-template-columns:1fr}
-}
-@media(max-width:700px){
-  .process-detail-priority-card dl>div{grid-template-columns:1fr;gap:3px}
-  .process-detail-additional>summary{align-items:flex-start;flex-direction:column;gap:5px}
-}
+
+/* Executive and lifecycle information is independent from the existing metadata sidebar toggle. */
+.process-summary-bottom{margin:15px auto 0;padding:19px 22px 22px;border:1px solid #dfe8ea;border-radius:9px;background:#fff}
+.process-summary-bottom-heading{display:grid;gap:5px}
+.process-summary-bottom-heading h2{margin:0;color:#274d5b;font-size:16px;line-height:1.4}
+.process-summary-bottom .process-detail-priority-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.9fr);gap:14px;margin:16px 0 0}
+.process-summary-bottom .process-detail-priority-card{min-width:0;padding:16px 18px;border:1px solid #e1e9eb;border-radius:8px;background:#fbfcfd}
+.process-summary-bottom .process-detail-priority-card h3{margin:0 0 13px;color:#2c5160;font-size:14px}
+.process-summary-bottom .process-detail-priority-card dl{display:grid;gap:0;margin:0}
+.process-summary-bottom .process-detail-priority-card dl>div{display:grid;grid-template-columns:minmax(120px,.45fr) minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid #e7ecee}
+.process-summary-bottom .process-detail-priority-card dt{color:#6f828b;font-size:11px;font-weight:700;line-height:1.5}
+.process-summary-bottom .process-detail-priority-card dd{min-width:0;margin:0;color:#36505c;font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:1050px){.process-summary-bottom .process-detail-priority-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.process-summary-bottom .process-detail-priority-card dl>div{grid-template-columns:1fr;gap:3px}}
