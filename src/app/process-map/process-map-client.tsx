@@ -47,8 +47,6 @@ const LEVEL_BANDS = [
   { key: "L0", label: "Chuỗi giá trị", types: ["value_chain"], tone: "l0" },
   { key: "L1", label: "Quy trình E2E", types: ["e2e"], tone: "l1" },
   { key: "L2", label: "Quy trình", types: ["process"], tone: "l2" },
-  { key: "L3", label: "Quy trình con", types: ["subprocess"], tone: "l3" },
-  { key: "L4", label: "Hoạt động / công việc", types: ["activity", "task"], tone: "l4" },
 ] as const;
 const LANDSCAPE_LEVEL_BANDS = LEVEL_BANDS.map((band) => ({
   ...band,
@@ -59,15 +57,26 @@ const LANDSCAPE_LEVEL_BANDS = LEVEL_BANDS.map((band) => ({
       : band.key === "L2" ? "Quy tr\u00ecnh doanh nghi\u1ec7p" : band.label,
 }));
 
+const PROCESS_STATUS_LABELS: Record<string, string> = {
+  draft: "Bản nháp", in_review: "Đang duyệt", rejected: "Bị từ chối", approved: "Đã phê duyệt",
+  scheduled: "Đã lên lịch", effective: "Đang hiệu lực", cancelled: "Đã hủy", superseded: "Đã thay thế", archived: "Đã lưu trữ",
+};
+const processDate = new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeZone: "Asia/Ho_Chi_Minh" });
+const processDateTime = new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Ho_Chi_Minh" });
+function formatProcessDate(value: string | null, includeTime = false) {
+  if (!value) return "Chưa cập nhật";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : (includeTime ? processDateTime : processDate).format(date);
+}
+
 const EDITABLE_STATUSES = new Set(["draft", "rejected"]);
-const PREVIEWABLE_LEVELS = new Set(["L2", "L3", "L4"]);
+const PREVIEWABLE_LEVELS = new Set(["L2"]);
 
 export default function ProcessMapClient({ nodes, apqcNodes, userName, role, errorMessage }: Props) {
   const enterpriseSourceNodes = useMemo(() => nodes
-    .filter((node) => node.apqcMappings.some((mapping) => Boolean(mapping.ancestorLevel2Id)))
+    .filter((node) => node.level === "process" && node.apqcMappings.some((mapping) => Boolean(mapping.ancestorLevel2Id)))
     .map((node) => ({
       ...node,
-      level: ["subprocess", "activity", "task"].includes(node.level) ? node.level : "process",
       sourceKind: "enterprise" as const,
       evidenceCoverage: node.relatedDocuments.length > 0 ? "direct" as const : "none" as const,
     })), [nodes]);
@@ -156,7 +165,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
     () => [...apqcLandscapeNodes, ...categoryProcessNodes],
     [apqcLandscapeNodes, categoryProcessNodes],
   );
-  const [selectedId, setSelectedId] = useState(documentedSourceNodes[0]?.id || enterpriseSourceNodes[0]?.id || defaultCategoryId || "");
+  const [selectedId, setSelectedId] = useState(defaultCategoryId || "");
   const [referenceMode, setReferenceMode] = useState(false);
   const [activeView, setActiveView] = useState<ProcessMapView>("landscape");
   const [query, setQuery] = useState("");
@@ -168,10 +177,17 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("selected");
-    if (!requested || !nodes.some((node) => node.id === requested)) return;
-    const frame = window.requestAnimationFrame(() => setSelectedId(requested));
+    const requestedProcess = enterpriseSourceNodes.find((node) => node.id === requested);
+    if (!requestedProcess) return;
+    const frame = window.requestAnimationFrame(() => {
+      const mapping = requestedProcess.apqcMappings.find((candidate) => candidate.role === "primary") || requestedProcess.apqcMappings[0];
+      if (mapping?.ancestorLevel1Id) setSelectedCategoryId(mapping.ancestorLevel1Id);
+      if (mapping?.ancestorLevel2Id) setSelectedGroupId(mapping.ancestorLevel2Id);
+      setSelectedId(requestedProcess.id);
+      setDetailVisible(true);
+    });
     return () => window.cancelAnimationFrame(frame);
-  }, [nodes]);
+  }, [enterpriseSourceNodes]);
 
   function showPreview(id: string, target: HTMLElement) {
     const rect = target.getBoundingClientRect();
@@ -199,6 +215,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       if (mapping?.ancestorLevel2Id) setSelectedGroupId(mapping.ancestorLevel2Id);
     }
     setSelectedId(id);
+    setDetailVisible(Boolean(processSelection));
     setEditing(false);
     const url = new URL(window.location.href);
     url.searchParams.set("selected", id);
@@ -215,7 +232,8 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
     const haystack = [node.code, node.name, node.nameEn, node.owner, node.level, node.summary, node.tags.map((tag) => tag.label).join(" ")].join(" ").toLocaleLowerCase("vi");
     return matchesLevel && (!normalizedQuery || haystack.includes(normalizedQuery));
   });
-  const canEdit = role === "admin" && selected?.sourceKind !== "apqc" && Boolean(selected?.versionId);
+  const selectedIsL2 = selected?.sourceKind === "enterprise" && selected.level === "process";
+  const canEdit = role === "admin" && selectedIsL2 && Boolean(selected?.versionId);
   const editableVersion = selected ? EDITABLE_STATUSES.has(selected.status) : false;
 
   const headerContent = <section className="process-map-header-block" aria-label="Điều khiển Process Landscape">
@@ -225,15 +243,15 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
         <div className="map-actions"><button type="button" className={`mode-button${!referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(false)}>Enterprise</button><button type="button" className={`mode-button${referenceMode ? " active" : ""}`} onClick={() => setReferenceMode(true)}>APQC Reference</button></div>
         {!referenceMode ? <div className="process-map-toolbar-search"><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Tìm process trên sơ đồ" placeholder="Tìm code, tên, owner, tag hoặc nội dung…" /></div> : null}
       </div>
-      {!referenceMode ? <button type="button" className="process-map-toolbar-button process-map-detail-toggle" onClick={() => setDetailVisible((value) => !value)} aria-expanded={detailVisible} aria-controls="process-detail-panel">{detailVisible ? "Ẩn chi tiết" : "Hiện chi tiết"}</button> : null}
+      {!referenceMode ? <button type="button" className="process-map-toolbar-button process-map-detail-toggle" onClick={() => setDetailVisible((value) => !value)} disabled={!selectedIsL2} title={!selectedIsL2 ? "Chọn quy trình L2 để xem metadata" : undefined} aria-expanded={selectedIsL2 && detailVisible} aria-controls="process-detail-panel">{selectedIsL2 && detailVisible ? "Ẩn chi tiết" : "Hiện chi tiết"}</button> : null}
     </div>
   </section>;
 
-  return <WorkspaceShell active="/process-map" eyebrow="PROCESS LANDSCAPE" title="Process Map" description="Tìm kiếm, xem tổng quan và quản trị metadata quy trình theo L0–L4." userName={userName} role={role} headerContent={headerContent}>
+  return <WorkspaceShell active="/process-map" eyebrow="PROCESS LANDSCAPE" title="Process Map" description="Tìm kiếm, xem tổng quan và quản trị metadata quy trình theo L0–L2." userName={userName} role={role} headerContent={headerContent}>
     {errorMessage ? <div className="state-message error-state"><strong>Không thể tải Process Map</strong><span>{errorMessage}</span></div> : null}
     {!errorMessage && !selected ? <div className="state-message"><strong>Chưa có process</strong><span>Tạo process metadata để bắt đầu hierarchy.</span></div> : null}
     {!referenceMode && selected ? <div className="process-view-switcher" role="tablist" aria-label="Chọn cách xem Process Map">
-      <button type="button" role="tab" aria-selected={activeView === "landscape"} className={activeView === "landscape" ? "active" : ""} onClick={() => setActiveView("landscape")}><b>A</b><span>Landscape<small>L0–L4 hiện tại</small></span></button>
+      <button type="button" role="tab" aria-selected={activeView === "landscape"} className={activeView === "landscape" ? "active" : ""} onClick={() => setActiveView("landscape")}><b>A</b><span>Landscape<small>L0–L2 hiện tại</small></span></button>
       <button type="button" role="tab" aria-selected={activeView === "explorer"} className={activeView === "explorer" ? "active" : ""} onClick={() => setActiveView("explorer")}><b>B</b><span>Explorer<small>APQC → Process → Document</small></span></button>
       <button type="button" role="tab" aria-selected={activeView === "registry"} className={activeView === "registry" ? "active" : ""} onClick={() => setActiveView("registry")}><b>C</b><span>APQC Registry<small>Khung tham chiếu APQC</small></span></button>
       <button type="button" role="tab" aria-selected={activeView === "coverage"} className={activeView === "coverage" ? "active" : ""} onClick={() => setActiveView("coverage")}><b>D</b><span>Coverage<small>Độ phủ APQC</small></span></button>
@@ -241,13 +259,13 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
       <section className="scope-column panel value-chain-panel">
         {activeView === "landscape" ? <><div className="level-filter" aria-label="Lọc theo cấp độ">
           <button type="button" className={!activeLevels.length ? "active" : ""} onClick={() => setActiveLevels([])}>Tất cả cấp</button>
-          {LANDSCAPE_LEVEL_BANDS.map((band) => <button key={band.key} type="button" className={activeLevels.includes(band.types[0]) || (band.key === "L4" && activeLevels.includes("task")) ? "active" : ""} onClick={() => {
+          {LANDSCAPE_LEVEL_BANDS.map((band) => <button key={band.key} type="button" className={activeLevels.includes(band.types[0]) || false ? "active" : ""} onClick={() => {
             const values = band.types as readonly string[];
             const allActive = values.every((value) => activeLevels.includes(value));
             setActiveLevels((current) => allActive ? current.filter((value) => !values.includes(value)) : [...new Set([...current, ...values])]);
           }}>{band.key} · {band.label}</button>)}
         </div>
-        <div className="value-chain-scroll"><div className="value-chain-map" aria-label="Sơ đồ process theo cấp độ L0 đến L4">
+        <div className="value-chain-scroll"><div className="value-chain-map" aria-label="Sơ đồ process theo cấp độ L0 đến L2">
           {LANDSCAPE_LEVEL_BANDS.map((band) => {
             const allBandNodes = landscapeNodes.filter((node) => (band.types as readonly string[]).includes(node.level));
             const bandNodes = visibleNodes.filter((node) => (band.types as readonly string[]).includes(node.level));
@@ -287,14 +305,37 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
           <span className="coverage-legend-item"><i className="coverage-swatch none" aria-hidden="true" /><span><b>Chưa liên kết</b><small>Chưa có dữ liệu cấp dưới hoặc tài liệu</small></span></span>
         </div>
       </section>
-      <aside className="detail-panel process-detail-panel" id="process-detail-panel" hidden={!detailVisible}>
-        <div className="process-detail-heading"><div><p className="section-kicker">PROCESS DETAIL</p><span className="detail-code">{selected.code} · v{selected.versionNumber}</span><h2>{selected.name}</h2><span className="detail-level">{selected.level} · {selected.status}</span></div>{canEdit ? <button type="button" className="process-edit-toggle" onClick={() => setEditing((value) => !value)} aria-expanded={editing}>{editing ? "Đóng chỉnh sửa" : "Chỉnh sửa metadata"}</button> : null}</div>
-        {selected.sourceKind === "apqc" ? <section className="apqc-reference-detail" aria-label="APQC reference detail">
-          <span>APQC PCF 8.0 / {selected.level === "value_chain" ? "Category" : "Process Group"}</span>
-          <strong>PCF ID {selected.sourceCode} / Hierarchy {selected.code}</strong>
-          <p>{selected.description || "APQC description unavailable."}</p>
-          <small>{"D\u1eef li\u1ec7u tham chi\u1ebfu ch\u1ec9 \u0111\u1ecdc. L2 hi\u1ec3n th\u1ecb quy tr\u00ecnh doanh nghi\u1ec7p; m\u00e0u \u0111\u1eadm ch\u1ec9 d\u00f9ng cho quy tr\u00ecnh c\u00f3 t\u00e0i li\u1ec7u li\u00ean k\u1ebft."}</small>
-        </section> : null}
+      {selectedIsL2 && detailVisible ? <aside className="detail-panel process-detail-panel" id="process-detail-panel" aria-label="Chi tiết quy trình L2">
+        <div className="process-detail-heading"><div><p className="section-kicker">PROCESS DETAIL · L2</p><span className="detail-code">{selected.code} · v{selected.versionNumber}</span><h2>{selected.name}</h2><span className="detail-level">Quy trình doanh nghiệp · {PROCESS_STATUS_LABELS[selected.status] || selected.status}</span></div>{canEdit ? <button type="button" className="process-edit-toggle" onClick={() => setEditing((value) => !value)} aria-expanded={editing}>{editing ? "Đóng chỉnh sửa" : "Chỉnh sửa metadata"}</button> : null}</div>
+        <div className="process-detail-priority-grid">
+          <section className="process-detail-priority-card" aria-labelledby="process-executive-title">
+            <h3 id="process-executive-title">Tổng quan điều hành</h3>
+            <dl>
+              <div><dt>Mục đích kinh doanh</dt><dd>{selected.businessPurpose || "Chưa cập nhật"}</dd></div>
+              <div><dt>Phạm vi & điểm đầu–cuối</dt><dd>{selected.scopeAndBoundaries || "Chưa cập nhật"}</dd></div>
+              <div><dt>Luồng nghiệp vụ chính</dt><dd>{selected.summary || "Chưa cập nhật"}</dd></div>
+              <div><dt>Ba quyết định trọng yếu</dt><dd>{selected.criticalDecisionPoints || "Chưa cập nhật"}</dd></div>
+              <div><dt>Trách nhiệm & quy mô tác động</dt><dd>{selected.accountabilityAndImpact || "Chưa cập nhật"}</dd></div>
+            </dl>
+          </section>
+          <section className="process-detail-priority-card" aria-labelledby="process-audit-title">
+            <h3 id="process-audit-title">Vòng đời & audit</h3>
+            <dl>
+              <div><dt>Trạng thái</dt><dd>{PROCESS_STATUS_LABELS[selected.status] || selected.status}</dd></div>
+              <div><dt>Chủ sở hữu</dt><dd>{selected.owner || "Chưa cập nhật"}</dd></div>
+              <div><dt>Hiệu lực từ</dt><dd>{formatProcessDate(selected.validFrom)}</dd></div>
+              <div><dt>Hiệu lực đến</dt><dd>{formatProcessDate(selected.validUntil)}</dd></div>
+              <div><dt>Hạn rà soát</dt><dd>{formatProcessDate(selected.reviewDueAt)}</dd></div>
+              <div><dt>Ngày tạo</dt><dd>{formatProcessDate(selected.createdAt, true)}</dd></div>
+              <div><dt>Cập nhật cuối</dt><dd>{formatProcessDate(selected.updatedAt, true)}</dd></div>
+              <div><dt>Phê duyệt</dt><dd>{formatProcessDate(selected.approvedAt, true)}</dd></div>
+              <div><dt>Xuất bản</dt><dd>{formatProcessDate(selected.publishedAt, true)}</dd></div>
+              <div><dt>Tóm tắt thay đổi</dt><dd>{selected.changeSummary || "Chưa cập nhật"}</dd></div>
+            </dl>
+          </section>
+        </div>
+        <details className="process-detail-additional">
+          <summary><strong>Metadata đầy đủ & tài liệu liên quan</strong><span>{selected.relatedDocuments.length} tài liệu · Mở rộng để xem đầy đủ</span></summary>
         <section className={`process-documents-panel${selected.sourceKind === "apqc" ? " is-apqc-hidden" : ""}`} aria-labelledby="process-documents-title">
           <div className="process-documents-header">
             <div><h3 id="process-documents-title">Tài liệu liên quan <span className="count-chip">{selected.relatedDocuments.length}</span></h3>
@@ -317,6 +358,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
           </ul> : <p className="process-documents-empty">Chưa có tài liệu được liên kết hoặc không có tài liệu bạn được phép xem.</p>}
         </section>
         {selected.sourceKind !== "apqc" ? <ProcessMetadataCard key={selected.versionId || selected.id} process={selected} nodes={nodes} /> : null}
+        </details>
         {editing && canEdit ? <form key={selected.versionId} action={updateProcessMetadata} className="process-metadata-form">
           <input type="hidden" name="process_id" value={selected.id} />
           <input type="hidden" name="process_version_id" value={selected.versionId} />
@@ -342,7 +384,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
           <div className="process-edit-actions"><button type="submit" className="primary-button">Lưu metadata</button><button type="button" className="text-button" onClick={() => setEditing(false)}>Hủy</button></div>
         </form> : null}
         {selected.sourceKind !== "apqc" && !canEdit ? <p className="process-readonly-note">Bạn đang ở chế độ xem. Chỉ Admin được chỉnh sửa metadata quy trình.</p> : null}
-      </aside>
+      </aside> : null}
     </div> : null}
     <footer className="map-note"><span className="setup-check">i</span><span><strong>Cấu trúc theo nguồn dữ liệu.</strong> Landscape là view mặc định; các view khác chỉ thay đổi cách trình bày cùng dữ liệu APQC, quy trình và tài liệu hiện có.</span></footer>
   </WorkspaceShell>;
