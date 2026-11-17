@@ -379,7 +379,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
               <span className="process-summary-horizontal-action">{executiveExpanded ? "Thu gọn" : "Hiện chi tiết"}<span className="process-summary-horizontal-chevron" aria-hidden="true">▾</span></span>
             </button>
           </h3>
-          {executiveExpanded ? <div id="process-executive-content" className="process-summary-horizontal-content">
+          <div id="process-executive-content" className="process-summary-horizontal-content" role="region" aria-labelledby="process-executive-title" hidden={!executiveExpanded}>
             <dl>
               <div><dt>Mục đích kinh doanh</dt><dd>{selected.businessPurpose || "Chưa cập nhật"}</dd></div>
               <div><dt>Phạm vi & điểm đầu–cuối</dt><dd>{selected.scopeAndBoundaries || "Chưa cập nhật"}</dd></div>
@@ -387,7 +387,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
               <div><dt>Ba quyết định trọng yếu</dt><dd>{selected.criticalDecisionPoints || "Chưa cập nhật"}</dd></div>
               <div><dt>Trách nhiệm & quy mô tác động</dt><dd>{selected.accountabilityAndImpact || "Chưa cập nhật"}</dd></div>
             </dl>
-          </div> : null}
+          </div>
         </section>
         <section className={`process-summary-horizontal-tab${auditExpanded ? " is-expanded" : ""}`} aria-labelledby="process-audit-title">
           <h3 id="process-audit-title">
@@ -396,7 +396,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
               <span className="process-summary-horizontal-action">{auditExpanded ? "Thu gọn" : "Hiện chi tiết"}<span className="process-summary-horizontal-chevron" aria-hidden="true">▾</span></span>
             </button>
           </h3>
-          {auditExpanded ? <div id="process-audit-content" className="process-summary-horizontal-content">
+          <div id="process-audit-content" className="process-summary-horizontal-content" role="region" aria-labelledby="process-audit-title" hidden={!auditExpanded}>
             <dl>
               <div><dt>Trạng thái</dt><dd>{PROCESS_STATUS_LABELS[selected.status] || selected.status}</dd></div>
               <div><dt>Chủ sở hữu</dt><dd>{selected.owner || "Chưa cập nhật"}</dd></div>
@@ -409,7 +409,7 @@ export default function ProcessMapClient({ nodes, apqcNodes, userName, role, err
               <div><dt>Xuất bản</dt><dd>{formatProcessDate(selected.publishedAt, true)}</dd></div>
               <div><dt>Tóm tắt thay đổi</dt><dd>{selected.changeSummary || "Chưa cập nhật"}</dd></div>
             </dl>
-          </div> : null}
+          </div>
         </section>
       </div>
     </section> : null}
